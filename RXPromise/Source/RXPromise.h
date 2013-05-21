@@ -104,26 +104,41 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 
 @interface RXPromise : NSObject
 
+/**
+ The following properties return state info
+ */
 @property (nonatomic, readonly) BOOL isPending;
 @property (nonatomic, readonly) BOOL isFulfilled;
 @property (nonatomic, readonly) BOOL isRejected;
 @property (nonatomic, readonly) BOOL isCancelled;
 
+
+/**
+ `then` returns a block of type block_t which can be invoked with a completion handler 
+ and an error handler as parameter. If the promise is pending, the handlers are 
+ registered by the receiver and called when the promise has been resolved. Otherwise, 
+ the handler will be invoked immediately.
+ @return The block returns a new promise.
+ */
 @property (nonatomic, readonly) then_t then;
 
-- (RXPromise*) then:(id(^)(id result))completionHandler
-       errorHandler:(id(^)(NSError* error))errorHandler
-    progressHandler:(void(^)(id progress))progressHandler;
 
-- (RXPromise*) then:(id(^)(id result))completionHandler
-       errorHandler:(id(^)(NSError* error))errorHandler;
-
-- (RXPromise*) then:(id(^)(id result))completionHandler;
-
+/**
+ Cancels the primise unless it is already resolved and then forwards the 
+ message to all children.
+ */
 - (void) cancel;
 
+/**
+ Returns the value of the promise. This may block the current thread until 
+ after the promise is resolved.
+ */
 - (id) get;
 
+/**
+ Blocks the current thread until after the promise is resolved and all handlers
+ have been finished.
+ */
 - (void) wait;
 
 
@@ -133,12 +148,32 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 // Deferred Interface
 @interface RXPromise(Deferred)
 
+/**
+ Returns a new promise whose state is pending.
+ */
 - (id)init;
 
+
+/**
+ Fulfilles the promise with value `result`. 
+ If the promise is already resolved this methid has no effect.
+ */
 - (void) fulfillWithValue:(id)result;
+
+/**
+ Rejects the promise with reason `error`.
+ If the promise is already resolved this methid has no effect.
+ */
 - (void) rejectWithReason:(id)error;
+
 - (void) setProgress:(id)progress;
+
+/**
+ Resovles the promise by canceling it, and forwards the message.
+ If the promise is already resolved the promise only forwards the cancel message.
+ */
 - (void) cancelWithReason:(id)reason;
+
 @end
 
 
