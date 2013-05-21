@@ -1,0 +1,21 @@
+# OS X folder attributes
+.DS_Store
+
+# Xcode's folder for intermediate data:
+Build
+DerivedData
+
+# temp nibs and swap files
+*~.nib
+*.swp
+
+
+#exclude generated html files in folder "doc":
+doc/
+
+# Xcode's user settings
+*.mode1v3
+*.mode2v3
+*.pbxuser
+*.perspectivev3
+xcuserdata
