@@ -17,7 +17,7 @@ This is an example of an implementation in Objective-C.
 ## Overview
 
 
-A promise is lightweight primitive to manage asynchronous patterns. Promises will be invaluable when dealing with asynchronous architectures which make the code effectively look like it were synchronous.
+A promise is a lightweight primitive to manage asynchronous patterns. Promises will be invaluable when dealing with asynchronous architectures which make the code effectively look like it were synchronous.
 
 
 Basically, a _promise_ represents the _eventual result_ of an asynchronous function or method. The "generic" form of such a method just requires to return a promise:
