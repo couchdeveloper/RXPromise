@@ -341,8 +341,6 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
 - (void)setUp
 {
     [super setUp];
-    
-    // Set-up code here.
 }
 
 - (void)tearDown
@@ -689,10 +687,10 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
         semaphore& semRef = finished_sem;
         
         RXPromise* promise0 = async_fail(0.01, @"Failure");
-        RXPromise* promise1 = [promise0 then:^id(id){
+        RXPromise* promise1 = promise0.then(^id(id){
             semRef.signal();
             return nil;
-        }];
+        }, nil);
         
         // The operation is finished with a failure after about 0.01 s. Thus, the
         // success handler should not be called, and the semaphore must timeout:
@@ -959,14 +957,14 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             [promise1 fulfillWithValue:@"Finished"];
         });
         dispatch_async(serial_queue, ^{
-            promise2 = [promise1 then:^(id value){
+            promise2 = promise1.then(^(id value){
                 dispatch_sync(serial_queue, ^{
                     STAssertTrue(returnedFromThenRef, @"");
                 });
                 STAssertTrue([value isEqualToString:@"Finished"], @"");
                 finishedRef.signal();
                 return @"OK";
-            }];
+            }, nil);
             returnedFromThenRef = true;
         });
         
@@ -1320,12 +1318,12 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
         }, ^id(NSError *error) {
             esr.append("E00"); return error;
         });
-        [promise000 then:^id(id result) {
+        promise000.then(^id(id result) {
             sr0.append("S000.");  sr1.append("_____");
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             esr.append("E000"); return error;
-        }];
+        });
         
         
         RXPromise* promise01 = promise0.then(^id(id result) {
@@ -1620,16 +1618,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_0 = [p000 then:^id(id result) {
+        RXPromise* p_0 = p000.then(^id(id result) {
             [s0 appendString:@"000F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s0 appendString:@"000R"];
             if (p000.isCancelled) {
                 [s0 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         
         RXPromise* p01 = p0.then(^id(id result) {
@@ -1652,16 +1650,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_1 = [p010 then:^id(id result) {
+        RXPromise* p_1 = p010.then(^id(id result) {
             [s1 appendString:@"010F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s1 appendString:@"010R"];
             if (p010.isCancelled) {
                 [s1 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         
         RXPromise* p02 = p0.then(^id(id result) {
@@ -1684,16 +1682,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_2 = [p020 then:^id(id result) {
+        RXPromise* p_2 = p020.then(^id(id result) {
             [s2 appendString:@"020F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s2 appendString:@"020R"];
             if (p020.isCancelled) {
                 [s2 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         double delayInSeconds = 0.2;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
@@ -1754,16 +1752,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_0 = [p000 then:^id(id result) {
+        RXPromise* p_0 = p000.then(^id(id result) {
             [s0 appendString:@"000F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s0 appendString:@"000R"];
             if (p000.isCancelled) {
                 [s0 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         
         
@@ -1787,16 +1785,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_1 = [p010 then:^id(id result) {
+        RXPromise* p_1 = p010.then(^id(id result) {
             [s1 appendString:@"010F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s1 appendString:@"010R"];
             if (p010.isCancelled) {
                 [s1 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         
         
@@ -1820,16 +1818,16 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
             }
             return error;
         });
-        RXPromise* p_2 = [p020 then:^id(id result) {
+        RXPromise* p_2 = p020.then(^id(id result) {
             [s2 appendString:@"020F"];
             return nil;
-        } errorHandler:^id(NSError *error) {
+        }, ^id(NSError *error) {
             [s2 appendString:@"020R"];
             if (p020.isCancelled) {
                 [s2 appendString:@"C"];
             }
             return error;
-        }];
+        });
         
         double delayInSeconds = 0.2;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
