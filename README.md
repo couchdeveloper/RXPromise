@@ -35,7 +35,7 @@ The promise will be created by the "asynchronous service provider" associated to
 Once a promise has been resolved its state cannot change anymore. Further attempts to fulfill or reject a resolved promise will have no effect.
 
 
-The "consumer" (the client) of the asynchronous task can setup handlers (blocks) which will be invoked when the promise has been resolved. There are two kinds of handlers: the _completion handler_ which will be invoked when the promise will be fulfilled and the _error handler_ which will be invoked when the promise will be rejected.
+The "consumer" (the client) of the asynchronous task can setup handlers (blocks) which will be invoked when the promise has been resolved. There are two kinds of handlers: the _completion handler_ which will be invoked when the promise has been fulfilled and the _error handler_ which will be invoked when the promise has been rejected.
 
 
 
@@ -198,7 +198,7 @@ The client may now define what shall happen _when_ this asynchronous method succ
 
 The awesome feature of this `then` property is that it is a block which itself returns a promise. That way, it becomes possible to _chain_ several asynchronous tasks together, like in words, it performs this:
 
-"Start task A. If finished successful, start task B. If finished successful start task D. If finished successful return result, else return error.",
+"Start task A. If finished successful, start task B. If finished successful start task C. If finished successful start task D. If finished successful return result, else return error.",
 
 where all tasks are supposed to be asynchronous, of course.
 
