@@ -161,13 +161,13 @@ We know, that this block requires two parameters. These are blocks, too, and the
     id completionHandler = ^id(id result) { ...; return something; }
     id errorHandler = ^id(NSError* error) { ...; return error; }
 
-    RXPromise nextPromise = promise.then(completionHandler, errorHandler);
+    RXPromise* nextPromise = promise.then(completionHandler, errorHandler);
 ```
 
 And shorter in a hopefully comprehensible way:
 
 ```objective-c
-    RXPromise nextPromise = promise
+    RXPromise* nextPromise = promise
     .then(^id(id result) {
         ...;
         return something;
@@ -207,7 +207,7 @@ Again, an example will describe the concept of "chaining" promises in a more com
 
 
 ```objective-c
-    Promise* endResult = [self async_A].then(
+    RXPromise* endResult = [self async_A].then(
         ^id(id result) {
            return [self async_B:result];
         }, nil)
@@ -281,7 +281,7 @@ In fact, this is perfectly valid:
 
 
 ```objective-c
-        RXPromise root = taskA();
+        RXPromise* root = taskA();
 
         root.then(^id(id result){
             ...
