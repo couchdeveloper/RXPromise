@@ -130,14 +130,14 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 - (void) cancel;
 
 /**
- Returns the value of the promise. This may block the current thread until 
- after the promise is resolved.
+ Returns the value of the promise. This will block the current thread until
+ after the promise hasb been resolved.
  */
 - (id) get;
 
 /**
- Blocks the current thread until after the promise is resolved and all handlers
- have been finished.
+ Blocks the current thread until after the promise has been resolved, and previously 
+ queued handlers have been finished.
  */
 - (void) wait;
 

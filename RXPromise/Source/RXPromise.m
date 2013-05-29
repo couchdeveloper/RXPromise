@@ -24,6 +24,7 @@
 #endif
 
 #import "RXPromise.h"
+#include <dispatch/dispatch.h>
 //#define DEBUG_LOG_MIN 4   //enable this in order to log verbosely
 #import "utility/DLog.h"
 #include <stdio.h>
@@ -32,11 +33,9 @@
 
 /**
  See <http://promises-aplus.github.io/promises-spec/>  for specification.
- 
  */
 
-@interface  NSObject (RXIntrospection)
-@end
+
 @implementation NSObject (RXIntrospection)
 - (BOOL) isNSBlock {
     return [self isKindOfClass:NSClassFromString(@"NSBlock")];
@@ -44,6 +43,17 @@
 @end
 
 
+@interface NSError (RXResolver)
+- (void) rxp_resolvePromise:(RXPromise*)promise;
+@end
+
+@interface NSObject (RXResolver)
+- (void) rxp_resolvePromise:(RXPromise*)promise;
+@end
+
+@interface RXPromise (RXResolver)
+- (void) rxp_resolvePromise:(RXPromise*)promise;
+@end
 
 
 
@@ -62,9 +72,7 @@
 {
     dispatch_once_t         _once_result;
     id                      _result;
-    dispatch_queue_t        _sync_queue;        // a serial queue, uses target queue: s_sync_queue_parent
     dispatch_queue_t        _handler_queue;     // a serial queue, uses target queue: s_handler_queue_parent
-    dispatch_semaphore_t    _avail;
     NSMutableArray*         _progressHandlers;
     NSMutableArray*         _promises;
     BOOL                    _isFulfilled;
@@ -75,35 +83,24 @@
 @synthesize promises = _promises;
 
 
-static dispatch_queue_t s_sync_queue_parent;
+static dispatch_queue_t s_sync_queue;
 static dispatch_queue_t s_handler_queue_parent;
 
 
+// Designated Initializer
 - (id)init
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        s_sync_queue_parent = dispatch_queue_create("s_sync_queue_parent", NULL);
+    static dispatch_once_t onceSharedSyncQueue;
+    dispatch_once(&onceSharedSyncQueue, ^{
+        s_sync_queue = dispatch_queue_create("s_sync_queue", NULL);
+        dispatch_queue_set_specific(s_sync_queue, "sync_queue.id", s_sync_queue, NULL);
     });
-    
     DLogInfo(@"init: %p", (__bridge void*)self);
-    self = [super init];
-    if (self) {
-        _avail = dispatch_semaphore_create(0);
-        char buffer[64];
-        snprintf(buffer, sizeof(buffer),"RXPromise_sync_queue-%p", (__bridge void*)self);
-        _sync_queue = dispatch_queue_create(buffer, DISPATCH_QUEUE_SERIAL);
-        assert(_sync_queue);
-        dispatch_set_target_queue(_sync_queue, s_sync_queue_parent);
-        dispatch_queue_set_specific(_sync_queue, "sync_queue.id", [self syncQueueToken], NULL);
-    }
-    return self;
+    return [super init];
 }
 
 - (void) dealloc {
     DLogInfo(@"dealloc: %p", (__bridge void*)self);
-    dispatch_release(_avail);
-    dispatch_release(_sync_queue);
     if (_handler_queue) {
         DLogWarn(@"handler queue has not been resumed - probably the promise hasn't been signaled");
         dispatch_resume(_handler_queue);
@@ -122,7 +119,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) progressHandlers
 {
-    assert(dispatch_get_specific("sync_queue.id") == [self syncQueueToken]);
+    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
     if (_progressHandlers == nil) {
         _progressHandlers = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -131,7 +128,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) promises
 {
-    assert(dispatch_get_specific("sync_queue.id") == [self syncQueueToken]);
+    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
     if (_promises == nil) {
         _promises = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -139,18 +136,13 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
-
--(void*) syncQueueToken {
-    return s_sync_queue_parent;
-}
-
 - (BOOL) isPending {
-    if (_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == [self syncQueueToken]) {
+    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
         return !(_isFulfilled || _isRejected || _isCancelled);
     }
     else {
         __block BOOL result;
-        dispatch_sync(_sync_queue, ^{
+        dispatch_sync(s_sync_queue, ^{
             result = !(_isFulfilled || _isRejected || _isCancelled) ;
         });
         return result;
@@ -158,47 +150,61 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 - (BOOL) isFulfilled {
-    if (_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == [self syncQueueToken]) {
+    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
         return _isFulfilled;
     }
     else {
         __block BOOL result;
-        dispatch_sync(_sync_queue, ^{ result = _isFulfilled; });
+        dispatch_sync(s_sync_queue, ^{ result = _isFulfilled; });
         return result;
     }
 }
 
 - (BOOL) isRejected {
-    if (_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == [self syncQueueToken]) {
+    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
         return _isRejected;
     }
     else {
         __block BOOL result;
-        dispatch_sync(_sync_queue, ^{ result = _isRejected; });
+        dispatch_sync(s_sync_queue, ^{ result = _isRejected; });
         return result;
     }
 }
 
 - (BOOL) isCancelled {
-    if (_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == [self syncQueueToken]) {
+    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
         return _isCancelled;
     }
     else {
         __block BOOL result;
-        dispatch_sync(_sync_queue, ^{ result = _isCancelled; });
+        dispatch_sync(s_sync_queue, ^{ result = _isCancelled; });
         return result;
     }
 }
 
+
+- (dispatch_queue_t) handlerQueue
+{
+    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
+    if (!_handler_queue) {
+        char buffer[64];
+        snprintf(buffer, sizeof(buffer),"RXPromise_handler_queue-%p", (__bridge void*)self);
+        _handler_queue = dispatch_queue_create(buffer, DISPATCH_QUEUE_SERIAL);
+        assert(_handler_queue);
+        dispatch_set_target_queue(_handler_queue, s_handler_queue_parent);
+        dispatch_suspend(_handler_queue);
+    }
+    return _handler_queue;
+}
 
 #pragma mark - Resolver
 
 - (void) fulfillWithValue:(id)result {
     assert(![result isKindOfClass:[NSError class]]);
     dispatch_once(&_once_result, ^{
-        assert(_sync_queue);
+        assert(s_sync_queue);
         // dispatch a fulfill signal on the sync queue:
-        dispatch_async(_sync_queue, ^{
+        dispatch_async(s_sync_queue, ^{
             DLogInfo(@"self: %@, exec on sync_queue: `fulfillWithValue:`%@", self, result);
             _result = result;
             self.isFulfilled = YES;
@@ -206,7 +212,6 @@ static dispatch_queue_t s_handler_queue_parent;
                 dispatch_resume(_handler_queue);
                 dispatch_release(_handler_queue), _handler_queue = NULL;
             }
-            dispatch_semaphore_signal(_avail);
         });
     });
 }
@@ -216,9 +221,9 @@ static dispatch_queue_t s_handler_queue_parent;
         reason = [[NSError alloc] initWithDomain:@"RXPromise" code:-1000 userInfo:@{@"reason": reason}];
     }
     dispatch_once(&_once_result, ^{
-        assert(_sync_queue);
+        assert(s_sync_queue);
         // dispatch a rejected signal on the sync queue:
-        dispatch_async(_sync_queue, ^{
+        dispatch_async(s_sync_queue, ^{
             DLogInfo(@"self: %@, exec on sync_queue: `rejectWithReason:`%@", self, reason);
             _result = reason;
             self.isRejected = YES;
@@ -226,7 +231,6 @@ static dispatch_queue_t s_handler_queue_parent;
                 dispatch_resume(_handler_queue);
                 dispatch_release(_handler_queue), _handler_queue = NULL;
             }
-            dispatch_semaphore_signal(_avail);
         });
     });
 }
@@ -236,9 +240,9 @@ static dispatch_queue_t s_handler_queue_parent;
         reason = [[NSError alloc] initWithDomain:@"RXPromise" code:-1 userInfo:@{@"reason": reason}];
     }
     dispatch_once(&_once_result, ^{
-        assert(_sync_queue);
+        assert(s_sync_queue);
         // dispatch a cancel signal on the sync queue:
-        dispatch_async(_sync_queue, ^{
+        dispatch_async(s_sync_queue, ^{
             DLogInfo(@"self: %@, exec on sync_queue: `cancelWithReason:`%@", self, reason);
             _result = reason;
             self.isCancelled = YES;
@@ -247,10 +251,9 @@ static dispatch_queue_t s_handler_queue_parent;
                 dispatch_resume(_handler_queue);
                 dispatch_release(_handler_queue), _handler_queue = NULL;
             }
-            dispatch_semaphore_signal(_avail);
         });
     });
-    dispatch_async(_sync_queue, ^{
+    dispatch_async(s_sync_queue, ^{
         if (!_isCancelled) {
             // We cancelled the promise at a time as it already was resolved.
             // That means, the _handler_queue is gone and we cannot forward the
@@ -266,9 +269,13 @@ static dispatch_queue_t s_handler_queue_parent;
 
 
 - (void) setProgress:(id)progress {
-    dispatch_async(_sync_queue, ^{
+    dispatch_async(s_sync_queue, ^{
         for (progressHandler_t block in _progressHandlers) {
-            block(progress);
+            // The sync queue should not become contended, thus dispatch progress blocks
+            // to a concurrent queue (caveat: may spawn many threads):
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                block(progress);
+            });
         }
     });
 }
@@ -279,93 +286,39 @@ static dispatch_queue_t s_handler_queue_parent;
 #pragma mark -
 
 
-- (void) resolveReturnedPromise:(RXPromise*)returnedPromise withResult:(id)value
-{
-    assert(dispatch_get_specific("sync_queue.id") == [self syncQueueToken]);
-    assert(_isFulfilled || _isRejected);
-
-    DLogInfo(@"returned promise: %@, value: %@", returnedPromise, value);
-    
-    if (value == returnedPromise) {
-        NSError* error = [NSError errorWithDomain:@"RXPromise" code:-2 userInfo:@{NSLocalizedDescriptionKey: @"TypeError"}];
-        [returnedPromise rejectWithReason:error];
-    }
-    else if ([value isKindOfClass:[RXPromise class]]) {
-        RXPromise* promise = (RXPromise*)value;
-        [promise then:^id(id result) {
-            [returnedPromise fulfillWithValue:result];
-            return nil; // TODO: ???
-        }
-         errorHandler:^id(NSError* error) {
-            [returnedPromise rejectWithReason:promise.get];
-             return nil;  // TODO: ???
-        }];
-    }
-    else if ([value isKindOfClass:[NSError class]]) {
-        [returnedPromise rejectWithReason:value]; // forward error
-    }
-    else {
-#if defined (HANDLE_THENABLE)
-        if ([value respondsToSelector:@selector(then:errorHandler:)]) {
-            [value then:^id(id y) {
-                if (value == y) {
-                    [returnedPromise fulfillWithValue:value];
-                }
-                else {
-                    [self resolveReturnedPromise:returnedPromise withResult:y];
-                }
-                return nil;
-            }
-           errorHandler:^id(NSError *error) {
-               [returnedPromise rejectWithReason:error];
-               return nil;
-           }];
-        }
-        else {
-            // We should reach here if value is either `nil`, is an `NSError`, or
-            // does not respond to a then:errorHandler: message.
-            [returnedPromise fulfillWithValue:value]; // forward result
-        }
-#else
-        // This is not strict according the spec:
-        // If value is an object we require it to be a `thenable` or we must
-        // reject the promise with an appropriate error.
-        // However this API supports only objects, that is, our value is always
-        // an `id` and not a struct or other primitive C type or a C++ class, etc.
-        // We also do not support `thenables`.
-        // So, we handle values which are not RXPromises and not NSErrors as if
-        // they were non-objects and simply fulfill the promise with this value.
-        [returnedPromise fulfillWithValue:value]; // forward result
-#endif
-    }
-}
-
-
 - (void) resolveReturnedPromise:(RXPromise*)returnedPromise
                      completion:(id(^)(id result))completionHandler
                           error:(id(^)(NSError* error))errorHandler
 {
-    assert(dispatch_get_specific("sync_queue.id") == [self syncQueueToken]);
+    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
     assert(_isFulfilled || _isRejected);
-    
     DLogInfo(@"returned promise: %@", returnedPromise);
     
+    id new_result;
     if (_isFulfilled) {
-        id new_result = completionHandler ? completionHandler(_result) : _result;
-        [self resolveReturnedPromise:returnedPromise withResult:new_result];
+        new_result = completionHandler ? completionHandler(_result) : _result;
     } else if (_isRejected) {
-        id new_result = errorHandler ? errorHandler(_result) : _result;
         if (!errorHandler) {
-            DLogInfo(@"error signal with reason %@ not handled by the promise %@", new_result, self);
+            DLogInfo(@"error signal with reason %@ not handled by the promise %@", _result, self);
         }
-        if (_isCancelled) {
-            [returnedPromise cancelWithReason:_result];
-        }
-        else {
-            [self resolveReturnedPromise:returnedPromise withResult:new_result];
-        }
+        new_result = errorHandler ? errorHandler(_result) : _result;
     }
-}
+    if (new_result == returnedPromise) {
+        NSError* error = [NSError errorWithDomain:@"RXPromise" code:-2 userInfo:@{NSLocalizedDescriptionKey: @"TypeError"}];
+        [returnedPromise rejectWithReason:error];
+        return;
+    }
+    if (_isCancelled) {
+        [returnedPromise cancelWithReason:new_result];
+        return;
+    }
+    if (new_result != nil) {
+        [new_result rxp_resolvePromise:returnedPromise];
+    }
+    else {
+        [returnedPromise fulfillWithValue:nil]; // fulfill with `nil`
+    }
+ }
 
 #pragma mark -
 
@@ -376,23 +329,15 @@ static dispatch_queue_t s_handler_queue_parent;
     DLogInfo(@"Invoking `then`. self: %@", self);
     
     RXPromise* promise = [[RXPromise alloc] init];
-    dispatch_async(_sync_queue, ^{
+    dispatch_async(s_sync_queue, ^{
         [self.promises addObject:promise];
         // handlers will be queued in the sync queue behind "us".
         if (!(_isFulfilled || _isRejected)) {
             DLogInfo(@"exec on sync_queue: queueing handler on handler queue. self: %@", self);
-            if (!_handler_queue) {
-                char buffer[64];
-                snprintf(buffer, sizeof(buffer),"RXPromise_handler_queue-%p", (__bridge void*)self);
-                _handler_queue = dispatch_queue_create(buffer, DISPATCH_QUEUE_SERIAL);
-                assert(_handler_queue);
-                dispatch_set_target_queue(_handler_queue, s_handler_queue_parent);
-                dispatch_suspend(_handler_queue);
-            }
-            dispatch_async(_handler_queue, ^{
+            dispatch_async(self.handlerQueue, ^{
                 DLogInfo(@"exec on handler_queue: dispatch handler on sync queue. self: %@", self);
                 assert(self.isFulfilled || self.isRejected);
-                dispatch_async(_sync_queue, ^{
+                dispatch_async(s_sync_queue, ^{
                     DLogInfo(@"exec on sync_queue: self: %@, returned promise: %@ ...", self, promise);
                     [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
                 });
@@ -400,7 +345,7 @@ static dispatch_queue_t s_handler_queue_parent;
         }
         else {
             DLogInfo(@"exec on sync_queue: dispatch handler on sync queue. self: %@", self);
-            dispatch_async(_sync_queue, ^{
+            dispatch_async(s_sync_queue, ^{
                 DLogInfo(@"exec on sync_queue: self: %@, returned promise: %@ ...", self, promise);
                 [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
             });
@@ -434,29 +379,45 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
-- (id) get {
-    dispatch_semaphore_wait(_avail, DISPATCH_TIME_FOREVER);
-    dispatch_semaphore_signal(_avail);
+- (id) get
+{
+    assert(dispatch_get_specific("sync_queue.id") != s_sync_queue); // Must not execute on the private sync queue!
+    
+    __block id result;
+    __block dispatch_queue_t handler_queue = NULL;
+    dispatch_sync(s_sync_queue, ^{
+        if (_isFulfilled || _isRejected) {
+            result = _result;
+            return;
+        } 
+        handler_queue = self.handlerQueue;
+        dispatch_retain(handler_queue);
+    });
+    if (handler_queue) {
+        // result was not yet availbale: queue a handler
+        dispatch_sync(handler_queue, ^{  // block until handler_queue will be resumed ...
+            dispatch_sync(s_sync_queue, ^{  // safely retrieve _result
+                result = _result;
+            });
+        });
+        dispatch_release(handler_queue);
+    }
     return _result;
 }
 
 - (void) wait {
-    dispatch_semaphore_wait(_avail, DISPATCH_TIME_FOREVER);
-    dispatch_semaphore_signal(_avail);
-    dispatch_sync(_sync_queue, ^{
-        assert(_handler_queue == NULL);
-    });
+    [self get];
 }
 
 
 #pragma mark -
 
 - (NSString*) description {
-    return [self rx_descriptionLevel:0];
+    return [self rxp_descriptionLevel:0];
 }
 
 
-- (NSString*) rx_descriptionLevel:(int)level {
+- (NSString*) rxp_descriptionLevel:(int)level {
     NSString* indent = [NSString stringWithFormat:@"%*s",4*level+4,""];
     NSMutableString* desc = [[NSMutableString alloc] initWithFormat:@"%@<%@:%p> { State: %@ }",
                              indent,
@@ -468,7 +429,7 @@ static dispatch_queue_t s_handler_queue_parent;
     if (_promises) {
         [desc appendString:[NSString stringWithFormat:@", children (%d): [\n", (int)_promises.count]];
         for (RXPromise* p in _promises) {
-            [desc appendString:[p rx_descriptionLevel:level+1]];
+            [desc appendString:[p rxp_descriptionLevel:level+1]];
             [desc appendString:@"\n"];
         }
         [desc appendString:[NSString stringWithFormat:@"%@]", indent]];
@@ -477,5 +438,68 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
+@end
+
+
+@implementation RXPromise (RXResolver)
+- (void) rxp_resolvePromise:(RXPromise*)promise {
+    [self then:^id(id result) {
+        [promise fulfillWithValue:result];  // §2.2: if self is fulfilled, fulfill promise with the same value
+        return nil;
+    }
+     errorHandler:^id(NSError* error) {
+         [promise rejectWithReason:error];  // §2.3: if self is rejected, reject promise with the same value.
+         return nil;
+     }];
+}
+@end
+
+@implementation NSObject (RXResolver)
+- (void) rxp_resolvePromise:(RXPromise*)promise {
+#if defined (HANDLE_THENABLE)
+    if ([self respondsToSelector:@selector(then:errorHandler:)]) {
+        [self then:^id(id y) {
+            if (self == y) {
+                [promise fulfillWithValue:self];
+            }
+            else {
+                [self resolveReturnedPromise:promise withResult:y];
+            }
+            return nil;
+        }
+      errorHandler:^id(NSError *error) {
+          [promise rejectWithReason:error];
+          return nil;
+      }];
+    }
+    else {
+        // We should reach here if value is either `nil`, is an `NSError`, or
+        // does not respond to a then:errorHandler: message.
+        [promise fulfillWithValue:self]; // forward result
+    }
+#else
+    // This is not strict according the spec:
+    // If value is an object we require it to be a `thenable` or we must
+    // reject the promise with an appropriate error.
+    // However this API supports only objects, that is, our value is always
+    // an `id` and not a struct or other primitive C type or a C++ class, etc.
+    // We also do not support `thenables`.
+    // So, we handle values which are not RXPromises and not NSErrors as if
+    // they were non-objects and simply fulfill the promise with this value.
+    [promise fulfillWithValue:self]; // forward result
+#endif
+}
 
 @end
+
+@implementation NSError (RXResolver)
+
+- (void) rxp_resolvePromise:(RXPromise*)promise {
+    [promise rejectWithReason:self];
+}
+
+@end
+
+
+
+

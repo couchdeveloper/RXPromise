@@ -518,9 +518,45 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     .then(^(id){return async(0.01, @"C");}, nil)
     .then(^(id){return async(0.01, @"D");}, nil);
     
+    // Promise `p` shall have the state of the last async function, unless an error occurred:    
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"D"], @"");
+    STAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
 }
+
+-(void) testBasicChainingWithImmediateNilResult
+{
+    RXPromise* p = async(0.01, @"A")
+    .then(^(id){return async(0.01, @"B");}, nil)
+    .then(^(id){return async(0.01, @"C");}, nil)
+    .then(^id(id){return nil;}, nil);
+    
+    // Promise `p` shall have the state of the last async function, unless an error occurred:
+    id result = p.get;
+    STAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
+}
+
+-(void) testBasicChainingWithImmediateResult
+{
+    RXPromise* p = async(0.01, @"A")
+    .then(^(id){return async(0.01, @"B");}, nil)
+    .then(^(id){return async(0.01, @"C");}, nil)
+    .then(^id(id){return @"OK";}, nil);
+    
+    // Promise `p` shall have the state of the last async function, unless an error occurred:
+    id result = p.get;
+    STAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
+}
+
+
 
 -(void) testBasicChainingWithFailure
 {
@@ -532,9 +568,12 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     id result = p.get;
     STAssertTrue( [result isKindOfClass:[NSError class]], @"");
     STAssertTrue( [[result userInfo][@"reason"] isEqualToString:@"C:Failure"], @"" );
+    STAssertFalse( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertTrue( p.isRejected, @"");
 }
 
--(void) testBasicChainingWithFailure2
+-(void) testBasicChainingWithImmediateError
 {
     RXPromise* p = async(0.01, @"A")
     .then(^(id){return async(0.01, @"B");}, nil)
@@ -544,6 +583,9 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     id result = p.get;
     STAssertTrue( [result isKindOfClass:[NSError class]], @"" );
     STAssertEquals(10, (int)[result code], @"");
+    STAssertFalse( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertTrue( p.isRejected, @"");
 }
 
 
