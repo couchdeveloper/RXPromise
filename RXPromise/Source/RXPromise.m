@@ -27,8 +27,38 @@
 #include <dispatch/dispatch.h>
 //#define DEBUG_LOG_MIN 4   //enable this in order to log verbosely
 #import "utility/DLog.h"
+#include <assert.h>
 #include <stdio.h>
 
+
+
+#if TARGET_OS_IPHONE
+// Compiling for iOS
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
+// >= iOS 6.0
+#define RX_DISPATCH_RELEASE(__object) do {} while(0)
+#define RX_DISPATCH_RETAIN(__object) do {} while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) do { (__bridge void*)__object; } while(0)
+#else
+// <= iOS 5.x
+#define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
+#define RX_DISPATCH_RETAIN(__object) do { dispatch_retain(__object); } while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) __object
+#endif
+#elif TARGET_OS_MAC
+// Compiling for Mac OS X
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+// >= Mac OS X 10.8
+#define RX_DISPATCH_RELEASE(__object) do {} while(0)
+#define RX_DISPATCH_RETAIN(__object) do {} while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) do { (__bridge void*)__object; } while(0)
+#else
+// <= Mac OS X 10.7.x
+#define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
+#define RX_DISPATCH_RETAIN(__object) do { dispatch_retain(__object); } while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) __object
+#endif
+#endif
 
 
 /**
@@ -93,7 +123,7 @@ static dispatch_queue_t s_handler_queue_parent;
     static dispatch_once_t onceSharedSyncQueue;
     dispatch_once(&onceSharedSyncQueue, ^{
         s_sync_queue = dispatch_queue_create("s_sync_queue", NULL);
-        dispatch_queue_set_specific(s_sync_queue, "sync_queue.id", s_sync_queue, NULL);
+        dispatch_queue_set_specific(s_sync_queue, "sync_queue.id", RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue), NULL);
     });
     DLogInfo(@"init: %p", (__bridge void*)self);
     return [super init];
@@ -104,7 +134,7 @@ static dispatch_queue_t s_handler_queue_parent;
     if (_handler_queue) {
         DLogWarn(@"handler queue has not been resumed - probably the promise hasn't been signaled");
         dispatch_resume(_handler_queue);
-        dispatch_release(_handler_queue);
+        RX_DISPATCH_RELEASE(_handler_queue);
     }
 }
 
@@ -119,7 +149,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) progressHandlers
 {
-    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
+    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (_progressHandlers == nil) {
         _progressHandlers = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -128,7 +158,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) promises
 {
-    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
+    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (_promises == nil) {
         _promises = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -137,7 +167,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 
 - (BOOL) isPending {
-    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
+    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
         return !(_isFulfilled || _isRejected || _isCancelled);
     }
     else {
@@ -150,7 +180,7 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 - (BOOL) isFulfilled {
-    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
+    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
         return _isFulfilled;
     }
     else {
@@ -161,7 +191,7 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 - (BOOL) isRejected {
-    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
+    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
         return _isRejected;
     }
     else {
@@ -172,7 +202,7 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 - (BOOL) isCancelled {
-    if (s_sync_queue == NULL || dispatch_get_specific("sync_queue.id") == s_sync_queue) {
+    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
         return _isCancelled;
     }
     else {
@@ -185,7 +215,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (dispatch_queue_t) handlerQueue
 {
-    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
+    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (!_handler_queue) {
         char buffer[64];
         snprintf(buffer, sizeof(buffer),"RXPromise_handler_queue-%p", (__bridge void*)self);
@@ -210,7 +240,8 @@ static dispatch_queue_t s_handler_queue_parent;
             self.isFulfilled = YES;
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
-                dispatch_release(_handler_queue), _handler_queue = NULL;
+                RX_DISPATCH_RELEASE(_handler_queue);
+                _handler_queue = NULL;
             }
         });
     });
@@ -229,7 +260,8 @@ static dispatch_queue_t s_handler_queue_parent;
             self.isRejected = YES;
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
-                dispatch_release(_handler_queue), _handler_queue = NULL;
+                RX_DISPATCH_RELEASE(_handler_queue);
+                _handler_queue = NULL;
             }
         });
     });
@@ -249,7 +281,8 @@ static dispatch_queue_t s_handler_queue_parent;
             self.isRejected = YES;
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
-                dispatch_release(_handler_queue), _handler_queue = NULL;
+                RX_DISPATCH_RELEASE(_handler_queue);
+                _handler_queue = NULL;
             }
         });
     });
@@ -290,7 +323,7 @@ static dispatch_queue_t s_handler_queue_parent;
                      completion:(id(^)(id result))completionHandler
                           error:(id(^)(NSError* error))errorHandler
 {
-    assert(dispatch_get_specific("sync_queue.id") == s_sync_queue);
+    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     assert(_isFulfilled || _isRejected);
     DLogInfo(@"returned promise: %@", returnedPromise);
     
@@ -318,7 +351,7 @@ static dispatch_queue_t s_handler_queue_parent;
     else {
         [returnedPromise fulfillWithValue:nil]; // fulfill with `nil`
     }
- }
+}
 
 #pragma mark -
 
@@ -381,7 +414,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (id) get
 {
-    assert(dispatch_get_specific("sync_queue.id") != s_sync_queue); // Must not execute on the private sync queue!
+    assert(dispatch_get_specific("sync_queue.id") != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)); // Must not execute on the private sync queue!
     
     __block id result;
     __block dispatch_queue_t handler_queue = NULL;
@@ -389,9 +422,9 @@ static dispatch_queue_t s_handler_queue_parent;
         if (_isFulfilled || _isRejected) {
             result = _result;
             return;
-        } 
+        }
         handler_queue = self.handlerQueue;
-        dispatch_retain(handler_queue);
+        RX_DISPATCH_RETAIN(handler_queue);
     });
     if (handler_queue) {
         // result was not yet availbale: queue a handler
@@ -400,7 +433,7 @@ static dispatch_queue_t s_handler_queue_parent;
                 result = _result;
             });
         });
-        dispatch_release(handler_queue);
+        RX_DISPATCH_RELEASE(handler_queue);
     }
     return _result;
 }
@@ -447,10 +480,10 @@ static dispatch_queue_t s_handler_queue_parent;
         [promise fulfillWithValue:result];  // §2.2: if self is fulfilled, fulfill promise with the same value
         return nil;
     }
-     errorHandler:^id(NSError* error) {
-         [promise rejectWithReason:error];  // §2.3: if self is rejected, reject promise with the same value.
-         return nil;
-     }];
+  errorHandler:^id(NSError* error) {
+      [promise rejectWithReason:error];  // §2.3: if self is rejected, reject promise with the same value.
+      return nil;
+  }];
 }
 @end
 
