@@ -177,7 +177,23 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 - (void) cancelWithReason:(id)reason;
 
 /**
- The receiver will take in the destiny of the given promise _other_, and vice versa.
+ The receiver will take in the state of the given promise _other_, and vice versa:
+ The receiver will be fulfilled or rejected according its bound promise. If the
+ receiver receives a `cancel` message, the bound promise will be send a `cancelWithReason:`
+ message with the receiver's reason.
+ 
+ A promise should not be bound to more than one other promise.
+ 
+ Usage:
+ - (RXPromise*) doSomethingAsync {
+    self.promise = [RXPromise new];
+    return self.promise;
+ }
+ // later:
+ - (void) handleEvent:(id)event {
+    RXPromise* other = [self handleEvenAsync:event];
+    [self.promise bind:other];
+ }
  */
 - (void) bind:(RXPromise*) other;
 
