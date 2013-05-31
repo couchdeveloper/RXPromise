@@ -24,7 +24,9 @@
 
 ### Version 0.4 beta (31.05.2013)
 
-#### Added a method `bind` in the "Deferred" API.
+#### Changes
+
+* Added a method `bind` in the "Deferred" API.
 
 `bind` can be used by an asynchronous result provider if it itself uses another asynchronous result provider's promise in order to resolve its own promise.
 
