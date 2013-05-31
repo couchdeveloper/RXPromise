@@ -17,7 +17,7 @@
 
 ### Version 0.3 beta (30.05.2013)
 
-#### Changes
+#### Bug Fixes
 
 * Fixed issue with dispatch objects becoming "retainabel object pointers. Compiles now for deployment targets iOS >= 6.0 and Mac OS X >= 10.8.
 
