@@ -32,3 +32,15 @@
 
 A `cancel` message will be forwarded to the bound promise.
 
+
+
+### Version 0.4.1 beta (31.05.2013)
+
+* Minor fixes in accompanying documents
+
+
+### Version 0.4.2 beta (31.05.2013)
+
+#### Bug Fixes
+
+* Fixed bug in a macro used for source code compatibility for different OS versions. This should now definitely fix the OS version issue.
