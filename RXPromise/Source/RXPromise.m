@@ -38,7 +38,7 @@
 // >= iOS 6.0
 #define RX_DISPATCH_RELEASE(__object) do {} while(0)
 #define RX_DISPATCH_RETAIN(__object) do {} while(0)
-#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) do { (__bridge void*)__object; } while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) (__bridge void*)__object
 #else
 // <= iOS 5.x
 #define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
@@ -51,7 +51,7 @@
 // >= Mac OS X 10.8
 #define RX_DISPATCH_RELEASE(__object) do {} while(0)
 #define RX_DISPATCH_RETAIN(__object) do {} while(0)
-#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) do { (__bridge void*)__object; } while(0)
+#define RX_DISPATCH_BRIDGE_VOID_CAST(__object) (__bridge void*)__object
 #else
 // <= Mac OS X 10.7.x
 #define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
