@@ -142,6 +142,10 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 - (void) wait;
 
 
+/**
+ */
+
+
 @end
 
 
@@ -166,13 +170,19 @@ typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
  */
 - (void) rejectWithReason:(id)error;
 
-- (void) setProgress:(id)progress;
-
 /**
  Resovles the promise by canceling it, and forwards the message.
  If the promise is already resolved the promise only forwards the cancel message.
  */
 - (void) cancelWithReason:(id)reason;
+
+/**
+ The receiver will take in the destiny of the given promise _other_, and vice versa.
+ */
+- (void) bind:(RXPromise*) other;
+
+
+- (void) setProgress:(id)progress;
 
 @end
 

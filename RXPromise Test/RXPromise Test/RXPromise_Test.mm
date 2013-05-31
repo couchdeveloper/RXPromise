@@ -328,6 +328,29 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     return promise;
 }
 
+// use a bound promise
+static RXPromise* async_bind(double duration, id result = @"OK", dispatch_queue_t queue = NULL) {
+    RXPromise* promise = [RXPromise new];
+    double delayInSeconds = 0.01;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [promise bind:async(duration, result, queue)];
+    });
+    return promise;
+}
+
+// use a bound promise
+RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispatch_queue_t queue = NULL)
+{
+    RXPromise* promise = [RXPromise new];
+    double delayInSeconds = 0.01;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [promise bind:async_fail(duration, reason, queue)];
+    });
+    return promise;
+}
+
 
 
 
@@ -526,6 +549,24 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     STAssertFalse( p.isRejected, @"");
 }
 
+-(void) testBasicChainingWithBoundPromise
+{
+    // A bound promise shall effectively be transparent to the user.
+    RXPromise* p = async_bind(0.01, @"A")
+    .then(^(id){return async_bind(0.01, @"B");}, nil)
+    .then(^(id){return async_bind(0.01, @"C");}, nil)
+    .then(^(id){return async_bind(0.01, @"D");}, nil);
+    
+    // Promise `p` shall have the state of the last async function, unless an error occurred:
+    id result = p.get;
+    STAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
+}
+
+
+
 -(void) testBasicChainingWithImmediateNilResult
 {
     RXPromise* p = async(0.01, @"A")
@@ -541,11 +582,45 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     STAssertFalse( p.isRejected, @"");
 }
 
+
+-(void) testBasicChainingWithImmediateNilResultBoundPromise
+{
+    // A bound promise shall be transparent to the user.
+    RXPromise* p = async_bind(0.01, @"A")
+    .then(^(id){return async_bind(0.01, @"B");}, nil)
+    .then(^(id){return async_bind(0.01, @"C");}, nil)
+    .then(^id(id){return nil;}, nil);
+    
+    // Promise `p` shall have the state of the last async function, unless an error occurred:
+    id result = p.get;
+    STAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
+}
+
+
 -(void) testBasicChainingWithImmediateResult
 {
     RXPromise* p = async(0.01, @"A")
     .then(^(id){return async(0.01, @"B");}, nil)
     .then(^(id){return async(0.01, @"C");}, nil)
+    .then(^id(id){return @"OK";}, nil);
+    
+    // Promise `p` shall have the state of the last async function, unless an error occurred:
+    id result = p.get;
+    STAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
+    STAssertTrue( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertFalse( p.isRejected, @"");
+}
+
+-(void) testBasicChainingWithImmediateResultWithBoundPromise
+{
+    // A bound promise shall be transparent to the user.
+    RXPromise* p = async_bind(0.01, @"A")
+    .then(^(id){return async_bind(0.01, @"B");}, nil)
+    .then(^(id){return async_bind(0.01, @"C");}, nil)
     .then(^id(id){return @"OK";}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
@@ -573,11 +648,44 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     STAssertTrue( p.isRejected, @"");
 }
 
+-(void) testBasicChainingWithFailureWithBoundPromise
+{
+    // A bound promise shall be transparent to the user.
+    RXPromise* p = async_bind(0.01, @"A")
+    .then(^(id){return async_bind(0.01, @"B");}, nil)
+    .then(^(id){return async_bind_fail(0.01, @"C:Failure");}, nil)
+    .then(^(id){return async_bind(0.01, @"D");}, nil);
+    
+    id result = p.get;
+    STAssertTrue( [result isKindOfClass:[NSError class]], @"");
+    STAssertTrue( [[result userInfo][@"reason"] isEqualToString:@"C:Failure"], @"" );
+    STAssertFalse( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertTrue( p.isRejected, @"");
+}
+
+
+
 -(void) testBasicChainingWithImmediateError
 {
     RXPromise* p = async(0.01, @"A")
     .then(^(id){return async(0.01, @"B");}, nil)
     .then(^(id){return async(0.01, @"C");}, nil)
+    .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
+    
+    id result = p.get;
+    STAssertTrue( [result isKindOfClass:[NSError class]], @"" );
+    STAssertEquals(10, (int)[result code], @"");
+    STAssertFalse( p.isFulfilled, @"");
+    STAssertFalse( p.isCancelled, @"");
+    STAssertTrue( p.isRejected, @"");
+}
+
+-(void) testBasicChainingWithImmediateErrorWithBoundPromise
+{
+    RXPromise* p = async_bind(0.01, @"A")
+    .then(^(id){return async_bind(0.01, @"B");}, nil)
+    .then(^(id){return async_bind(0.01, @"C");}, nil)
     .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
     
     id result = p.get;
@@ -641,6 +749,36 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     dispatch_release(finished_sem);
 }
 
+- (void) testChainingTestForwardResultWithBoundPromise
+{
+    // As an exercise we only keep a reference to the root promise. The root
+    // promise will be fulfilled when the first async task finishes. That is,
+    // it can't be used to tell us when all tasks have been completed.
+    
+    // Test whether the result will be forwarded and the handlers exexcute in
+    // order.
+    
+    dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
+    NSMutableString* s = [[NSMutableString alloc] init];
+    RXPromise* p = async_bind(0.01, @"A");
+    p.then(^(id result){ [s appendString:result]; return async_bind(0.01, @"B");},nil)
+    .then(^(id result){ [s appendString:result]; return async_bind(0.01, @"C");},nil)
+    .then(^(id result){ [s appendString:result]; return async_bind(0.01, @"D");},nil)
+    .then(^id(id result){
+        [s appendString:result];
+        dispatch_semaphore_signal(finished_sem);
+        return nil;
+    },nil);
+    
+    dispatch_semaphore_wait(finished_sem, DISPATCH_TIME_FOREVER);
+    STAssertTrue( [s isEqualToString:@"ABCD"], @"" );
+    STAssertFalse(p.isPending, @"");
+    STAssertTrue(p.isFulfilled, @"");
+    STAssertFalse(p.isCancelled, @"");
+    STAssertFalse(p.isRejected, @"");
+    STAssertTrue( [p.get isEqualToString:@"A"], @"" );
+    dispatch_release(finished_sem);
+}
 
 
 -(void) testChainingStates {
@@ -1509,6 +1647,125 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
 }
 
 
+
+-(void)testChainCancel1WithBoundPromise {
+    
+    // Given a chain of four tasks, cancel the root promise when it is still
+    // pending.
+    // As a result, the pending children promises shall be cancelled with the
+    // error returned from the root promise.
+    
+    // Keep all references to the promises.
+    // Test if promises do have the correct state when they
+    // enter the handler.
+    
+    
+    RXPromise* p0, *p1, *p2, *p3, *p4;
+    
+    p0 = async_bind(1000);  // takes a while to finish
+    
+    NSMutableString* e = [[NSMutableString alloc] init];
+    
+    p1 = p0.then(^(id){
+        STFail(@"p1 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p0.isPending, @"");
+        STAssertFalse(p0.isFulfilled, @"");
+        STAssertTrue(p0.isCancelled, @"");
+        STAssertTrue(p0.isRejected, @"");
+        [e appendString:@"1"];
+        return error;
+    });
+    p2 = p1.then(^(id){
+        STFail(@"p2 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"2"];
+        return error;
+    });
+    p3 = p2.then(^(id){
+        STFail(@"p3 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"3"];
+        return error;
+    });
+    p4 = p3.then(^(id){
+        STFail(@"p4 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"4"];
+        return error;
+    });
+    
+    double delayInSeconds = 0.1;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [p0 cancel];
+    });
+    
+    // p0 will resolve with a cancel after 0.2 seconds, so hurry to check all promises:
+    STAssertTrue(p0.isPending, @"");
+    STAssertTrue(p1.isPending, @"");
+    STAssertTrue(p2.isPending, @"");
+    STAssertTrue(p3.isPending, @"");
+    STAssertTrue(p4.isPending, @"");
+    
+    // wait until p4 has been resolved:
+    id result = p4.get;
+    STAssertTrue([e isEqualToString:@"1234"], e);
+    
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p4.isPending, @"");
+    STAssertFalse(p4.isFulfilled, @"");
+    STAssertTrue(p4.isCancelled, @""); // p4 MUST be "cancelled"
+    STAssertTrue(p4.isRejected, @"");
+    
+    result = p3.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p3.isPending, @"");
+    STAssertFalse(p3.isFulfilled, @"");
+    STAssertTrue(p3.isCancelled, @"");  // p3 MUST be "cancelled"
+    STAssertTrue(p3.isRejected, @"");
+    
+    result = p2.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p2.isPending, @"");
+    STAssertFalse(p2.isFulfilled, @"");
+    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    STAssertTrue(p2.isRejected, @"");
+    
+    result = p1.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p1.isPending, @"");
+    STAssertFalse(p1.isFulfilled, @"");
+    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    STAssertTrue(p1.isRejected, @"");
+    
+    result = p0.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p0.isPending, @"");
+    STAssertFalse(p0.isFulfilled, @"");
+    STAssertTrue(p0.isCancelled, @"");  // p0 MUST be cancelled.
+    STAssertTrue(p0.isRejected, @"");
+}
+
+
+
+
 -(void) testChainCancel2 {
     
     // Given a chain of four tasks, cancel the root promise when it is
@@ -1562,6 +1819,114 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     p4 = p3.then(^(id){
         STFail(@"p4 success handler called");
         return async(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"4"];
+        return error;
+    });
+    
+    double delayInSeconds = 0.2;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [p0 cancel];
+    });
+    
+    // wait until p4 has been resolved:
+    id result = p4.get;
+    STAssertTrue([s isEqualToString:@"1"], s);
+    STAssertTrue([e isEqualToString:@"234"], e);
+    
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p4.isPending, @"");
+    STAssertFalse(p4.isFulfilled, @"");
+    STAssertTrue(p4.isCancelled, @"p4 MUST be cancelled");
+    STAssertTrue(p4.isRejected, @"");
+    
+    result = p3.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p3.isPending, @"");
+    STAssertFalse(p3.isFulfilled, @"");
+    STAssertTrue(p3.isCancelled, @"p3 MUST be cancelled");
+    STAssertTrue(p3.isRejected, @"");
+    
+    result = p2.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p2.isPending, @"");
+    STAssertFalse(p2.isFulfilled, @"");
+    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    STAssertTrue(p2.isRejected, @"");
+    
+    result = p1.get;
+    STAssertTrue([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p1.isPending, @"");
+    STAssertFalse(p1.isFulfilled, @"");
+    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    STAssertTrue(p1.isRejected, @"");
+    
+    result = p0.get;
+    STAssertFalse([result isKindOfClass:[NSError class]], @"");
+    STAssertFalse(p0.isPending, @"");
+    STAssertTrue(p0.isFulfilled, @"");   // P0 MUST not be cancelled
+    STAssertFalse(p0.isCancelled, @"");  // p0 MUST be fulfilled.
+    STAssertFalse(p0.isRejected, @"");
+}
+
+-(void) testChainCancel2WithBoundPromise {
+    
+    // Given a chain of four tasks, cancel the root promise when it is
+    // fulfilled and all other taks are pending.
+    
+    // Keep all references to the promises.
+    // Test if promises do have the correct state when they
+    // enter the handler.
+    
+    
+    RXPromise* p0, *p1, *p2, *p3, *p4;
+    
+    p0 = async_bind(0.01);  // will be finished quickly
+    
+    NSMutableString* e = [[NSMutableString alloc] init];
+    NSMutableString* s = [[NSMutableString alloc] init];
+    
+    p1 = p0.then(^(id){
+        STAssertFalse(p0.isPending, @"");
+        STAssertTrue(p0.isFulfilled, @"");
+        STAssertFalse(p0.isCancelled, @"");
+        STAssertFalse(p0.isRejected, @"");
+        [s appendString:@"1"];
+        return async_bind(1000); // takes a while to finish
+    },^id(NSError* error){
+        STFail(@"p1 error handler called");
+        return error;
+    });
+    p2 = p1.then(^(id){
+        STFail(@"p2 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"2"];
+        return error;
+    });
+    p3 = p2.then(^(id){
+        STFail(@"p3 success handler called");
+        return async_bind(0.01);
+    },^id(NSError* error){
+        STAssertFalse(p1.isPending, @"");
+        STAssertFalse(p1.isFulfilled, @"");
+        STAssertTrue(p1.isCancelled, @"");
+        STAssertTrue(p1.isRejected, @"");
+        [e appendString:@"3"];
+        return error;
+    });
+    p4 = p3.then(^(id){
+        STFail(@"p4 success handler called");
+        return async_bind(0.01);
     },^id(NSError* error){
         STAssertFalse(p1.isPending, @"");
         STAssertFalse(p1.isFulfilled, @"");
@@ -1750,6 +2115,138 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
     }
 }
 
+-(void) testTreeCancel1WithBoundPromise
+{
+    // Given a tree of promises with a root promise having three children,
+    // where each childred chains another one (actually two but this last
+    // one isn't exposed), cancel the root promise when it is still pending:
+    //
+    //        p0  ->  p00  ->  p000  -> (p_0)
+    //           |
+    //            ->  p01  ->  p010  -> (p_1)
+    //           |
+    //            ->  p02  ->  p020  -> (p_2)
+    
+    @autoreleasepool {
+        
+        semaphore finished_sem;
+        
+        NSMutableString*  s0 = [[NSMutableString alloc] init];
+        NSMutableString*  s1 = [[NSMutableString alloc] init];
+        NSMutableString*  s2 = [[NSMutableString alloc] init];
+        
+        RXPromise* p0 = async_bind(1000); // op0
+        
+        RXPromise* p00 = p0.then(^id(id result) {
+            [s0 appendString:@"0F"];
+            return async_bind(0.04);
+        }, ^id(NSError *error) {
+            [s0 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p000 = p00.then(^id(id result) {
+            [s0 appendString:@"00F"];
+            return async_bind(0.02);
+        }, ^id(NSError *error) {
+            [s0 appendString:@"00R"];
+            if (p00.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_0 = p000.then(^id(id result) {
+            [s0 appendString:@"000F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s0 appendString:@"000R"];
+            if (p000.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        
+        RXPromise* p01 = p0.then(^id(id result) {
+            [s1 appendString:@"0F"];
+            return async_bind(0.04); // op00
+        }, ^id(NSError *error) {
+            [s1 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p010 = p01.then(^id(id result) {
+            [s1 appendString:@"01F"];
+            return async_bind(0.02);
+        }, ^id(NSError *error) {
+            [s1 appendString:@"01R"];
+            if (p01.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_1 = p010.then(^id(id result) {
+            [s1 appendString:@"010F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s1 appendString:@"010R"];
+            if (p010.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        
+        RXPromise* p02 = p0.then(^id(id result) {
+            [s2 appendString:@"0F"];
+            return async_bind(0.04);
+        }, ^id(NSError *error) {
+            [s2 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p020 = p02.then(^id(id result) {
+            [s2 appendString:@"02F"];
+            return async_bind(0.02);
+        }, ^id(NSError *error) {
+            [s2 appendString:@"02R"];
+            if (p02.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_2 = p020.then(^id(id result) {
+            [s2 appendString:@"020F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s2 appendString:@"020R"];
+            if (p020.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        double delayInSeconds = 0.2;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+            [p0 cancel];
+        });
+        
+        // wait for the leaves to be resolved:
+        [p_0 wait]; [p_1 wait]; [p_2 wait];
+        
+        STAssertTrue([s0 isEqualToString:@"0RC00RC000RC"], s0);
+        STAssertTrue([s1 isEqualToString:@"0RC01RC010RC"], s1);
+        STAssertTrue([s2 isEqualToString:@"0RC02RC020RC"], s2);
+    }
+}
+
 
 
 -(void) testTreeCancel2
@@ -1853,6 +2350,140 @@ RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t 
         RXPromise* p020 = p02.then(^id(id result) {
             [s2 appendString:@"02F"];
             return async(10);
+        }, ^id(NSError *error) {
+            [s2 appendString:@"02R"];
+            if (p02.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_2 = p020.then(^id(id result) {
+            [s2 appendString:@"020F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s2 appendString:@"020R"];
+            if (p020.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        double delayInSeconds = 0.2;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+            [p0 cancel];
+        });
+        
+        // wait for the leaves to be resolved and handlers have been returned:
+        [p_0 wait]; [p_1 wait]; [p_2 wait];
+        
+        STAssertTrue([s0 isEqualToString:@"0F00RC000RC"], s0);
+        STAssertTrue([s1 isEqualToString:@"0F01RC010RC"], s1);
+        STAssertTrue([s2 isEqualToString:@"0F02RC020RC"], s2);
+    }
+}
+
+-(void) testTreeCancel2WithBoundPromise
+{
+    // Given a tree of promises with a root promise having three children p00,
+    // p01 and p02, where each childred is a chain of three, cancel the root
+    // promise when it is already resolved and p00, p01 and p02 are pending.
+    //
+    //        p0  ->  p00  ->  p000  -> p_0
+    //           |
+    //            ->  p01  ->  p010  -> p_1
+    //           |
+    //            ->  p02  ->  p020  -> p_2
+    
+    @autoreleasepool {
+        
+        semaphore finished_sem;
+        
+        NSMutableString*  s0 = [[NSMutableString alloc] init];
+        NSMutableString*  s1 = [[NSMutableString alloc] init];
+        NSMutableString*  s2 = [[NSMutableString alloc] init];
+        
+        RXPromise* p0 = async_bind(0.01); // op0
+        
+        RXPromise* p00 = p0.then(^id(id result) {
+            [s0 appendString:@"0F"];
+            return async_bind(10);
+        }, ^id(NSError *error) {
+            [s0 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p000 = p00.then(^id(id result) {
+            [s0 appendString:@"00F"];
+            return async_bind(10);
+        }, ^id(NSError *error) {
+            [s0 appendString:@"00R"];
+            if (p00.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_0 = p000.then(^id(id result) {
+            [s0 appendString:@"000F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s0 appendString:@"000R"];
+            if (p000.isCancelled) {
+                [s0 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        
+        
+        RXPromise* p01 = p0.then(^id(id result) {
+            [s1 appendString:@"0F"];
+            return async_bind(10); // op00
+        }, ^id(NSError *error) {
+            [s1 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p010 = p01.then(^id(id result) {
+            [s1 appendString:@"01F"];
+            return async_bind(10);
+        }, ^id(NSError *error) {
+            [s1 appendString:@"01R"];
+            if (p01.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p_1 = p010.then(^id(id result) {
+            [s1 appendString:@"010F"];
+            return nil;
+        }, ^id(NSError *error) {
+            [s1 appendString:@"010R"];
+            if (p010.isCancelled) {
+                [s1 appendString:@"C"];
+            }
+            return error;
+        });
+        
+        
+        
+        RXPromise* p02 = p0.then(^id(id result) {
+            [s2 appendString:@"0F"];
+            return async_bind(10);
+        }, ^id(NSError *error) {
+            [s2 appendString:@"0R"];
+            if (p0.isCancelled) {
+                [s2 appendString:@"C"];
+            }
+            return error;
+        });
+        RXPromise* p020 = p02.then(^id(id result) {
+            [s2 appendString:@"02F"];
+            return async_bind(10);
         }, ^id(NSError *error) {
             [s2 appendString:@"02R"];
             if (p02.isCancelled) {

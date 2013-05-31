@@ -301,6 +301,35 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
+- (void) bind:(RXPromise*) other {
+    assert(other != nil);
+    assert(!(_isRejected || _isFulfilled));
+    dispatch_async(s_sync_queue, ^{
+        if (_isCancelled) {
+            [other cancelWithReason:_result];
+            return;
+        }
+        other.then(^id(id result){
+            assert( !(_isRejected || _isFulfilled) || _isCancelled );
+            [self fulfillWithValue:result];
+            return result;
+        }, ^id(NSError*error){
+            assert( !(_isRejected || _isFulfilled) || _isCancelled );
+            [self rejectWithReason:error];
+            return error;
+        });
+        
+        self.then(nil, ^id(NSError*reason){
+            if (_isCancelled) {
+                [other cancelWithReason:reason];
+            }
+            return reason;
+        });
+    });
+}
+
+
+
 - (void) setProgress:(id)progress {
     dispatch_async(s_sync_queue, ^{
         for (progressHandler_t block in _progressHandlers) {
@@ -410,6 +439,9 @@ static dispatch_queue_t s_handler_queue_parent;
 - (void) cancel {
     [self cancelWithReason:@"cancelled"];
 }
+
+
+
 
 
 - (id) get

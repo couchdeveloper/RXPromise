@@ -313,6 +313,7 @@
 				A10ABAA5174B6138003840FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
