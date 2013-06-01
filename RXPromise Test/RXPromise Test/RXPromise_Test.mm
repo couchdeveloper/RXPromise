@@ -19,7 +19,7 @@
 //  limitations under the License.
 
 #import "RXPromise_Test.h"
-#import "RXPromise.h"
+#import "RXPromise/RXPromise.h"
 #include <dispatch/dispatch.h>
 #include <algorithm>  // std::min
 #include <string>

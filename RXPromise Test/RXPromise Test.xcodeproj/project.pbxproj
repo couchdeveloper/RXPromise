@@ -8,23 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		A10ABA92174B6138003840FD /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10ABA91174B6138003840FD /* SenTestingKit.framework */; };
-		A10ABA94174B6138003840FD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10ABA93174B6138003840FD /* Cocoa.framework */; };
 		A10ABA9E174B6138003840FD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10ABA9C174B6138003840FD /* InfoPlist.strings */; };
 		A10ABAA1174B6138003840FD /* RXPromise_Test.mm in Sources */ = {isa = PBXBuildFile; fileRef = A10ABAA0174B6138003840FD /* RXPromise_Test.mm */; };
+		A19C19E41759F337008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19E31759F337008E3F63 /* Foundation.framework */; };
+		A19C19E81759F5FA008E3F63 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19E71759F5FA008E3F63 /* RXPromise.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A10ABA8E174B6138003840FD /* RXPromise Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise Test.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10ABA91174B6138003840FD /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		A10ABA93174B6138003840FD /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		A10ABA96174B6138003840FD /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		A10ABA97174B6138003840FD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		A10ABA98174B6138003840FD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A10ABA9B174B6138003840FD /* RXPromise Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromise Test-Info.plist"; sourceTree = "<group>"; };
 		A10ABA9D174B6138003840FD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A10ABA9F174B6138003840FD /* RXPromise_Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise_Test.h; sourceTree = "<group>"; };
 		A10ABAA0174B6138003840FD /* RXPromise_Test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise_Test.mm; sourceTree = "<group>"; };
 		A10ABAA2174B6138003840FD /* RXPromise Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise Test-Prefix.pch"; sourceTree = "<group>"; };
+		A19C19E31759F337008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A19C19E71759F5FA008E3F63 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../DerivedData/Promise/Build/Products/Release/RXPromise.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,8 +31,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A19C19E81759F5FA008E3F63 /* RXPromise.framework in Frameworks */,
+				A19C19E41759F337008E3F63 /* Foundation.framework in Frameworks */,
 				A10ABA92174B6138003840FD /* SenTestingKit.framework in Frameworks */,
-				A10ABA94174B6138003840FD /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,7 +43,6 @@
 		A10ABA82174B6108003840FD = {
 			isa = PBXGroup;
 			children = (
-				A10ABAAC174B6471003840FD /* UUT */,
 				A10ABA99174B6138003840FD /* RXPromise Test */,
 				A10ABA90174B6138003840FD /* Frameworks */,
 				A10ABA8F174B6138003840FD /* Products */,
@@ -61,21 +60,11 @@
 		A10ABA90174B6138003840FD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A19C19E71759F5FA008E3F63 /* RXPromise.framework */,
+				A19C19E31759F337008E3F63 /* Foundation.framework */,
 				A10ABA91174B6138003840FD /* SenTestingKit.framework */,
-				A10ABA93174B6138003840FD /* Cocoa.framework */,
-				A10ABA95174B6138003840FD /* Other Frameworks */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A10ABA95174B6138003840FD /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				A10ABA96174B6138003840FD /* AppKit.framework */,
-				A10ABA97174B6138003840FD /* CoreData.framework */,
-				A10ABA98174B6138003840FD /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 		A10ABA99174B6138003840FD /* RXPromise Test */ = {
@@ -96,13 +85,6 @@
 				A10ABAA2174B6138003840FD /* RXPromise Test-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		A10ABAAC174B6471003840FD /* UUT */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = UUT;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,7 +210,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Release\"",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -271,7 +257,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Release\"",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

@@ -7,27 +7,6 @@
    <FileRef
       location = "group:RXPromise Test/RXPromise Test.xcodeproj">
    </FileRef>
-   <Group
-      location = "group:RXPromise"
-      name = "RXPromise">
-      <Group
-         location = "group:Source"
-         name = "Source">
-         <FileRef
-            location = "group:RXPromise.h">
-         </FileRef>
-         <FileRef
-            location = "group:RXPromise.m">
-         </FileRef>
-         <Group
-            location = "group:utility"
-            name = "utility">
-            <FileRef
-               location = "group:DLog.h">
-            </FileRef>
-         </Group>
-      </Group>
-   </Group>
    <FileRef
       location = "group:LICENSE.md">
    </FileRef>
