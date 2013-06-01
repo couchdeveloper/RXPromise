@@ -604,6 +604,7 @@
 				A19C19AD1759E879008E3F63 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A19C19BA1759E895008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise Static" */ = {
 			isa = XCConfigurationList;
@@ -612,6 +613,7 @@
 				A19C19BC1759E895008E3F63 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPRomise iOS" */ = {
 			isa = XCConfigurationList;
@@ -620,6 +622,7 @@
 				A19C19CD1759E8CB008E3F63 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
