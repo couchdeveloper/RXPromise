@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:RXPromise Libraries/RXPromise Libraries.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:RXPromise Test/RXPromise Test.xcodeproj">
    </FileRef>
    <Group

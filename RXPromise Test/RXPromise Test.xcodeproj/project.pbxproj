@@ -11,7 +11,6 @@
 		A10ABA94174B6138003840FD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10ABA93174B6138003840FD /* Cocoa.framework */; };
 		A10ABA9E174B6138003840FD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10ABA9C174B6138003840FD /* InfoPlist.strings */; };
 		A10ABAA1174B6138003840FD /* RXPromise_Test.mm in Sources */ = {isa = PBXBuildFile; fileRef = A10ABAA0174B6138003840FD /* RXPromise_Test.mm */; };
-		A10ABAAB174B6446003840FD /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A10ABAAA174B6446003840FD /* RXPromise.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,7 +25,6 @@
 		A10ABA9F174B6138003840FD /* RXPromise_Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise_Test.h; sourceTree = "<group>"; };
 		A10ABAA0174B6138003840FD /* RXPromise_Test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise_Test.mm; sourceTree = "<group>"; };
 		A10ABAA2174B6138003840FD /* RXPromise Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise Test-Prefix.pch"; sourceTree = "<group>"; };
-		A10ABAAA174B6446003840FD /* RXPromise.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RXPromise.m; path = ../RXPromise/Source/RXPromise.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,7 +101,6 @@
 		A10ABAAC174B6471003840FD /* UUT */ = {
 			isa = PBXGroup;
 			children = (
-				A10ABAAA174B6446003840FD /* RXPromise.m */,
 			);
 			name = UUT;
 			sourceTree = "<group>";
@@ -186,7 +183,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10ABAAB174B6446003840FD /* RXPromise.m in Sources */,
 				A10ABAA1174B6138003840FD /* RXPromise_Test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

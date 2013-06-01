@@ -1,0 +1,627 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
+		A19C19A61759E879008E3F63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A19C19A41759E879008E3F63 /* InfoPlist.strings */; };
+		A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
+		A19C19C31759E8CA008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19C21759E8CA008E3F63 /* Foundation.framework */; };
+		A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A19C19D41759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A19C19D51759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
+		A19C19D61759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
+		A19C19D71759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
+		A19C19D81759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
+		A19C19D91759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
+		A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A19C19BF1759E8CA008E3F63 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+				A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A19C19981759E879008E3F63 /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19C199B1759E879008E3F63 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		A19C199E1759E879008E3F63 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		A19C199F1759E879008E3F63 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		A19C19A01759E879008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A19C19A31759E879008E3F63 /* RXPromise Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromise Framework-Info.plist"; sourceTree = "<group>"; };
+		A19C19A51759E879008E3F63 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A19C19A71759E879008E3F63 /* RXPromise Framework-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise Framework-Prefix.pch"; sourceTree = "<group>"; };
+		A19C19B21759E894008E3F63 /* libRXPromise.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRXPromise.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19C19B61759E895008E3F63 /* RXPromise Static-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise Static-Prefix.pch"; sourceTree = "<group>"; };
+		A19C19B71759E895008E3F63 /* RXPromise_Static.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise_Static.h; sourceTree = "<group>"; };
+		A19C19B81759E895008E3F63 /* RXPromise_Static.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RXPromise_Static.m; sourceTree = "<group>"; };
+		A19C19C11759E8CA008E3F63 /* libRXPromise.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRXPromise.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19C19C21759E8CA008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A19C19C61759E8CB008E3F63 /* RXPRomise iOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPRomise iOS-Prefix.pch"; sourceTree = "<group>"; };
+		A19C19CF1759EA3B008E3F63 /* RXPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
+		A19C19D01759EA3B008E3F63 /* RXPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXPromise.m; sourceTree = "<group>"; };
+		A19C19D21759EA3B008E3F63 /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
+		A19C19DA1759EA5D008E3F63 /* common.ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = common.ios.xcconfig; sourceTree = "<group>"; };
+		A19C19DB1759EA5D008E3F63 /* common.macosx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = common.macosx.xcconfig; sourceTree = "<group>"; };
+		A19C19DC1759EA5D008E3F63 /* common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		A19C19DD1759EA5D008E3F63 /* debug.ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = debug.ios.xcconfig; sourceTree = "<group>"; };
+		A19C19DE1759EA5D008E3F63 /* debug.macosx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = debug.macosx.xcconfig; sourceTree = "<group>"; };
+		A19C19DF1759EA5D008E3F63 /* release.ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = release.ios.xcconfig; sourceTree = "<group>"; };
+		A19C19E01759EA5D008E3F63 /* release.macosx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = release.macosx.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A19C19941759E879008E3F63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19C19AF1759E894008E3F63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19C19BE1759E8CA008E3F63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19C31759E8CA008E3F63 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A19C198C1759E846008E3F63 = {
+			isa = PBXGroup;
+			children = (
+				A19C19E11759EA63008E3F63 /* Config */,
+				A19C19CE1759EA3B008E3F63 /* Source */,
+				A19C19A11759E879008E3F63 /* RXPromise Framework */,
+				A19C19B41759E894008E3F63 /* RXPromise Static */,
+				A19C19C41759E8CA008E3F63 /* RXPRomise iOS */,
+				A19C199A1759E879008E3F63 /* Frameworks */,
+				A19C19991759E879008E3F63 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A19C19991759E879008E3F63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19981759E879008E3F63 /* RXPromise.framework */,
+				A19C19B21759E894008E3F63 /* libRXPromise.a */,
+				A19C19C11759E8CA008E3F63 /* libRXPromise.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A19C199A1759E879008E3F63 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A19C199B1759E879008E3F63 /* Cocoa.framework */,
+				A19C19C21759E8CA008E3F63 /* Foundation.framework */,
+				A19C199D1759E879008E3F63 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A19C199D1759E879008E3F63 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A19C199E1759E879008E3F63 /* AppKit.framework */,
+				A19C199F1759E879008E3F63 /* CoreData.framework */,
+				A19C19A01759E879008E3F63 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		A19C19A11759E879008E3F63 /* RXPromise Framework */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19A21759E879008E3F63 /* Supporting Files */,
+			);
+			path = "RXPromise Framework";
+			sourceTree = "<group>";
+		};
+		A19C19A21759E879008E3F63 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19A31759E879008E3F63 /* RXPromise Framework-Info.plist */,
+				A19C19A41759E879008E3F63 /* InfoPlist.strings */,
+				A19C19A71759E879008E3F63 /* RXPromise Framework-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A19C19B41759E894008E3F63 /* RXPromise Static */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19B71759E895008E3F63 /* RXPromise_Static.h */,
+				A19C19B81759E895008E3F63 /* RXPromise_Static.m */,
+				A19C19B51759E895008E3F63 /* Supporting Files */,
+			);
+			path = "RXPromise Static";
+			sourceTree = "<group>";
+		};
+		A19C19B51759E895008E3F63 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19B61759E895008E3F63 /* RXPromise Static-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A19C19C41759E8CA008E3F63 /* RXPRomise iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19C51759E8CB008E3F63 /* Supporting Files */,
+			);
+			path = "RXPRomise iOS";
+			sourceTree = "<group>";
+		};
+		A19C19C51759E8CB008E3F63 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19C61759E8CB008E3F63 /* RXPRomise iOS-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A19C19CE1759EA3B008E3F63 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19CF1759EA3B008E3F63 /* RXPromise.h */,
+				A19C19D01759EA3B008E3F63 /* RXPromise.m */,
+				A19C19D11759EA3B008E3F63 /* utility */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		A19C19D11759EA3B008E3F63 /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19D21759EA3B008E3F63 /* DLog.h */,
+			);
+			path = utility;
+			sourceTree = "<group>";
+		};
+		A19C19E11759EA63008E3F63 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19DC1759EA5D008E3F63 /* common.xcconfig */,
+				A19C19DB1759EA5D008E3F63 /* common.macosx.xcconfig */,
+				A19C19DA1759EA5D008E3F63 /* common.ios.xcconfig */,
+				A19C19DE1759EA5D008E3F63 /* debug.macosx.xcconfig */,
+				A19C19DD1759EA5D008E3F63 /* debug.ios.xcconfig */,
+				A19C19E01759EA5D008E3F63 /* release.macosx.xcconfig */,
+				A19C19DF1759EA5D008E3F63 /* release.ios.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A19C19951759E879008E3F63 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */,
+				A19C19D81759EA3B008E3F63 /* DLog.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19C19B01759E894008E3F63 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19D41759EA3B008E3F63 /* RXPromise.h in Headers */,
+				A19C19D91759EA3B008E3F63 /* DLog.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A19C19971759E879008E3F63 /* RXPromise Framework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19C19AB1759E879008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise Framework" */;
+			buildPhases = (
+				A19C19931759E879008E3F63 /* Sources */,
+				A19C19941759E879008E3F63 /* Frameworks */,
+				A19C19951759E879008E3F63 /* Headers */,
+				A19C19961759E879008E3F63 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise Framework";
+			productName = "RXPromise Framework";
+			productReference = A19C19981759E879008E3F63 /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A19C19B11759E894008E3F63 /* RXPromise Static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19C19BA1759E895008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise Static" */;
+			buildPhases = (
+				A19C19AE1759E894008E3F63 /* Sources */,
+				A19C19AF1759E894008E3F63 /* Frameworks */,
+				A19C19B01759E894008E3F63 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise Static";
+			productName = "RXPromise Static";
+			productReference = A19C19B21759E894008E3F63 /* libRXPromise.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		A19C19C01759E8CA008E3F63 /* RXPRomise iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPRomise iOS" */;
+			buildPhases = (
+				A19C19BD1759E8CA008E3F63 /* Sources */,
+				A19C19BE1759E8CA008E3F63 /* Frameworks */,
+				A19C19BF1759E8CA008E3F63 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPRomise iOS";
+			productName = "RXPRomise iOS";
+			productReference = A19C19C11759E8CA008E3F63 /* libRXPromise.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A19C198D1759E846008E3F63 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+			};
+			buildConfigurationList = A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise Libraries" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A19C198C1759E846008E3F63;
+			productRefGroup = A19C19991759E879008E3F63 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A19C19971759E879008E3F63 /* RXPromise Framework */,
+				A19C19B11759E894008E3F63 /* RXPromise Static */,
+				A19C19C01759E8CA008E3F63 /* RXPRomise iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A19C19961759E879008E3F63 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19A61759E879008E3F63 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A19C19931759E879008E3F63 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19D51759EA3B008E3F63 /* RXPromise.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19C19AE1759E894008E3F63 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19D61759EA3B008E3F63 /* RXPromise.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19C19BD1759E8CA008E3F63 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19C19D71759EA3B008E3F63 /* RXPromise.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A19C19A41759E879008E3F63 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A19C19A51759E879008E3F63 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A19C19911759E846008E3F63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		A19C19921759E846008E3F63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		A19C19AC1759E879008E3F63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19DE1759EA5D008E3F63 /* debug.macosx.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPromise Framework/RXPromise Framework-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = RXPromise;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		A19C19AD1759E879008E3F63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19E01759EA5D008E3F63 /* release.macosx.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPromise Framework/RXPromise Framework-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
+				PRODUCT_NAME = RXPromise;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		A19C19BB1759E895008E3F63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19DE1759EA5D008E3F63 /* debug.macosx.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPromise Static/RXPromise Static-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A19C19BC1759E895008E3F63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19E01759EA5D008E3F63 /* release.macosx.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPromise Static/RXPromise Static-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A19C19CC1759E8CB008E3F63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19DD1759EA5D008E3F63 /* debug.ios.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/RXPRomise_iOS.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPRomise iOS-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = RXPromise;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+			};
+			name = Debug;
+		};
+		A19C19CD1759E8CB008E3F63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19C19DF1759EA5D008E3F63 /* release.ios.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DSTROOT = /tmp/RXPRomise_iOS.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPRomise iOS-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = RXPromise;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise Libraries" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19C19911759E846008E3F63 /* Debug */,
+				A19C19921759E846008E3F63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A19C19AB1759E879008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise Framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19C19AC1759E879008E3F63 /* Debug */,
+				A19C19AD1759E879008E3F63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A19C19BA1759E895008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise Static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19C19BB1759E895008E3F63 /* Debug */,
+				A19C19BC1759E895008E3F63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPRomise iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19C19CC1759E8CB008E3F63 /* Debug */,
+				A19C19CD1759E8CB008E3F63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A19C198D1759E846008E3F63 /* Project object */;
+}

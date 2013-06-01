@@ -1,0 +1,21 @@
+//
+//  common.ios.xcconfig
+//
+
+#include "common.xcconfig"
+
+//
+//  Architectures
+//
+
+SDKROOT = iphoneos
+ARCHS = $(ARCHS_STANDARD_32_BIT)
+SUPPORTED_PLATFORMS = iphonesimulator iphoneos
+IPHONEOS_DEPLOYMENT_TARGET = 5.0
+
+
+// Generate Position-Dependent Code: YES -> Faster function calls for applications.
+GCC_DYNAMIC_NO_PIC = YES
+
+
+
