@@ -54,4 +54,4 @@ A `cancel` message will be forwarded to the bound promise.
 
 The libraries require deployment target >= Mac OS X 10.7, respectively >= iOS 5.1
 
-* Due to moving the code into libraries, the logging mechanism became an implementation detail. Log level has been set to DEBUG_LOGLEVEL_WARN for Debug configurations - that is only warning messages will be printed which may indiciate an error somewhere. For Release configuration the debug log level has been set to DEBUG_LOGLEVEL_ERROR, which always means are really serious error.
+Due to moving the code into libraries, the logging mechanism became an implementation detail. Log level has been set to `DEBUG_LOGLEVEL_WARN` for Debug configurations - that is, only warning messages will be printed which may indiciate an error somewhere. For Release configuration the debug log level has been set to `DEBUG_LOGLEVEL_ERROR`, which always means a really serious error.
