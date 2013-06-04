@@ -25,6 +25,9 @@
 #include <string>
 
 
+#if defined (NDBEUG)
+#error NDEBUG shall not be defined for testing.
+#endif
 
 #pragma mark  Semaphore
 

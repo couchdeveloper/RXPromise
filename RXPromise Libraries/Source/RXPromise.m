@@ -87,10 +87,14 @@
 
 
 
+typedef enum RXPomise_StateT {
+    Pending     = 0x0,
+    Fulfilled   = 0x01,
+    Rejected    = 0x02,
+    Cancelled   = 0x06
+} RXPomise_State;
+
 @interface RXPromise ()
-@property (nonatomic, readwrite) BOOL isFulfilled;
-@property (nonatomic, readwrite) BOOL isRejected;
-@property (nonatomic, readwrite) BOOL isCancelled;
 @property (nonatomic) NSMutableArray* progressHandlers;
 @property (nonatomic) NSMutableArray* promises; // children - or "returned promises" (required only when implementing cancel)
 @end
@@ -105,26 +109,50 @@
     dispatch_queue_t        _handler_queue;     // a serial queue, uses target queue: s_handler_queue_parent
     NSMutableArray*         _progressHandlers;
     NSMutableArray*         _promises;
-    BOOL                    _isFulfilled;
-    BOOL                    _isRejected;
-    BOOL                    _isCancelled;
+    short                   _state;
 }
 @synthesize progressHandlers = _progressHandlers;
 @synthesize promises = _promises;
 
 
 static dispatch_queue_t s_sync_queue;
-static dispatch_queue_t s_handler_queue_parent;
+static dispatch_queue_t s_handler_parent_queue;
+
+const static char* KeySync = "sync";
+const static char* KeyHandler = "handler";
+const static char* KeyID = "id";
+
+
+static inline void rx_dispatch_sync_queue(dispatch_block_t block)
+{
+    // If we're already on the s_sync_queue, just run the block:
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue))
+        block();
+    // otherwise, dispatch to the s_sync_queue:
+    else
+        dispatch_sync(s_sync_queue, block);
+}
+
 
 
 // Designated Initializer
 - (id)init
 {
-    static dispatch_once_t onceSharedSyncQueue;
-    dispatch_once(&onceSharedSyncQueue, ^{
+    static dispatch_once_t onceSharedQueues;
+    dispatch_once(&onceSharedQueues, ^{
         s_sync_queue = dispatch_queue_create("s_sync_queue", NULL);
-        dispatch_queue_set_specific(s_sync_queue, "sync_queue.id", RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue), NULL);
+        dispatch_queue_set_specific(s_sync_queue, KeySync, RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue), NULL);
+        dispatch_queue_set_specific(s_sync_queue, KeyID, RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue), NULL);
+        s_handler_parent_queue = dispatch_queue_create("s_handler_parent_queue", NULL);
+        dispatch_queue_set_specific(s_handler_parent_queue, KeyHandler, RX_DISPATCH_BRIDGE_VOID_CAST(s_handler_parent_queue), NULL);
+        dispatch_queue_set_specific(s_handler_parent_queue, KeyID, RX_DISPATCH_BRIDGE_VOID_CAST(s_handler_parent_queue), NULL);
+        //dispatch_set_target_queue(s_handler_parent_queue, s_sync_queue);
+        assert(s_sync_queue);
+        assert(s_handler_parent_queue);
+        assert(dispatch_queue_get_specific(s_sync_queue, KeySync) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+        assert(dispatch_queue_get_specific(s_handler_parent_queue, KeyHandler) == RX_DISPATCH_BRIDGE_VOID_CAST(s_handler_parent_queue));
     });
+    
     DLogInfo(@"init: %p", (__bridge void*)self);
     return [super init];
 }
@@ -138,6 +166,128 @@ static dispatch_queue_t s_handler_queue_parent;
     }
 }
 
+#pragma mark - KVO
+
+// KVO compatible 
+- (void) _setState:(RXPomise_State)state {
+    assert(dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    assert(state != Pending);
+    
+    switch (state) {
+        case Pending: break;
+        case Fulfilled: {
+            _state = Fulfilled;
+//            dispatch_async(s_handler_parent_queue, ^{
+//                [self willChangeValueForKey:@"isPending"];
+//                [self willChangeValueForKey:@"isFulfilled"];
+//                [self didChangeValueForKey:@"isFulfilled"];
+//                [self didChangeValueForKey:@"isPending"];
+//            });
+        }
+            break;
+            
+        case Cancelled: {
+            _state = Cancelled;
+//            dispatch_async(s_handler_parent_queue, ^{
+//                [self willChangeValueForKey:@"isPending"];
+//                [self willChangeValueForKey:@"isCancelled"];
+//                [self willChangeValueForKey:@"isRejected"];
+//                [self didChangeValueForKey:@"isRejected"];
+//                [self didChangeValueForKey:@"isCancelled"];
+//                [self didChangeValueForKey:@"isPending"];
+//            });
+        }
+            break;
+            
+        case Rejected: {
+            _state = Rejected;
+//            dispatch_async(s_handler_parent_queue, ^{
+//                [self willChangeValueForKey:@"isPending"];
+//                [self willChangeValueForKey:@"isRejected"];
+//                [self didChangeValueForKey:@"isRejected"];
+//                [self didChangeValueForKey:@"isPending"];
+//            });
+        }
+            break;
+    } // switch
+}
+
+- (BOOL) isPending {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return _state == Pending;
+    }
+    else {
+        __block BOOL result;
+        dispatch_sync(s_sync_queue, ^{
+            result = _state == Pending ;
+        });
+        return result;
+    }
+}
+
+- (BOOL) isFulfilled {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return _state == Fulfilled;
+    }
+    else {
+        __block BOOL result;
+        dispatch_sync(s_sync_queue, ^{ result = _state == Fulfilled; });
+        return result;
+    }
+}
+
+- (BOOL) isRejected {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return (_state & Rejected) != 0;
+    }
+    else {
+        __block BOOL result;
+        dispatch_sync(s_sync_queue, ^{ result = (_state & Rejected) != 0; });
+        return result;
+    }
+}
+
+- (BOOL) isCancelled {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return _state == Cancelled;
+    }
+    else {
+        __block BOOL result;
+        dispatch_sync(s_sync_queue, ^{ result = _state == Cancelled; });
+        return result;
+    }
+}
+
+
+- (id) result {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return _result;
+    }
+    else {
+        __block id result;
+        dispatch_sync(s_sync_queue, ^{
+            result = _result;
+        });
+        return result;
+    }
+}
+
+- (RXPomise_State) state {
+    if (dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
+        return _state;
+    }
+    else {
+        __block RXPomise_State state;
+        dispatch_sync(s_sync_queue, ^{
+            state = _state;
+        });
+        return state;
+    }
+}
+
+
+
+
 #pragma mark -
 
 // property then
@@ -149,7 +299,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) progressHandlers
 {
-    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    assert(dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (_progressHandlers == nil) {
         _progressHandlers = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -158,7 +308,7 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (NSMutableArray*) promises
 {
-    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    assert(dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (_promises == nil) {
         _promises = [[NSMutableArray alloc] initWithCapacity:1];
     }
@@ -166,62 +316,15 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
-- (BOOL) isPending {
-    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
-        return !(_isFulfilled || _isRejected || _isCancelled);
-    }
-    else {
-        __block BOOL result;
-        dispatch_sync(s_sync_queue, ^{
-            result = !(_isFulfilled || _isRejected || _isCancelled) ;
-        });
-        return result;
-    }
-}
-
-- (BOOL) isFulfilled {
-    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
-        return _isFulfilled;
-    }
-    else {
-        __block BOOL result;
-        dispatch_sync(s_sync_queue, ^{ result = _isFulfilled; });
-        return result;
-    }
-}
-
-- (BOOL) isRejected {
-    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
-        return _isRejected;
-    }
-    else {
-        __block BOOL result;
-        dispatch_sync(s_sync_queue, ^{ result = _isRejected; });
-        return result;
-    }
-}
-
-- (BOOL) isCancelled {
-    if (dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)) {
-        return _isCancelled;
-    }
-    else {
-        __block BOOL result;
-        dispatch_sync(s_sync_queue, ^{ result = _isCancelled; });
-        return result;
-    }
-}
-
-
 - (dispatch_queue_t) handlerQueue
 {
-    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    assert(dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     if (!_handler_queue) {
         char buffer[64];
         snprintf(buffer, sizeof(buffer),"RXPromise_handler_queue-%p", (__bridge void*)self);
         _handler_queue = dispatch_queue_create(buffer, DISPATCH_QUEUE_SERIAL);
         assert(_handler_queue);
-        dispatch_set_target_queue(_handler_queue, s_handler_queue_parent);
+        dispatch_set_target_queue(_handler_queue, s_handler_parent_queue);
         dispatch_suspend(_handler_queue);
     }
     return _handler_queue;
@@ -229,35 +332,52 @@ static dispatch_queue_t s_handler_queue_parent;
 
 #pragma mark - Resolver
 
+// Note: resolving actually uses a dispatch_sync in order to set the state
+// and result.
+// The resolver methods will be likely invoked from an execution context where
+// a concurrent queue will be used. We should not block those queues, since this
+// *may* cause GCD to spawn another thread if another task is to be executed on
+// the same concurrent queue. If the sync_queue is not contended, this should not
+// happen.
+// Otherwise, we probably should dispatch *asynchronously* even for the
+// cost of a block copy heap. But then, we cannot be sure that _state and
+// _result is "visible" in the handler queue, unless they have the same
+// target queue (which is NOT true currently!).
+
+
+
 - (void) fulfillWithValue:(id)result {
+    assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
     assert(![result isKindOfClass:[NSError class]]);
+
     dispatch_once(&_once_result, ^{
-        assert(s_sync_queue);
         // dispatch a fulfill signal on the sync queue:
-        dispatch_async(s_sync_queue, ^{
+        rx_dispatch_sync_queue(^{ // TODO: check whether dispatch_sync is preferable
             DLogInfo(@"self: %@, exec on sync_queue: `fulfillWithValue:`%@", self, result);
             _result = result;
-            self.isFulfilled = YES;
+            [self _setState:Fulfilled];
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
                 RX_DISPATCH_RELEASE(_handler_queue);
                 _handler_queue = NULL;
             }
+                 //  dispatch_sync(s_sync_queue, ^{ // TODO: check whether dispatch_sync is preferable
         });
     });
 }
 
 - (void) rejectWithReason:(id)reason {
+    assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+
     if (![reason isKindOfClass:[NSError class]]) {
         reason = [[NSError alloc] initWithDomain:@"RXPromise" code:-1000 userInfo:@{@"reason": reason}];
     }
     dispatch_once(&_once_result, ^{
-        assert(s_sync_queue);
         // dispatch a rejected signal on the sync queue:
-        dispatch_async(s_sync_queue, ^{
+        dispatch_async(s_sync_queue, ^{ // TODO: check whether dispatch_sync is preferable
             DLogInfo(@"self: %@, exec on sync_queue: `rejectWithReason:`%@", self, reason);
             _result = reason;
-            self.isRejected = YES;
+            [self _setState:Rejected];
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
                 RX_DISPATCH_RELEASE(_handler_queue);
@@ -268,17 +388,17 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 - (void) cancelWithReason:(id)reason {
+    //assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+
     if (![reason isKindOfClass:[NSError class]]) {
         reason = [[NSError alloc] initWithDomain:@"RXPromise" code:-1 userInfo:@{@"reason": reason}];
     }
     dispatch_once(&_once_result, ^{
-        assert(s_sync_queue);
         // dispatch a cancel signal on the sync queue:
-        dispatch_async(s_sync_queue, ^{
+        dispatch_async(s_sync_queue, ^{ // TODO: check whether dispatch_sync is preferable
             DLogInfo(@"self: %@, exec on sync_queue: `cancelWithReason:`%@", self, reason);
             _result = reason;
-            self.isCancelled = YES;
-            self.isRejected = YES;
+            [self _setState:Cancelled];
             if (_handler_queue) {
                 dispatch_resume(_handler_queue);
                 RX_DISPATCH_RELEASE(_handler_queue);
@@ -287,7 +407,7 @@ static dispatch_queue_t s_handler_queue_parent;
         });
     });
     dispatch_async(s_sync_queue, ^{
-        if (!_isCancelled) {
+        if (_state != Cancelled) {
             // We cancelled the promise at a time as it already was resolved.
             // That means, the _handler_queue is gone and we cannot forward the
             // cancellation event anymore.
@@ -303,24 +423,26 @@ static dispatch_queue_t s_handler_queue_parent;
 
 - (void) bind:(RXPromise*) other {
     assert(other != nil);
-    assert(!(_isRejected || _isFulfilled));
-    dispatch_async(s_sync_queue, ^{
-        if (_isCancelled) {
+    //assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    
+    dispatch_async(s_sync_queue, ^{  // TODO: check whether dispatch_sync is preferable
+        assert(_state == Pending || _state == Cancelled);
+        if (_state == Cancelled) {
             [other cancelWithReason:_result];
             return;
         }
         other.then(^id(id result){
-            assert( !(_isRejected || _isFulfilled) || _isCancelled );
+            assert( _state == Pending || _state == Cancelled );
             [self fulfillWithValue:result];
             return result;
         }, ^id(NSError*error){
-            assert( !(_isRejected || _isFulfilled) || _isCancelled );
+            assert( _state == Pending || _state == Cancelled );
             [self rejectWithReason:error];
             return error;
         });
         
         self.then(nil, ^id(NSError*reason){
-            if (_isCancelled) {
+            if (_state == Cancelled) {
                 [other cancelWithReason:reason];
             }
             return reason;
@@ -331,7 +453,8 @@ static dispatch_queue_t s_handler_queue_parent;
 
 
 - (void) setProgress:(id)progress {
-    dispatch_async(s_sync_queue, ^{
+    //assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
+    dispatch_async(s_sync_queue, ^{ // TODO: check whether dispatch_sync is preferable
         for (progressHandler_t block in _progressHandlers) {
             // The sync queue should not become contended, thus dispatch progress blocks
             // to a concurrent queue (caveat: may spawn many threads):
@@ -352,25 +475,32 @@ static dispatch_queue_t s_handler_queue_parent;
                      completion:(id(^)(id result))completionHandler
                           error:(id(^)(NSError* error))errorHandler
 {
-    assert(dispatch_get_specific("sync_queue.id") == RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue));
-    assert(_isFulfilled || _isRejected);
+    assert(dispatch_get_specific(KeyID) == RX_DISPATCH_BRIDGE_VOID_CAST(s_handler_parent_queue));
+    assert(_state != Pending);
     DLogInfo(@"returned promise: %@", returnedPromise);
     
+    // Note: when we reach here we should be pretty sure that there is no race
+    // when accessing _state and _result. Iff the handler queue and the sync
+    // queue have the same parent queue (which is currently NOT true!) this is
+    // always guaranteed. Nonetheless, be safe:
+    id result = self.result;
+    RXPomise_State state = self.state;
+    
     id new_result;
-    if (_isFulfilled) {
-        new_result = completionHandler ? completionHandler(_result) : _result;
-    } else if (_isRejected) {
+    if (state == Fulfilled) {
+        new_result = completionHandler ? completionHandler(result) : result;
+    } else {
         if (!errorHandler) {
-            DLogInfo(@"error signal with reason %@ not handled by the promise %@", _result, self);
+            DLogInfo(@"error signal with reason %@ not handled by the promise %@", result, self);
         }
-        new_result = errorHandler ? errorHandler(_result) : _result;
+        new_result = errorHandler ? errorHandler(result) : result;
     }
     if (new_result == returnedPromise) {
         NSError* error = [NSError errorWithDomain:@"RXPromise" code:-2 userInfo:@{NSLocalizedDescriptionKey: @"TypeError"}];
         [returnedPromise rejectWithReason:error];
         return;
     }
-    if (_isCancelled) {
+    if (state == Cancelled) {
         [returnedPromise cancelWithReason:new_result];
         return;
     }
@@ -384,31 +514,27 @@ static dispatch_queue_t s_handler_queue_parent;
 
 #pragma mark -
 
+
+
 - (RXPromise*) then:(id(^)(id result))completionHandler
        errorHandler:(id(^)(NSError* error))errorHandler
     progressHandler:(void(^)(id progress))progressHandler
 {
     DLogInfo(@"Invoking `then`. self: %@", self);
-    
     RXPromise* promise = [[RXPromise alloc] init];
     dispatch_async(s_sync_queue, ^{
         [self.promises addObject:promise];
         // handlers will be queued in the sync queue behind "us".
-        if (!(_isFulfilled || _isRejected)) {
+        if (_state == Pending) {
             DLogInfo(@"exec on sync_queue: queueing handler on handler queue. self: %@", self);
             dispatch_async(self.handlerQueue, ^{
-                DLogInfo(@"exec on handler_queue: dispatch handler on sync queue. self: %@", self);
-                assert(self.isFulfilled || self.isRejected);
-                dispatch_async(s_sync_queue, ^{
-                    DLogInfo(@"exec on sync_queue: self: %@, returned promise: %@ ...", self, promise);
-                    [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
-                });
+                // Note: the current queue is suspended!
+                assert(_state != Pending); // TODO: is it's safe to access _state?
+                [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
             });
         }
         else {
-            DLogInfo(@"exec on sync_queue: dispatch handler on sync queue. self: %@", self);
-            dispatch_async(s_sync_queue, ^{
-                DLogInfo(@"exec on sync_queue: self: %@, returned promise: %@ ...", self, promise);
+            dispatch_async(s_handler_parent_queue, ^{ // TODO: check whether dispatch_sync is preferable
                 [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
             });
         }
@@ -441,31 +567,44 @@ static dispatch_queue_t s_handler_queue_parent;
 }
 
 
+- (void) always:(void(^)(id value))onCompletion {
+    assert(onCompletion);
+    self.then(^id(id result){
+        onCompletion(result);
+        return nil;
+    }, ^id(NSError*error){
+        onCompletion(error);
+        return nil;
+    });
+}
 
-
+#pragma mark -
 
 - (id) get
 {
-    assert(dispatch_get_specific("sync_queue.id") != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)); // Must not execute on the private sync queue!
+    assert(dispatch_get_specific(KeyID) != RX_DISPATCH_BRIDGE_VOID_CAST(s_sync_queue)); // Must not execute on the private sync queue!
     
     __block id result;
-    __block dispatch_queue_t handler_queue = NULL;
+    __block dispatch_semaphore_t avail = NULL;
     dispatch_sync(s_sync_queue, ^{
-        if (_isFulfilled || _isRejected) {
+        if (_state != Pending) {
             result = _result;
             return;
+        } else {
+            avail = dispatch_semaphore_create(0);
+            dispatch_async(self.handlerQueue, ^{
+                dispatch_semaphore_signal(avail);
+            });
         }
-        handler_queue = self.handlerQueue;
-        RX_DISPATCH_RETAIN(handler_queue);
     });
-    if (handler_queue) {
+    if (avail) {
         // result was not yet availbale: queue a handler
-        dispatch_sync(handler_queue, ^{  // block until handler_queue will be resumed ...
+        if (dispatch_semaphore_wait(avail, DISPATCH_TIME_FOREVER) == 0) { // wait until handler_queue will be resumed ...
             dispatch_sync(s_sync_queue, ^{  // safely retrieve _result
                 result = _result;
             });
-        });
-        RX_DISPATCH_RELEASE(handler_queue);
+        }
+        RX_DISPATCH_RELEASE(avail);
     }
     return _result;
 }
@@ -487,8 +626,9 @@ static dispatch_queue_t s_handler_queue_parent;
     NSMutableString* desc = [[NSMutableString alloc] initWithFormat:@"%@<%@:%p> { State: %@ }",
                              indent,
                              NSStringFromClass([self class]), (__bridge void*)self,
-                             (_isFulfilled?[NSString stringWithFormat:@"fulfilled with value: %@", _result]:
-                              _isRejected?[NSString stringWithFormat:@"rejected with reason: %@", _result]
+                             ( (_state == Fulfilled)?[NSString stringWithFormat:@"fulfilled with value: %@", _result]:
+                              (_state == Rejected)?[NSString stringWithFormat:@"rejected with reason: %@", _result]:
+                              (_state == Cancelled)?[NSString stringWithFormat:@"cancelled with reason: %@", _result]
                               :@"pending")
                              ];
     if (_promises) {
