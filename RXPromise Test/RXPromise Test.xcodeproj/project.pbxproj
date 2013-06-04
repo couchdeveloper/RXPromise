@@ -10,8 +10,8 @@
 		A10ABA92174B6138003840FD /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10ABA91174B6138003840FD /* SenTestingKit.framework */; };
 		A10ABA9E174B6138003840FD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10ABA9C174B6138003840FD /* InfoPlist.strings */; };
 		A10ABAA1174B6138003840FD /* RXPromise_Test.mm in Sources */ = {isa = PBXBuildFile; fileRef = A10ABAA0174B6138003840FD /* RXPromise_Test.mm */; };
+		A154E68E175E4B720041234C /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A154E68D175E4B720041234C /* libRXPromise.a */; };
 		A19C19E41759F337008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19E31759F337008E3F63 /* Foundation.framework */; };
-		A19C19E81759F5FA008E3F63 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19E71759F5FA008E3F63 /* RXPromise.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,8 +22,8 @@
 		A10ABA9F174B6138003840FD /* RXPromise_Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise_Test.h; sourceTree = "<group>"; };
 		A10ABAA0174B6138003840FD /* RXPromise_Test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise_Test.mm; sourceTree = "<group>"; };
 		A10ABAA2174B6138003840FD /* RXPromise Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise Test-Prefix.pch"; sourceTree = "<group>"; };
+		A154E68D175E4B720041234C /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = ../DerivedData/Promise/Build/Products/Debug/libRXPromise.a; sourceTree = "<group>"; };
 		A19C19E31759F337008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A19C19E71759F5FA008E3F63 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../DerivedData/Promise/Build/Products/Release/RXPromise.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,7 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C19E81759F5FA008E3F63 /* RXPromise.framework in Frameworks */,
+				A154E68E175E4B720041234C /* libRXPromise.a in Frameworks */,
 				A19C19E41759F337008E3F63 /* Foundation.framework in Frameworks */,
 				A10ABA92174B6138003840FD /* SenTestingKit.framework in Frameworks */,
 			);
@@ -60,7 +60,7 @@
 		A10ABA90174B6138003840FD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A19C19E71759F5FA008E3F63 /* RXPromise.framework */,
+				A154E68D175E4B720041234C /* libRXPromise.a */,
 				A19C19E31759F337008E3F63 /* Foundation.framework */,
 				A10ABA91174B6138003840FD /* SenTestingKit.framework */,
 			);
@@ -210,11 +210,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Debug\"",
-					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Release\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -233,6 +229,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../RXPromise/Source\"";
 				INFOPLIST_FILE = "RXPromise Test/RXPromise Test-Info.plist";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -257,11 +254,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Debug\"",
-					"\"$(SRCROOT)/../DerivedData/Promise/Build/Products/Release\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -273,6 +266,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../RXPromise/Source\"";
 				INFOPLIST_FILE = "RXPromise Test/RXPromise Test-Info.plist";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

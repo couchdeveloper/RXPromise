@@ -7,21 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A154E688175E4A4E0041234C /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
 		A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19A61759E879008E3F63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A19C19A41759E879008E3F63 /* InfoPlist.strings */; };
 		A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19C31759E8CA008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19C21759E8CA008E3F63 /* Foundation.framework */; };
 		A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A19C19D41759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A19C19D51759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
 		A19C19D61759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
 		A19C19D71759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
 		A19C19D81759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
-		A19C19D91759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
 		A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A154E687175E48F70041234C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+				A154E688175E4A4E0041234C /* RXPromise.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A19C19BF1759E8CA008E3F63 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -229,15 +238,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A19C19B01759E894008E3F63 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A19C19D41759EA3B008E3F63 /* RXPromise.h in Headers */,
-				A19C19D91759EA3B008E3F63 /* DLog.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -265,7 +265,7 @@
 			buildPhases = (
 				A19C19AE1759E894008E3F63 /* Sources */,
 				A19C19AF1759E894008E3F63 /* Frameworks */,
-				A19C19B01759E894008E3F63 /* Headers */,
+				A154E687175E48F70041234C /* CopyFiles */,
 			);
 			buildRules = (
 			);
