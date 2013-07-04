@@ -9,106 +9,79 @@
 #import <Foundation/Foundation.h>
 #import <RXPromise/RXPromise.h>
 
-
 typedef void (^completion_t)();
 
-//static void work_for(RXPromise*promise, double duration, dispatch_queue_t queue, double interval, completion_t completion) {
-//    if (promise.isCancelled)
-//        return;
-//    __block double t = duration;
-//    if (t > 0) {
-//        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(std::min(interval, t) * NSEC_PER_SEC));
-//        dispatch_after(popTime, queue, ^(void) {
-//            //printf(".");
-//            if (promise.isCancelled)
-//                return;
-//            else if (t > interval)
-//                work_for(promise, t-interval, queue, completion);
-//            else {
-//                //printf("\n");
-//                completion();
-//            }
-//        });
-//    }
-//    else {
-//        //printf("\n");
-//        completion();
-//    }
-//}
-//
-//static RXPromise* async(double duration, id result) {
-//    RXPromise* promise = [RXPromise new];
-//    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-//    work_for(promise, duration, queue, 0.1, ^{
-//        [promise fulfillWithValue:result];
-//    });
-//    return promise;
-//}
-//
+
+// An unary task takes one parameter and returns a RXPromise
+typedef RXPromise* (^unary_async_t)(id param);
 
 
-static RXPromise* async(int n) {
-    RXPromise* promise = [[RXPromise alloc] init];
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        //printf(".");
-        [promise fulfillWithValue:[NSNumber numberWithInt:n]];
-    });
-    return promise;
-}
 
-
-static RXPromise* chain(int n)
+static void do_each(NSEnumerator* iter, unary_async_t task, RXPromise* promiseResult)
 {
-    return async(n)
-    .then(^id(id result_){
-        int x = [result_ intValue];
-        if (x>0){
-            return chain(n-1);
-        } else {
-            return @"Done";
-        }
-    }, ^id(NSError*error){
-        return error;
-    });
-}
-
-
-
-typedef RXPromise* (func_t)(int n);
-
-static void do_each(int n, func_t task, RXPromise* result)
-{
-    if (n == 0) {
-        return [result fulfillWithValue:@"Done"];
+    if (promiseResult.isCancelled) {
+        return;
     }
-    task(n).then(^id(id number){
-        do_each(n-1, task, result);
-        return number;
+    id obj = [iter nextObject];
+    if (obj == nil) {
+        [promiseResult fulfillWithValue:@"Done"];
+        return;
+    }
+    task(obj).then(^id(id result){
+        do_each(iter, task, promiseResult);
+        return result;
     }, ^id(NSError*error){
         return error;
     });
 }
 
-static RXPromise* each(int n, func_t task)
+static RXPromise* sequence(NSArray* array, unary_async_t task)
 {
+    NSEnumerator* iter = [array objectEnumerator];
     RXPromise* result = [[RXPromise alloc] init];
-    do_each(n, task, result);
+    do_each(iter, task, result);
     return result;
 }
 
 
 
 
+@implementation NSArray (RX_extensions)
+
+- (RXPromise*) async_each:(unary_async_t) task {
+    return sequence(self, task);
+}
+
+@end
+
+
 int main(int argc, const char * argv[])
 {
-    for (int i = 0; i < 100 ; ++i) {
-        @autoreleasepool {
-            RXPromise* result = each(1000, async);
-            [result wait];
-            
-            printf("Result: %s\n", [[[result get] description] UTF8String]);
-            printf("promise: %s\n", [[result description] UTF8String]);
-        }
+    @autoreleasepool {
+        
+        // Define a task which takes 1 second to run.
+        double delayInSeconds = 1.0;
+        unary_async_t task = ^(id obj) {
+            RXPromise* promise = [[RXPromise alloc] init];
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                NSLog(@"Start: %@", obj);
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+                    NSLog(@"End: %@", obj);
+                    [promise fulfillWithValue:obj];
+                });
+            });
+            return promise;
+        };
+        
+        
+        // Create a number of inputs which will be passed to the task's parameter _param_
+        NSArray* inputArray = @[@"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H", @"I", @"J"];
+        RXPromise* result = [inputArray async_each:task];
+        [result wait];
+        
+//        printf("Result: %s\n", [[[result get] description] UTF8String]);
+//        printf("promise: %s\n", [[result description] UTF8String]);
     }
     return 0;
 }

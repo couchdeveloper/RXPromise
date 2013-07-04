@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>6E7D3DAD-54FC-4BA4-A1CD-091702FDBBE0</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Promise</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>81D3FDBA-A3AC-4A53-8CA8-5DE46F766065</key>
+		<string>https://github.com/couchdeveloper/RXPromise.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Promise.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>81D3FDBA-A3AC-4A53-8CA8-5DE46F766065</key>
+		<string>..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/couchdeveloper/RXPromise.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>81D3FDBA-A3AC-4A53-8CA8-5DE46F766065</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>81D3FDBA-A3AC-4A53-8CA8-5DE46F766065</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Promise</string>
+		</dict>
+	</array>
+</dict>
+</plist>

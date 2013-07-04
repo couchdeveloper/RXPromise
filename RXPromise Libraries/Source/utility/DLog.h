@@ -1,9 +1,6 @@
 //
 //  DLog.h
 //
-//  If not otherwise noted, the content in this package is licensed
-//  under the following license:
-//
 //  Copyright 2013 Andreas Grosam
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");

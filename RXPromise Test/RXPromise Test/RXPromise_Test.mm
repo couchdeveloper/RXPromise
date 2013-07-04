@@ -387,11 +387,33 @@ RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispatch_que
 
 -(void)testStatePending
 {
-    RXPromise* promise = [[RXPromise alloc] init];
-    STAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
-    STAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
-    STAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
-    STAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
+    @autoreleasepool {
+        
+        __block int x = 0;
+        
+        RXPromise* promise = [[RXPromise alloc] init];
+        RXPromise* promise2 = promise.then(^id(id result) {
+            x = -1;
+            return nil;
+        }, nil);
+        promise2 = nil;
+        
+        STAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
+        STAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
+        STAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
+        STAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
+        
+        __unsafe_unretained RXPromise* p = promise;
+        sleep(5);
+        promise = nil;
+        sleep(5);
+//        [p fulfillWithValue:nil];
+//        sleep(5);
+//        promise = nil;
+        
+        NSLog(@"finished with %d", x);
+    }
+    
 }
 
 -(void) testStateFulfilled
@@ -2521,6 +2543,68 @@ RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispatch_que
 }
 
 
+-(void) testAllFulfilled {
+    NSMutableString*  s0 = [[NSMutableString alloc] init];
+    
+    NSArray* promises = @[async(0.1, @"A").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async(0.1, @"B").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async(0.1, @"C").then(^id(id result){[s0 appendString:result]; return nil;},nil)];
+    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        STAssertTrue(result == promises, @"");
+        return nil;
+    },^id(NSError*error){
+        STFail(@"must not be called");
+        NSLog(@"ERROR: %@", error);
+        return error;
+    });
+    
+    [all wait];
+    STAssertTrue([s0 isEqualToString:@"ABC"], s0);
+}
+
+
+-(void) testAllOneRejected {
+    NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
+    
+    NSArray* promises = @[async(0.1, @"A").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async_fail(0.1, @"B").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async(1, @"C").then(^id(id result){[s0 appendString:result]; return nil;},nil)];
+    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+        STFail(@"must not be called");
+        return nil;
+    },^id(NSError*error){
+        STAssertTrue([@"B" isEqualToString:error.userInfo[@"reason"]], @"");
+        return error;
+    });
+    
+    [all wait];
+    STAssertTrue([s0 isEqualToString:@"A"], s0);
+}
+
+-(void) testAllCancelled {
+    NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
+    
+    NSArray* promises = @[async(0.1, @"A").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async_fail(1, @"B").then(^id(id result){[s0 appendString:result]; return nil;},nil),
+                          async(1, @"C").then(^id(id result){[s0 appendString:result]; return nil;},nil)];
+    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+        STFail(@"must not be called");
+        return nil;
+    },^id(NSError*error){
+        STAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+        return error;
+    });
+    
+    double delayInSeconds = 0.2;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [all cancel];
+    });
+    
+    [all wait];
+    STAssertTrue([s0 isEqualToString:@"A"], s0);
+}
 
 
 

@@ -19,3 +19,4 @@ doc/
 *.pbxuser
 *.perspectivev3
 xcuserdata
+project.xcworkspace

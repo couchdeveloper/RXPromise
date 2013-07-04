@@ -1,9 +1,6 @@
 //
 //  RXPromise.m
 //
-//  If not otherwise noted, the content in this package is licensed
-//  under the following license:
-//
 //  Copyright 2013 Andreas Grosam
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +22,11 @@
 
 #import "RXPromise.h"
 #include <dispatch/dispatch.h>
-//#define DEBUG_LOG_MIN 4   //enable this in order to log verbosely
+//#define DEBUG_LOG 4   //enable this in order to log verbosely
+#if defined (DEBUG_LOG)
+#undef DEBUG_LOG
+#endif
+#define DEBUG_LOG 2
 #import "utility/DLog.h"
 #include <assert.h>
 #include <stdio.h>
@@ -86,12 +87,12 @@
 @end
 
 
-
+/** RXPomise_State */
 typedef enum RXPomise_StateT {
-    Pending     = 0x0,
-    Fulfilled   = 0x01,
-    Rejected    = 0x02,
-    Cancelled   = 0x06
+    Pending     = 0x0,      
+    Fulfilled   = 0x01,     
+    Rejected    = 0x02,     
+    Cancelled   = 0x06      
 } RXPomise_State;
 
 @interface RXPromise ()
@@ -292,10 +293,16 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
 
 // property then
 - (then_t) then {
+    __block RXPromise* blockSelf = self;
     return ^(completionHandler_t completionHandler, errorHandler_t errorHandler) {
-        return [self then:completionHandler errorHandler:errorHandler progressHandler:NULL];
+        RXPromise* returnedPromise;
+        [blockSelf registerCompletionHandler:completionHandler errorHandler:errorHandler progressHandler:NULL returnedPromise:&returnedPromise];
+        blockSelf = nil;
+        return returnedPromise;
     };
 }
+
+
 
 - (NSMutableArray*) progressHandlers
 {
@@ -352,7 +359,7 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
 
     dispatch_once(&_once_result, ^{
         // dispatch a fulfill signal on the sync queue:
-        rx_dispatch_sync_queue(^{ // TODO: check whether dispatch_sync is preferable
+        dispatch_async(s_sync_queue, ^{
             DLogInfo(@"self: %@, exec on sync_queue: `fulfillWithValue:`%@", self, result);
             _result = result;
             [self _setState:Fulfilled];
@@ -361,7 +368,6 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
                 RX_DISPATCH_RELEASE(_handler_queue);
                 _handler_queue = NULL;
             }
-                 //  dispatch_sync(s_sync_queue, ^{ // TODO: check whether dispatch_sync is preferable
         });
     });
 }
@@ -470,7 +476,8 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
 
 #pragma mark -
 
-
+// `returnedPromise` may be nil, which means that we simply call the corresponding
+// completion handler but do not resolve the returned promise.
 - (void) resolveReturnedPromise:(RXPromise*)returnedPromise
                      completion:(id(^)(id result))completionHandler
                           error:(id(^)(NSError* error))errorHandler
@@ -495,20 +502,22 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
         }
         new_result = errorHandler ? errorHandler(result) : result;
     }
-    if (new_result == returnedPromise) {
-        NSError* error = [NSError errorWithDomain:@"RXPromise" code:-2 userInfo:@{NSLocalizedDescriptionKey: @"TypeError"}];
-        [returnedPromise rejectWithReason:error];
-        return;
-    }
-    if (state == Cancelled) {
-        [returnedPromise cancelWithReason:new_result];
-        return;
-    }
-    if (new_result != nil) {
-        [new_result rxp_resolvePromise:returnedPromise];
-    }
-    else {
-        [returnedPromise fulfillWithValue:nil]; // fulfill with `nil`
+    if (returnedPromise != nil) {
+        if (new_result == returnedPromise) {
+            NSError* error = [NSError errorWithDomain:@"RXPromise" code:-2 userInfo:@{NSLocalizedDescriptionKey: @"TypeError"}];
+            [returnedPromise rejectWithReason:error];
+            return;
+        }
+        if (state == Cancelled) {
+            [returnedPromise cancelWithReason:new_result];
+            return;
+        }
+        if (new_result != nil) {
+            [new_result rxp_resolvePromise:returnedPromise];
+        }
+        else {
+            [returnedPromise fulfillWithValue:nil]; // fulfill with `nil`
+        }
     }
 }
 
@@ -516,46 +525,108 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
 
 
 
-- (RXPromise*) then:(id(^)(id result))completionHandler
-       errorHandler:(id(^)(NSError* error))errorHandler
-    progressHandler:(void(^)(id progress))progressHandler
+- (void) registerCompletionHandler:(id(^)(id result))completionHandler
+                      errorHandler:(id(^)(NSError* error))errorHandler
+                   progressHandler:(void(^)(id progress))progressHandler
+                   returnedPromise:(RXPromise**)returnedPromise
 {
-    DLogInfo(@"Invoking `then`. self: %@", self);
-    RXPromise* promise = [[RXPromise alloc] init];
+    DLogInfo(@"self: %@", self);
+    RXPromise* promise = nil;
+    if (returnedPromise != NULL) {
+        promise = [[RXPromise alloc] init];
+        *returnedPromise = promise;
+    }
+    __block RXPromise* blockSelf = self;
     dispatch_async(s_sync_queue, ^{
-        [self.promises addObject:promise];
+        if (promise)
+            [blockSelf.promises addObject:promise];
         // handlers will be queued in the sync queue behind "us".
         if (_state == Pending) {
             DLogInfo(@"exec on sync_queue: queueing handler on handler queue. self: %@", self);
-            dispatch_async(self.handlerQueue, ^{
+            __weak RXPromise* weakSelf = blockSelf;
+            dispatch_async(blockSelf.handlerQueue, ^{
                 // Note: the current queue is suspended!
                 assert(_state != Pending); // TODO: is it's safe to access _state?
-                [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
+                if (weakSelf) {
+                    [weakSelf resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
+                } else {
+                    DLogWarn(@"promise has been deleted before handlers called.");
+                }
             });
         }
         else {
             dispatch_async(s_handler_parent_queue, ^{ // TODO: check whether dispatch_sync is preferable
-                [self resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
+                [blockSelf resolveReturnedPromise:promise completion:completionHandler error:errorHandler];
             });
         }
         if (progressHandler) {
-            [self.progressHandlers addObject:progressHandler];
+            [blockSelf.progressHandlers addObject:progressHandler];
+        }
+        blockSelf = nil;
+    });
+    DLogInfo(@"Returning. self: %@", self);
+}
+
+
+- (void) registerCompletionHandler:(id(^)(id result))completionHandler
+                            errorHandler:(id(^)(NSError* error))errorHandler
+                         returnedPromise:(RXPromise**)returnedPromise
+{
+    [self registerCompletionHandler:completionHandler errorHandler:errorHandler progressHandler:nil returnedPromise:returnedPromise];
+}
+
+- (void) registerCompletionHandler:(id(^)(id result))completionHandler
+                         returnedPromise:(RXPromise**)returnedPromise
+{
+    [self registerCompletionHandler:completionHandler errorHandler:nil progressHandler:nil returnedPromise:returnedPromise];
+}
+
+
+// Thenable:
+
+- (RXPromise*)then:(completionHandler_t)completionHandler errorHandler:(errorHandler_t)errorHandler {
+    RXPromise* returnedPromise;
+    [self registerCompletionHandler:completionHandler errorHandler:errorHandler progressHandler:nil returnedPromise:&returnedPromise];
+    return returnedPromise;
+}
+
+
+
+#pragma mark -
+
+
++(RXPromise*) all:(NSArray*)promises
+{
+    __block int count = (int)[promises count];
+    assert(count > 0);
+    RXPromise* promise = [[RXPromise alloc] init];
+    completionHandler_t onSuccess = ^(id result){
+        --count;
+        if (count == 0) {
+            [promise fulfillWithValue:promises];
+        }
+        return result;
+    };
+    errorHandler_t onError = ^(NSError* error) {
+        [promise rejectWithReason:error];
+        return error;
+    };
+    dispatch_async(s_sync_queue, ^{
+        for (RXPromise* p in promises) {
+            p.then(onSuccess, onError);
         }
     });
-    DLogInfo(@"Returning from `then`. self: %@", self);
+    
+    promise.then(nil, ^id(NSError*error){
+        for (RXPromise* p in promises) {
+            [p cancelWithReason:error];
+        }
+        return error;
+    });
+    
     return promise;
 }
 
-
-- (RXPromise*) then:(id(^)(id result))completionHandler
-       errorHandler:(id(^)(NSError* error))errorHandler
-{
-    return [self then:completionHandler errorHandler:errorHandler progressHandler:nil];
-}
-
-- (RXPromise*) then:(id(^)(id result))completionHandler {
-    return [self then:completionHandler errorHandler:nil progressHandler:nil ];
-}
 
 
 #pragma mark -
@@ -566,7 +637,7 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
     [self cancelWithReason:@"cancelled"];
 }
 
-
+/** Future version
 - (void) always:(void(^)(id value))onCompletion {
     assert(onCompletion);
     self.then(^id(id result){
@@ -576,7 +647,8 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
         onCompletion(error);
         return nil;
     });
-}
+} 
+*/
 
 #pragma mark -
 
@@ -648,14 +720,15 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
 
 @implementation RXPromise (RXResolver)
 - (void) rxp_resolvePromise:(RXPromise*)promise {
-    [self then:^id(id result) {
+    [self registerCompletionHandler:^id(id result) {
         [promise fulfillWithValue:result];  // §2.2: if self is fulfilled, fulfill promise with the same value
         return nil;
     }
-  errorHandler:^id(NSError* error) {
-      [promise rejectWithReason:error];  // §2.3: if self is rejected, reject promise with the same value.
-      return nil;
-  }];
+    errorHandler:^id(NSError *error) {
+        [promise rejectWithReason:error];  // §2.3: if self is rejected, reject promise with the same value.
+        return nil;
+    } progressHandler:nil
+    returnedPromise:NULL];
 }
 @end
 
@@ -675,7 +748,8 @@ static inline void rx_dispatch_sync_queue(dispatch_block_t block)
       errorHandler:^id(NSError *error) {
           [promise rejectWithReason:error];
           return nil;
-      }];
+      }
+      ];
     }
     else {
         // We should reach here if value is either `nil`, is an `NSError`, or
