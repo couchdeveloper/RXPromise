@@ -57,8 +57,29 @@ The libraries require deployment target >= Mac OS X 10.7, respectively >= iOS 5.
 Due to moving the code into libraries, the logging mechanism became an implementation detail. Log level has been set to `DEBUG_LOGLEVEL_WARN` for Debug configurations - that is, only warning messages will be printed which may indiciate an error somewhere. For Release configuration the debug log level has been set to `DEBUG_LOGLEVEL_ERROR`, which always means a really serious error.
 
 
+
 ### Version 0.5.1 beta (4.06.2013)
 
 #### Bug Fixes
 
 * Fixed Copy Header path for Mac OS X static library
+
+
+
+### Version 0.6 beta (5.07.2013)
+
+#### Changes 
+
+* The implementaion became more memory efficient. However, this required to use a standard container from the C++ standard library. This has the consequence, that an application which links against the static library or incorporates the sources directly need to link against the standard C++ library by adding the compiler option "-lc++" to the "Other Linker Flags" build setting. When linking against the framework, this setting is not required.
+
+
+* Added a few samples to show some advanced use cases.
+
+
+* Removed the "preliminary" API for the process handler. IMO, a process handler is not appropriate for a Promise - that may be moved to the asynchronous provider.
+
+
+* A few new unit tests have been added to specifically test subtle edgecases. The implementation appears to be quite stable and no failure could have been detected.
+
+
+
