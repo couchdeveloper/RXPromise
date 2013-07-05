@@ -97,7 +97,7 @@ The part interfacing to the service provider is also often called "Deferred":
 
 A promise shall always be created by the asynchronous service provider. Initially, a promise is in the _pending_ state.
 
-When the asynchronous function eventually succeeds or fails the asynchronous service provider must _resolve_ its associated promise. "Resolving" is either fulfilling or rejecting the promise with its corresponding values, either the final result or an error. 
+When the asynchronous function eventually succeeds or fails the asynchronous service provider must _resolve_ its associated promise. "Resolving" is either fulfilling or rejecting the promise with it's corresponding values, either the final result or an error.
 
 That means, in order to resolve the promise when the task succeeded the asynchronous service provider must send the promise a _fulfillWithResult:_ message whose parameter represents the result value of the asynchronous function. Otherwise, if the asynchronous function fails, the asynchronous service provider must send the promise a _rejectWithReason:_ message whose parameter represents the reason for the failure, possibly an `NSError` object.
 

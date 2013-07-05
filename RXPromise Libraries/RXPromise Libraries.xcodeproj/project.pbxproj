@@ -6,20 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		A154E68F175FCB830041234C /* Documentation */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = A154E692175FCB830041234C /* Build configuration list for PBXAggregateTarget "Documentation" */;
-			buildPhases = (
-				A154E693175FCBC40041234C /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = Documentation;
-			productName = Documentation;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		A154E686175E20960041234C /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
 		A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
@@ -330,7 +316,6 @@
 				A19C19971759E879008E3F63 /* RXPromise Framework */,
 				A19C19B11759E894008E3F63 /* RXPromise Static */,
 				A19C19C01759E8CA008E3F63 /* RXPRomise iOS */,
-				A154E68F175FCB830041234C /* Documentation */,
 			);
 		};
 /* End PBXProject section */
@@ -345,25 +330,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		A154E693175FCBC40041234C /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Source/",
-			);
-			outputPaths = (
-				"${BUILD_DIR}/${TARGETNAME}/",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "company=\"BitPassion\"\ncompanyID=\"com.BitPassion\"\ncompanyURL=\"\"\noutputPath=\"${SYMROOT}/${TARGETNAME}\"\n\n\n/usr/local/bin/appledoc --project-name \"RXPromise\" --project-company \"xx\" --company-id \"xx\" --output \"${outputPath}\" --logformat xcode --no-merge-categories --keep-intermediate-files --no-repeat-first-par --no-warn-invalid-crossref --exit-threshold 2 \"${PROJECT_DIR}/Source\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A19C19931759E879008E3F63 /* Sources */ = {
@@ -404,24 +370,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		A154E690175FCB830041234C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		A154E691175FCB830041234C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		A19C19911759E846008E3F63 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -641,15 +589,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A154E692175FCB830041234C /* Build configuration list for PBXAggregateTarget "Documentation" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A154E690175FCB830041234C /* Debug */,
-				A154E691175FCB830041234C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise Libraries" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
