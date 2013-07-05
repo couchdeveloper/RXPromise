@@ -27,9 +27,9 @@
 		A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19C31759E8CA008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19C21759E8CA008E3F63 /* Foundation.framework */; };
 		A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A19C19D51759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
-		A19C19D61759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
-		A19C19D71759EA3B008E3F63 /* RXPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.m */; };
+		A19C19D51759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
+		A19C19D61759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
+		A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
 		A19C19D81759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
 		A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
 /* End PBXBuildFile section */
@@ -58,9 +58,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A154E65D175C74F10041234C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		A154E660175C74F10041234C /* Chain-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Chain-Prefix.pch"; sourceTree = "<group>"; };
-		A154E661175C74F10041234C /* Chain.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Chain.1; sourceTree = "<group>"; };
 		A19C19981759E879008E3F63 /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A19C199B1759E879008E3F63 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A19C199E1759E879008E3F63 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -77,7 +74,7 @@
 		A19C19C21759E8CA008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A19C19C61759E8CB008E3F63 /* RXPRomise iOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPRomise iOS-Prefix.pch"; sourceTree = "<group>"; };
 		A19C19CF1759EA3B008E3F63 /* RXPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
-		A19C19D01759EA3B008E3F63 /* RXPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXPromise.m; sourceTree = "<group>"; };
+		A19C19D01759EA3B008E3F63 /* RXPromise.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise.mm; sourceTree = "<group>"; };
 		A19C19D21759EA3B008E3F63 /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
 		A19C19DA1759EA5D008E3F63 /* common.ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = common.ios.xcconfig; sourceTree = "<group>"; };
 		A19C19DB1759EA5D008E3F63 /* common.macosx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = common.macosx.xcconfig; sourceTree = "<group>"; };
@@ -116,24 +113,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A154E65C175C74F10041234C /* Chain */ = {
-			isa = PBXGroup;
-			children = (
-				A154E65D175C74F10041234C /* main.m */,
-				A154E661175C74F10041234C /* Chain.1 */,
-				A154E65F175C74F10041234C /* Supporting Files */,
-			);
-			path = Chain;
-			sourceTree = "<group>";
-		};
-		A154E65F175C74F10041234C /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				A154E660175C74F10041234C /* Chain-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		A19C198C1759E846008E3F63 = {
 			isa = PBXGroup;
 			children = (
@@ -142,7 +121,6 @@
 				A19C19A11759E879008E3F63 /* RXPromise Framework */,
 				A19C19B41759E894008E3F63 /* RXPromise Static */,
 				A19C19C41759E8CA008E3F63 /* RXPRomise iOS */,
-				A154E65C175C74F10041234C /* Chain */,
 				A19C199A1759E879008E3F63 /* Frameworks */,
 				A19C19991759E879008E3F63 /* Products */,
 			);
@@ -234,7 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				A19C19CF1759EA3B008E3F63 /* RXPromise.h */,
-				A19C19D01759EA3B008E3F63 /* RXPromise.m */,
+				A19C19D01759EA3B008E3F63 /* RXPromise.mm */,
 				A19C19D11759EA3B008E3F63 /* utility */,
 			);
 			path = Source;
@@ -392,7 +370,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C19D51759EA3B008E3F63 /* RXPromise.m in Sources */,
+				A19C19D51759EA3B008E3F63 /* RXPromise.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,7 +378,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C19D61759EA3B008E3F63 /* RXPromise.m in Sources */,
+				A19C19D61759EA3B008E3F63 /* RXPromise.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,7 +386,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C19D71759EA3B008E3F63 /* RXPromise.m in Sources */,
+				A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -491,6 +469,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
 				WRAPPER_EXTENSION = framework;
@@ -527,6 +506,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = RXPromise;
 				WRAPPER_EXTENSION = framework;
 			};

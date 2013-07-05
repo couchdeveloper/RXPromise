@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0500"
+   LastUpgradeVersion = "0460"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A154E669175C753E0041234C"
-               BuildableName = "Chain"
-               BlueprintName = "Chain"
-               ReferencedContainer = "container:../Samples/Samples.xcodeproj">
+               BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
+               BuildableName = "Sample2"
+               BlueprintName = "Sample2"
+               ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A154E669175C753E0041234C"
-            BuildableName = "Chain"
-            BlueprintName = "Chain"
-            ReferencedContainer = "container:../Samples/Samples.xcodeproj">
+            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
+            BuildableName = "Sample2"
+            BlueprintName = "Sample2"
+            ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -51,10 +51,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A154E669175C753E0041234C"
-            BuildableName = "Chain"
-            BlueprintName = "Chain"
-            ReferencedContainer = "container:../Samples/Samples.xcodeproj">
+            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
+            BuildableName = "Sample2"
+            BlueprintName = "Sample2"
+            ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -69,10 +69,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A154E669175C753E0041234C"
-            BuildableName = "Chain"
-            BlueprintName = "Chain"
-            ReferencedContainer = "container:../Samples/Samples.xcodeproj">
+            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
+            BuildableName = "Sample2"
+            BlueprintName = "Sample2"
+            ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
