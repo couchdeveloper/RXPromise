@@ -173,7 +173,7 @@ And the signature of the returned block was:
 Given an object of type `RXPromise` _promise_, we could now _call_ the block whatever the promise's property `thenOn` returns:
 
 ```objective-c
-    promise.theOn( ... );
+    promise.thenOn( ... );
 ```
 
 We know, that this block requires three parameters (while `then` requires two parameters). The first parameter _queue_ of the returned block from property `thenOn` is the _execution context_ of the handlers. This is a _dispatch queue_ which shall be defined by the call site to define _where_ the handlers shall be executed.
