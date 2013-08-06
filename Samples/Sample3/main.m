@@ -16,50 +16,121 @@
 
 typedef RXPromise* (^task_block_t)(void);
 
-static RXPromise* do_times(int n, task_block_t task, RXPromise* promise);
 
-static RXPromise* times(int n, task_block_t task)
+/**
+ 
+ @brief Call the task _task_ N times asynchrounously in sequence. The function 
+ _times_ forms itself an asynchronous task.
+ 
+ @discussion The result value of each task is ignored (one might define a
+ "task-completion" block in order to achieve that).
+ 
+ When the task _times_ will be cancelled, it cancelles the current active 
+ task and stops by rejecting its promise.
+ 
+ @param n The number of times _task_ shall be invoked.
+
+ @param task The task to be invoked.
+ 
+ @return A promise.
+ 
+ */
+RXPromise* times(int n, task_block_t task);
+
+
+
+
+static RXPromise* do_times(int n, task_block_t task, RXPromise* returnedPromise)
 {
-    RXPromise* promise = [RXPromise new];
-    do_times(n, task, promise);
-    return promise;
+    promise_completionHandler_t onSuccess = ^id(id result) {
+        do_times(n-1, task, returnedPromise);
+        return nil;
+    };
+    promise_errorHandler_t onError = ^id(NSError*error){
+        [returnedPromise rejectWithReason:error];
+        return nil;
+    };
+    
+    if (n == 0) {
+        [returnedPromise fulfillWithValue:@"OK"];
+        return returnedPromise;
+    }
+    if (returnedPromise.isCancelled) {
+        return returnedPromise;
+    }
+#if 1
+    task().then(onSuccess, onError);
+#else
+    [task() registerWithQueue:dispatch_get_global_queue(0, 0)
+                    onSuccess:onSuccess
+                    onFailure:onError
+                returnPromise:NO];
+    
+#endif
+    return returnedPromise;
 }
 
-static RXPromise* do_times(int n, task_block_t task, RXPromise* promise)
+RXPromise* times(int n, task_block_t task)
+{
+    RXPromise* returnedPromise = [RXPromise new];
+    do_times(n, task, returnedPromise);
+    return returnedPromise;
+}
+
+// Some nasty workload:
+unsigned int fibonacci_recursive(unsigned int n)
 {
     if (n == 0) {
-        [promise fulfillWithValue:@"OK"];
-        return promise;
+        return 0;
     }
-    if (promise.isCancelled) {
-        return promise;
+    if (n == 1) {
+        return 1;
     }
-    task().then(^id(id result) {
-        do_times(n-1, task, promise);
-        return nil;
-    }, ^id(NSError*error){
-        [promise rejectWithReason:error];
-        return nil;
-    });
-    return promise;
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
 }
-
-
-
 
 
 int main(int argc, const char * argv[])
 {
-    printf("start\n");
     @autoreleasepool {
+#if 1
+        // The time it takes to finish one fibonacci_recursive(30) call is roughly
+        // 15 ms. fibonacci_recursive is a CPU bound operation.
+        // Profiling reveals, that in this setup the overhead due to promises is
+        // merely 0.5% (99.5% time spent in function fibonacci_recursive).
+        // Four threads are in use (main thread which is blocked and three
+        // dispatch worker threads).
+        NSLog(@"start\n");
         [times(1000, ^RXPromise*(){
-            //printf(".");
-            RXPromise* promise = [RXPromise new];
-            [promise fulfillWithValue:@"OK"];
-            return promise;
-        }) wait];
+                RXPromise* promise = [RXPromise new];
+                __block int result;
+                dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                    result = fibonacci_recursive(30);
+                    [promise fulfillWithValue:[NSNumber numberWithInt:result]];
+                });
+                return promise;
+            })
+         wait];
+        NSLog(@"finished\n");
+#else
+        // For comparision:
+        // This code seems to benefit from a better utilization of CPU caches
+        // - which makes the fibonacci code about 15% faster than above.
+        // Only one thread is used.
+        
+        int r = 0;
+        NSLog(@"start\n");
+        for (int i = 0; i < 1000; ++i) {
+            int result = fibonacci_recursive(30);
+            NSNumber* number = [NSNumber numberWithInt:result];
+            r += result;
+            number = nil;
+        }
+        NSLog(@"finished %d\n", r);
+#endif
     }
-    printf("finished\n");
+    
+    
     return 0;
 }
 

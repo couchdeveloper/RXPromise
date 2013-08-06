@@ -60,19 +60,26 @@ The API has two parts: one for the "asynchronous service provider" and one for t
  Promise Client API
 */
 @interface RXPromise : NSObject
-@property (nonatomic, readonly) then_t then;
+@property (nonatomic, readonly) then_on_t   thenOn;
+@property (nonatomic, readonly) then_t      then;
 @end
 ```
 
- The value of the property `then` is a _block_ having two parameters. The first is the _completion handler_, the second is the _error handler_. The handlers are blocks again. The signatures are defined below:
+ The value of the property `thenOn` is a _block_ having three parameters. The first parameter specifies the execution context where the handlers are executed. The second is the _completion handler_ and the third is the _error handler_. The handlers are itself blocks. 
+
+ The value of the property `then` is the same as above, except that it omits the explicit execution context for handlers. Here, the _implicit_ execution context is a _concurrent queue_.
+ 
+The signatures are defined below:
+
 
 ```objective-c
 typedef id (^completionHandler_t)(id result);
 typedef id (^errorHandler_t)(NSError* error);
 typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
+typedef RXPromise* (^then_on_t)(dispatch_queue_t, completionHandler_t, errorHandler_t);
 ```
 
- One very important fact is that the return value of the block_ which is the value of the property `then` is again a promise. This enables to _chain_ promises which will be explained in more detail below in section "Chaining".
+ One very important fact is that the return value of the block, which is the value of the property `thenOn` respectively `then` is again a promise. This enables to _chain_ promises. Chaining asynchronous tasks will be explained in more detail below in section "Chaining".
  
 
 
@@ -138,24 +145,32 @@ When the promise will be resolved, the state of the promise changes from _pendin
 
 
 
-## The _then_ Property
+## The _thenOn_ and _then_ Property
 
- A "consumer" (or client) of the result of an asynchronous function may or may not keep a reference to the promise which the function returns. In any case, the client can specify callback handlers (blocks) which will be invoked when either the promise has been fulfilled or rejected. This will be accomplished with the property `then`.
+ A "consumer" (or client) of the result of an asynchronous function may or may not keep a reference to the promise which the function returns. In any case, the client can specify callback handlers (blocks) which will be invoked when either the promise has been fulfilled or rejected. This will be accomplished with the property `thenOn` and `then`.
 
-As shown already, property `then` returns a _block_ - which is quite unusual for a property. Since a block can be _called_ when applying the "invoke operator" (this is simply the function-call like syntax), we have a short hand for invoking the block that will be returned from a property. Remember the declaration of the `then` property:
-
-```objective-c
-    @property then_t then;
-```
-
-
-Given an object of type `RXPromise` _promise_, we could now _call_ the block whatever the promise's property `then` returns:
+As shown already, property `thenOn` and `then` returns a _block_ - which is quite unusual for a property. Since a block can be _called_ when applying the "invoke operator" (this is simply the function-call like syntax), we have a short hand for invoking the block that will be returned from a property. Remember the declaration of the `thenOn` property:
 
 ```objective-c
-    promise.then( ... );
+    @property then_on_t thenOn;
 ```
 
-We know, that this block requires two parameters. These are blocks, too, and their signature has given above. The block also returns another promise:
+And the signature of the returned block was:
+
+`typedef RXPromise* (^then_on_t)(dispatch_queue_t queue, completionHandler_t onSuccess, errorHandler_t onError);`
+
+
+Given an object of type `RXPromise` _promise_, we could now _call_ the block whatever the promise's property `thenOn` returns:
+
+```objective-c
+    promise.theOn( ... );
+```
+
+We know, that this block requires three parameters (while `then` requires two parameters). The first parameter _queue_ of the returned block from property `thenOn` is the _execution context_ of the handlers. This is a _dispatch queue_ which shall be defined by the call site to define _where_ the handlers shall be executed.
+
+The _onSuccess_ and _onError_ parameters are blocks, and their signature has already been given above.
+
+The `then_on_t` respectively the `then_t` block's return value is a promise, a _new_ promise - and often referred to the "returned promise" in the documentation.
 
 ```objective-c
     id completionHandler = ^id(id result) { ...; return something; }
@@ -168,7 +183,7 @@ And shorter in a hopefully comprehensible way:
 
 ```objective-c
     RXPromise* nextPromise = promise
-    .then(^id(id result) {
+    .thenOn(dispatch_get_main_queue(), ^id(id result) {
         ...;
         return something;
     },
@@ -178,7 +193,12 @@ And shorter in a hopefully comprehensible way:
     });
 ```
 
-That means, a given promise will create and return new promises when a client accesses the property `then`.
+That means, when sending a given promise the `thenOn` or `then` message the execution of the returned block will create and return a new promise.
+
+In a more intuitively example:
+
+    RXPromise* newPromise = promise.thenOn(queue, onSuccess, onError);
+
 
 The very first promise, the "root promise", must be obtained from an asynchronous service provider, though:
 
@@ -196,7 +216,7 @@ The client may now define what shall happen _when_ this asynchronous method succ
 ## Chaining
 
 
-The awesome feature of this `then` property is that it is a block which itself returns a promise. That way, it becomes possible to _chain_ several asynchronous tasks together, like in words, it performs this:
+The awesome feature of this `thenOn` and `then` property is that it is a block which itself returns a promise. That way, it becomes possible to _chain_ several asynchronous tasks together, like in words, it performs this:
 
 "Start task A. If finished successful, start task B. If finished successful start task C. If finished successful start task D. If finished successful return result, else return error.",
 
@@ -219,7 +239,7 @@ Again, an example will describe the concept of "chaining" promises in a more com
         ^id(id result) {
            return [self async_D:result];
         }, nil)
-    .then(
+    .thenOn(dispatch_get_main_queue(),
         ^id(id result) {
            NSLog(@"Result: %@", result);
            return result;
@@ -229,7 +249,7 @@ Again, an example will describe the concept of "chaining" promises in a more com
         });
 ```
 
-The code above chains four asynchronous tasks and a last one which just synchronously returns the result respectively an error.
+The code above chains four asynchronous tasks and a last one which just immediately returns the result respectively an error, which is executed on the main thread - since here it has been explicitly defined.
 
 
 
@@ -250,9 +270,9 @@ When task B completes, its final result will be passed to the next completion ha
 
 Note that the return values of the tasks are promises which will be returned from the handler. Since `then` returns a promise, the next `then` can be chained upon its previous `then` the same way. And so force.
 
-The last `then` eventually handles the end result - by simply logging the result of the four chained asynchronous tasks to the console.
+The last `thenOn` eventually handles the end result - by simply logging the result of the four chained asynchronous tasks to the console. Here, the execution context has been explicitly defined. That is, the handler executes on the specified queue - the main queue in the example.
 
-At the end of the statement, promise _endResult_ will be the promise returned from the _last_ `then`. When all tasks have been finished successfully, the _endResult_'s `value` will become the return value of the last completion handler - which is actually the result of the last task D.
+At the end of the statement, promise _endResult_ will be the promise returned from the _last_ `thenOn`. When all tasks have been finished successfully, the _endResult_'s `value` will become the return value of the last completion handler - which is actually the result of the last task D.
 
 If any of the tasks failed, _endResult_'s `value` will be the return value of the last error handler, which is in this example the error returned from the previous task. And that error, will possibly come from a previous task if that failed and so force. This is called "error propagation". So, when any of the tasks fails, promise _endResult_ will contain the error.
 
@@ -276,7 +296,8 @@ Likewise, if you feel the result from a completion handler is bogus you can inte
 
 ## Starting Parallel Tasks
 
-One feature that might become already obvious for the attentive reader is that it might possible to invoke *several* `then` blocks for a particular promise.
+One feature that might become already obvious for the attentive reader is that it might be possible to invoke *several* `then` blocks for a particular promise.
+
 In fact, this is perfectly valid:
 
 
@@ -304,16 +325,33 @@ In fact, this is perfectly valid:
 In the code snippet above the "root promise" will be obtained first and a reference is kept.
 The root promise will invoke several `then` blocks  - each returning a promise, which are not used in this sample, though.
 
-The effect of this is that once the root promise has been resolved, as the result of taskA is available, it serially executes all four handlers _in order_ they have been defined and possibly starts several new tasks "quasi" at once (since starting a asynchronous task returns quickly).
+The effect of this is that once the root promise has been resolved, as the result of taskA is available, it _concurrently_ executes all four handlers. These handler may start an asynchronous task or return an immediate value. 
 
-The newly started tasks now may return at indeterminable times and may cause to invoke their handlers, too. Though, don't worry about possibly race conditions when these handlers try to access a shared resource: all handlers are guaranteed to be synchronized - if they originate from the same root promise!
+If those handlers access shared resources we MUST be worried about concurrent access! In order to synchronize concurrent access to a shared resource we can explicitly specify the execution context of the handlers for example by setting a dedicated serial queue:
+
+```objective-c
+        dispatch_queue_t sync_queue = dispatch_queue_create("sync.queue", NULL);
+
+        id sharedResource = ...;
+        root.thenOn(sync_queue, ^id(id result) {
+            ...
+            [sharedResource foo];
+            return nil;
+        }, nil);
+        root.thenOn(sync_queue, ^id(id result) {
+            ...
+            [sharedResource foo];
+            return nil;
+        }, nil);
+
+```
 
 
 
-With this design it is possible to define even _complex trees_ of tasks in a concise way. Since access of shared resources is safe from within handlers, setting up complex composed tasks becomes quite easy.
+With this design it is possible to define even _complex trees_ of tasks in a concise way. Since access of shared resources can be made safe from within handlers, setting up complex composed tasks becomes quite easy.
 
 
-Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just invoke the `then` block and define what shall happen anywhere in a program. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.
+Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just invoke the `thenOn` or `then` block and define what shall happen anywhere in a program. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.
 
 
 ## Cancellation
@@ -367,9 +405,14 @@ A asynchronous service provider should - if it supports cancellation at all - ad
 
 
 
-## Synchronization Guarantees
+## Synchronization Guarantees For Shared Resources
 
-Concurrent access to shared resources is guaranteed to be safe for accesses from within handlers whose promises belong to the same "promise tree".
+Concurrent access to shared resources is guaranteed to be safe for accesses from within handlers which execute on the _same serial execution context_".
+The execution context for handlers can be explicitly set via property `thenOn` (which shall be a serial dispatch queue in this case).
+
+Using property `then` will use an implicit _concurrent_ execution context. Thus, handlers will execute _concurrently_ and access to shared resources is NOT guaranteed to be safe, unless the handler block implements appropriate synchronization itself!
+
+
 
 
 

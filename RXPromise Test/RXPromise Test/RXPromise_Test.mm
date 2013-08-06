@@ -9,9 +9,12 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import <RXPromise/RXPromise.h>
 #include <dispatch/dispatch.h>
+#include <atomic>
 #include <algorithm>  // std::min
 #include <string>
+#include <array>
 #include <cstdio>
+
 #include "DLog.h"
 
 #if defined (NDBEUG)
@@ -379,7 +382,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testPromiseAPI {
     
     RXPromise* promise = [[RXPromise alloc] init];
-    
     STAssertTrue( [promise respondsToSelector:@selector(then)], @"A promise must have a property 'then'" );
     STAssertTrue( [[promise then] isKindOfClass:NSClassFromString(@"NSBlock")], @"property 'then' must return a block");    
 }
@@ -694,7 +696,16 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
-        asyncOp(@"A", 1, nil, 0.01).then(^id(id){ dispatch_semaphore_signal(finished_sem); return nil; }, nil);
+        asyncOp(@"A", 1, nil, 0.01)
+        .then(^id(id) {
+            dispatch_semaphore_signal(finished_sem);
+            return nil;
+        },
+        ^id(NSError* error) {
+            STFail(@"error handler must not be called");
+            dispatch_semaphore_signal(finished_sem);
+            return nil;
+        });
         
         // The operation is finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
@@ -702,6 +713,90 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         @"success callback not called after 1 second");
     }
 }
+
+-(void) testBasicSuccessWithQueue
+{
+    // Check whether a promise fires its handlers in due time:
+    
+    @autoreleasepool {
+        // Note: When `thenOn`'s block is invoked, the handler is invoked on the
+        // specified queue via a dispatch_barrier_sync. This means, write access
+        // to shared resources occuring within the handler is thread safe.
+        const char* QueueID = "com.test.queue.id";
+        dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_queue_set_specific(concurrentQueue, QueueID, (__bridge void*)concurrentQueue, NULL);
+        
+        dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
+        
+        asyncOp(@"A", 1, nil, 0.01).thenOn(concurrentQueue, ^id(id){
+            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+            dispatch_semaphore_signal(finished_sem); return nil;
+        }, ^id(NSError* error){
+            STFail(@"error handler must not be called");
+            return nil;
+        });
+        
+        // The operation is finished after about 0.01 s. Thus, the handler should
+        // start to execute after about 0.01 seconds. Given a reasonable delay:
+        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+                     @"success callback not called after 1 second");
+    }
+}
+
+-(void) testBasicFailure
+{
+    // Check whether a promise fires its error handler in due time:
+    
+    @autoreleasepool {
+        
+        dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
+        
+        async_fail(.01).then(^id(id){
+            STFail(@"success handler must not be called");
+            return nil;
+        }, ^id(NSError* error){
+            dispatch_semaphore_signal(finished_sem);
+            return nil;
+        });
+        
+        // The operation is finished after about 0.01 s. Thus, the handler should
+        // start to execute after about 0.01 seconds. Given a reasonable delay:
+        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+                     @"error callback not called after 1 second");
+    }
+}
+
+-(void) testBasicFailureWithQueue
+{
+    // Check whether a promise fires its error handler in due time:
+    
+    @autoreleasepool {
+        
+        // Note: When `thenOn`'s block is invoked, the handler is invoked on the
+        // specified queue via a dispatch_barrier_sync. This means, write access
+        // to shared resources occuring within the handler is thread safe.
+        const char* QueueID = "com.test.queue.id";
+        dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_queue_set_specific(concurrentQueue, QueueID, (__bridge void*)concurrentQueue, NULL);
+        
+        dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
+        
+        async_fail(.01).thenOn(concurrentQueue, ^id(id){
+            STFail(@"success handler must not be called");
+            return nil;
+        }, ^id(NSError* error){
+            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+            dispatch_semaphore_signal(finished_sem);
+            return nil;
+        });
+        
+        // The operation is finished after about 0.01 s. Thus, the handler should
+        // start to execute after about 0.01 seconds. Given a reasonable delay:
+        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+                     @"error callback not called after 1 second");
+    }
+}
+
 
 
 -(void) testBasicChaining1
@@ -723,8 +818,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testBasicChaining2
 {
     RXPromise* p = async(0.01, @"A")
-    .then(^id(id result){return async(0.01, @"B");}, nil)
-    .then(^id(id result){return result; }, nil);
+    .then(^id(id result){
+        return async(0.01, @"B");
+    }, nil)
+    .then(^id(id result){
+        return result;
+    }, nil);
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"B"), unless an error occurred:
     id result = p.get;
@@ -1369,69 +1468,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 }
 
 
--(void) testParallelOPsMustExecuteSerially
-{
-    // The handlers must be executed serially in the same order as they
-    // have been scheduled.
-    
-    semaphore finished_sem;
-    semaphore& semRef = finished_sem;
-    
-    NSMutableString* s = [[NSMutableString alloc] init];
-    
-    RXPromise* p0; //, *p00, *p01, *p02, *p04;
-    
-    
-    p0 = async(0.01, @"A:success");
-    p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"A:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@""], @"");
-        [s appendString:@"A"];
-        return nil;
-    }, nil);
-    p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"A:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"A"], @"" );
-        [s appendString:@"B"];
-        return nil;
-    }, nil);
-    p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"A:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"AB"], @"" );
-        [s appendString:@"C"];
-        return nil;
-    }, nil);
-    p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"A:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"ABC"], @"" );
-        [s appendString:@"D"];
-        semRef.signal();
-        return nil;
-    }, ^(NSError* error){
-        semRef.signal();
-        return error;
-    });
-    
-    STAssertTrue(finished_sem.wait(1), @"success or error callback not called after 1 second");
-    STAssertTrue( [s isEqualToString:@"ABCD"], @"" );
-}
-
 
 -(void) testSpawnParallelOPs
 {
@@ -1553,7 +1589,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     STAssertTrue( [s isEqualToString:@"ABCD"], @"%@", s);
 }
 
-
 -(void) testChainedOPsWithFailure
 {
     // This runs four chained operations A, B, C and D. Operation "C" fails
@@ -1606,7 +1641,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // We do not have any promises to check.
     }
 }
-
 
 -(void) testChainedOPsWithFailureWithErrorHandlers
 {
@@ -2729,20 +2763,163 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 }
 
 
--(void) testAllFulfilled {
+#pragma mark -
+
+-(void) testAllFulfilled1
+{
+    // Run eight tasks in parallel:
+    NSArray* promises = @[async(0.05, @"A"),
+                          async(0.05, @"B"),
+                          async(0.05, @"C"),
+                          async(0.05, @"D"),
+                          async(0.05, @"E"),
+                          async(0.05, @"F"),
+                          async(0.05, @"G"),
+                          async(0.05, @"H")];
     
-    char buffer[8] = {'X'};
+
+    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        STAssertTrue(result == promises, @"");
+        for (RXPromise* p in result) {
+            STAssertTrue(p.isFulfilled, @"");
+        }
+        return nil;
+    },^id(NSError*error){
+        STFail(@"must not be called");
+        NSLog(@"ERROR: %@", error);
+        return error;
+    });
+    
+    [all wait];
+}
+
+-(void) testAllFulfilled2 {
+    
+    // Run eight tasks in parallel. For each task, on success execute success handler
+    // on undspecified queue. Fill the array with the returned promises from `then`
+    // and wait until all handlers are finished.
+    
+    // Note: we are accessing buffer from multiple threads without synchronization!
+    char buffer[8] = {'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'};
     char* p = buffer;
     
-    NSArray* promises = @[async(0.01, @"A").then(^id(id result){*(p+0)='A'; return nil;},nil),
-                          async(0.01, @"B").then(^id(id result){*(p+1)='B'; return nil;},nil),
-                          async(0.01, @"C").then(^id(id result){*(p+2)='C'; return nil;},nil),
-                          async(0.01, @"D").then(^id(id result){*(p+3)='D'; return nil;},nil),
-                          async(0.01, @"E").then(^id(id result){*(p+4)='E'; return nil;},nil),
-                          async(0.01, @"F").then(^id(id result){*(p+5)='F'; return nil;},nil),
-                          async(0.01, @"G").then(^id(id result){*(p+6)='G'; return nil;},nil),
-                          async(0.01, @"H").then(^id(id result){*(p+7)='H'; return nil;},nil)];
+    // Note: The array does NOT hold the promises of the tasks, instead it holds
+    // the promises of the return value of the `then` property, aka the result of
+    // the handlers!
+    NSArray* promises = @[
+    async(0.08, @"A").then(^id(id result){
+        *p='A';
+        return nil;
+    },nil),
+    async(0.07, @"B").then(^id(id result){
+        *(p+1)='B';
+        return nil;
+    },nil),
+    async(0.06, @"C").then(^id(id result){
+        *(p+2)='C';
+        return nil;
+    },nil),
+    async(0.05, @"D").then(^id(id result){
+        *(p+3)='D';
+        return nil;
+    },nil),
+    async(0.04, @"E").then(^id(id result){
+        *(p+4)='E';
+        return nil;
+    },nil),
+    async(0.03, @"F").then(^id(id result){
+        *(p+5)='F';
+        return nil;
+    },nil),
+    async(0.02, @"G").then(^id(id result){
+        *(p+6)='G';
+        return nil;
+    },nil),
+    async(0.01, @"H").then(^id(id result){
+        *(p+7)='H';
+        return nil;
+    },nil)];
+    
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
+        // Note: when we reach here all handlers have been finished since we
+        // filled the 'all' array with the promise of the handlers.
+        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        STAssertTrue(result == promises, @"");
+        // All tasks shall be completed at this time!
+        for (RXPromise* p in result) {
+            STAssertTrue(p.isFulfilled, @"");
+        }
+        return nil;
+    },^id(NSError*error){
+        STFail(@"must not be called");
+        NSLog(@"ERROR: %@", error);
+        return error;
+    });
+    [all wait];
+    // All tasks and all handlers shall be completed at this time.
+    STAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
+}
+
+-(void) testAllFulfilledWithQueue {
+    
+    // Run eight tasks in parallel. For each task, on success execute success handler
+    // on specified serial queue `syncQueue`.
+    // Fill an array with the returned promise from the tasks.
+    
+    // All tasks will finish almost simultaneously, thus "buffer" will likely
+    // be accessed in random order and thus the characters written to it have
+    // also the same order as the tasks finish.
+    
+    // Note: With the property's `thenOn` block is invoked, the handler is executed
+    // on the specified queue. Since this queue is a serial queue, access to shared
+    // resources occuring within the handler is serialized and thus thread safe.
+    const char* QueueID = "test.queue_id";
+    dispatch_queue_t syncQueue = dispatch_queue_create("test.sync_queue", NULL);
+    dispatch_queue_set_specific(syncQueue, QueueID, (__bridge void*)syncQueue, NULL);
+
+    // We fill the buffer in order as the tasks fininish!
+    char buffer[8] = {'X'};
+    __block char* p = buffer;
+    
+    NSArray* promises = @[
+    async(0.2, @"A").thenOn(syncQueue, ^id(id result){
+        void* q = dispatch_get_specific(QueueID);
+        STAssertTrue((__bridge void*)syncQueue == q, @"not running on sync_queue");
+        *p++='A';
+        return nil;
+    },nil).parent,
+    async(0.01, @"B").thenOn(syncQueue, ^id(id result){
+        *p++='B';
+        return nil;
+    },nil).parent,
+    async(0.01, @"C").thenOn(syncQueue, ^id(id result){
+        *p++='C';
+        return nil;
+    },nil).parent,
+    async(0.01, @"D").thenOn(syncQueue, ^id(id result){
+        *p++='D';
+        return nil;
+    },nil).parent,
+    async(0.01, @"E").thenOn(syncQueue, ^id(id result){
+        *p++='E';
+        return nil;
+    },nil).parent,
+    async(0.01, @"F").thenOn(syncQueue, ^id(id result){
+        *p++='F';
+        return nil;
+    },nil).parent,
+    async(0.01, @"G").thenOn(syncQueue, ^id(id result){
+        *p++='G';
+        return nil;
+    },nil).parent,
+    async(0.01, @"H").thenOn(syncQueue, ^id(id result){
+        *p++='H';
+        return nil;
+    },nil).parent
+    ];
+    
+    RXPromise* all = [RXPromise all:promises].thenOn(syncQueue, ^id(id result){
         STAssertTrue([result isKindOfClass:[NSArray class]], @"");
         STAssertTrue(result == promises, @"");
         return nil;
@@ -2753,17 +2930,47 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     [all wait];
-    std::sort(buffer, buffer + sizeof(buffer));
+    std::sort(buffer, buffer+sizeof(buffer));
     STAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
 }
 
+-(void) testAllOneRejected1
+{
+    // Run three tasks in parallel:
+    NSArray* tasks = @[async(0.1, @"A"), async_fail(0.2, @"B"), async(0.3, @"C")];
+    
+    [[RXPromise all:tasks]
+    .then(^id(id result) {
+        STFail(@"must not be called");
+        return nil;
+    },^id(NSError*error) {
+        STAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        
+        STAssertTrue([tasks[0] isFulfilled], @"");
+        STAssertTrue([tasks[1] isRejected], @"");
+        STAssertTrue([tasks[2] isCancelled], @"");
+        return error;
+    }) wait];
+}
 
--(void) testAllOneRejected {
+-(void) testAllOneRejected2 {
     NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
     
-    NSArray* promises = @[async(0.1, @"A").then(^id(id result){[s0 appendString:result]; return nil;},nil),
-                          async_fail(0.2, @"B").then(^id(id result){[s0 appendString:result]; return nil;},nil),
-                          async(1, @"C").then(^id(id result){[s0 appendString:result]; return nil;},nil)];
+    NSArray* promises = @[async(0.1, @"A")
+                          .then(^id(id result){
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async_fail(0.2, @"B")
+                          .then(^id(id result){
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async(0.3, @"C")
+                          .then(^id(id result){
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent];
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
         STFail(@"must not be called");
         return nil;
@@ -2776,13 +2983,53 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
 
+-(void) testAllOneRejectedWithQueue {
+
+    // Note: When `thenOn`'s block is invoked, the handler is invoked on the
+    // specified queue.
+    
+    const char* QueueIDKey = "com.test.queue.id";
+    static const char* concurrent_queue_id = "com.test.concurrent.queue";
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("com.test.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_set_specific(concurrentQueue, QueueIDKey, (void*)concurrent_queue_id, NULL);
+    
+    
+    // Run three tasks in parallel:
+    NSArray* tasks = @[async(0.1, @"A"), async_fail(0.2, @"B"), async(0.3, @"C")];
+    
+    [RXPromise all:tasks].thenOn(concurrentQueue,
+      ^id(id result) {
+        STFail(@"must not be called");
+        return nil;
+    },^id(NSError*error) {
+        STAssertTrue( dispatch_get_specific(QueueIDKey) == (void *)(concurrent_queue_id), @"");
+        STAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        
+        STAssertTrue([tasks[0] isFulfilled], @"");
+        STAssertTrue([tasks[1] isRejected], @"");
+        STAssertTrue([tasks[2] isCancelled], @"");
+        return error;
+    });
+}
 
 -(void) testAllCancelled {
     NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
     
-    NSArray* promises = @[async(0.1, @"A").then(^id(id result){[s0 appendString:result]; return nil;},nil),
-                          async_fail(1, @"B").then(^id(id result){[s0 appendString:result]; return nil;},nil),
-                          async(1, @"C").then(^id(id result){[s0 appendString:result]; return nil;},nil)];
+    NSArray* promises = @[async(0.1, @"A")
+                          .then(^id(id result) {
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async_fail(1, @"B")
+                          .then(^id(id result) {
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async(1, @"C")
+                          .then(^id(id result) {
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent];
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
         STFail(@"must not be called");
         return nil;
@@ -2799,6 +3046,628 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     [all wait];
     STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+}
+
+-(void) testAllCancelledWithQueue {
+    // Note: When `thenOn`'s block is invoked, the handler is invoked on the
+    // specified queue via a dispatch_barrier_sync. This means, write access
+    // to shared resources occuring within the handler is thread safe.
+    const char* QueueID = "com.test.queue.id";
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_set_specific(concurrentQueue, QueueID, (__bridge void*)concurrentQueue, NULL);
+    
+    NSMutableString*  s0 = [[NSMutableString alloc] init];
+    
+    NSArray* promises = @[async(0.1, @"A")
+                          .thenOn(concurrentQueue, ^id(id result) {
+                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async_fail(1, @"B")
+                          .thenOn(concurrentQueue, ^id(id result) {
+                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent,
+                          async(1, @"C")
+                          .thenOn(concurrentQueue, ^id(id result) {
+                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              [s0 appendString:result];
+                              return nil;
+                          },nil).parent];
+    RXPromise* all = [RXPromise all:promises].thenOn(concurrentQueue,
+                                                     ^id(id result){
+                                                         STFail(@"must not be called");
+                                                         return nil;
+                                                     },^id(NSError*error){
+                                                         STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                                                         STAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+                                                         return error;
+                                                     });
+    
+    double delayInSeconds = 0.2;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+        [all cancel];
+    });
+    
+    [all wait];
+    STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+}
+
+
+-(void) testAnyGetFirst {
+    
+    // Start `Count` tasks in parallel. Return the  result of the task which
+    // finished first and cancel the remaining yet running tasks.
+    // Insert the promise of each async task into an array and send class message
+    // `any`. Note: do NOT put the promise of the `then`'s handler into the array!
+    // When any task has been finished `any` will automatically forward a `cancel`
+    // message to the remaining tasks.
+    
+    const char* QueueID = "test.queue.id";
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync.queue", NULL);
+    dispatch_queue_set_specific(sync_queue, QueueID, (__bridge void*)sync_queue, NULL);
+    
+    const int Count = 5;
+    char buffer[Count] = {'X'};
+    char* p = buffer;
+    
+    NSArray* promises = @[
+      async(0.1, @"A").thenOn(sync_queue, ^id(id result) {
+          *(p+0)='A';
+          return nil;
+      },^id(NSError*error){
+          *(p+0)='a';
+          return error;
+      }).parent,
+      async(0.2, @"B").thenOn(sync_queue, ^id(id result) {
+          *(p+1)='B';
+          return nil;
+      },^id(NSError*error){
+          *(p+1)='b';
+          return error;
+      }).parent,
+      async(0.3, @"C").thenOn(sync_queue, ^id(id result) {
+          *(p+2)='C';
+          return nil;
+      },^id(NSError*error){
+          *(p+2)='c';
+          return error;
+      }).parent,
+      async(0.4, @"D").thenOn(sync_queue, ^id(id result) {
+          *(p+3)='D';
+          return nil;
+      },^id(NSError*error){
+          *(p+3)='d';
+          return error;
+      }).parent,
+      async(0.5, @"E").thenOn(sync_queue, ^id(id result){
+          *(p+4)='E';
+          return nil;
+      },^id(NSError*error){
+          *(p+4)='e';
+          return error;
+      }).parent
+    ];
+    
+    assert([promises count] == Count);
+    
+    RXPromise* firstTaskHandlerPromise = [RXPromise any:promises].then(^id(id result){
+        // When we reach here - executing on an unspecified queue - the first
+        // task finished - yet it's handler may not be finished.
+        STAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
+        STAssertTrue([@"A" isEqualToString:result], @"");
+        // Synchronously dispatch a block on the sync queue, which is guaranteed enqueued after
+        // the task's handler:
+        dispatch_sync(sync_queue, ^{
+            // When we reach here the first task's handler and all other tasks and its
+            // handler finished, since we enqueued this block after all others.
+            printf("%c", *p);
+        });
+        // When we reach here - executing on an unspecified queue - the first
+        // task and it's handler finished, as well as all others since we enqueued
+        // the former block behind all others.
+        return @"first task handler finished";
+    },^id(NSError*error){
+        STFail(@"must not be called");
+        NSLog(@"ERROR: %@", error);
+        return error;
+    });
+    
+    id firstTaskHandlerPromiseValue = [firstTaskHandlerPromise get];
+    // When we reach here - executing on an unspecified queue - the first
+    // task and it's handler finished.
+    NSLog(@"firstTaskHandlerPromise = %@", firstTaskHandlerPromiseValue);
+    STAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
+}
+
+
+-(void) testAnyGetSecond {
+    
+    // Start `Count` tasks in parallel. Return the first result of any task and
+    // cancel the remaining yet running tasks.
+    // Insert the promise of each async task into an array and send class message
+    // `any`.
+    //
+    // Note: We do NOT put the promise of the `then`'s handler into the array!
+    // We accomplish this via statement:
+    //
+    //   task().then(...).parent
+    //
+    // which returns the task's promise, that is
+    //   p = task().then(...).parent   is equivalent to
+    //   p = task()
+    //
+    // When any task has been finished `any` will automatically forward a `cancel`
+    // message to the remaining tasks.
+    
+    const char* QueueID = "test.queue.id";
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync.queue", NULL);
+    dispatch_queue_set_specific(sync_queue, QueueID, (__bridge void*)sync_queue, NULL);
+    
+    const int Count = 5;
+    char buffer[Count] = {'X', 'X', 'X', 'X', 'X'};
+    char* p = buffer;
+    
+    __block NSString* firstResult = nil;
+    
+    __block NSArray* promises;
+    promises = @[
+          async(0.2, @"A").thenOn(sync_queue, ^id(id result) {
+              *(p+0)='A';
+              return nil;
+          },^id(NSError*error){
+              *(p+0)='a';
+              return error;
+          }).parent,
+          async(0.1, @"B").thenOn(sync_queue, ^id(id result) {
+              *(p+1)='B';
+              return nil;
+          },^id(NSError*error){
+              *(p+1)='b';
+              return error;
+          }).parent,
+          async(0.3, @"C").thenOn(sync_queue, ^id(id result) {
+              *(p+2)='C';
+              return nil;
+          },^id(NSError*error){
+              *(p+2)='c';
+              return error;
+          }).parent,
+          async(0.4, @"D").thenOn(sync_queue, ^id(id result) {
+              *(p+3)='D';
+              return nil;
+          },^id(NSError*error){
+              *(p+3)='d';
+              return error;
+          }).parent,
+          async(0.5, @"E").thenOn(sync_queue, ^id(id result){
+              *(p+4)='E';
+              return nil;
+          },^id(NSError*error){
+              *(p+4)='e';
+              return error;
+          }).parent];
+    
+    assert([promises count] == Count);
+    
+    RXPromise* first = [RXPromise any:promises].thenOn(sync_queue, ^id(id result) {
+        // If we reach here, the first task and its handler SHALL have been finished.
+        // We can be sure that the handler already finished, because this handler
+        // have been queued after the task's handler above.
+        // The task which finishes first is task "B".
+        // The RXPromise `any` method will forward the cancel message only after
+        // the first task's handler has been finished.
+        firstResult = result;
+        STAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
+        STAssertTrue([@"B" isEqualToString:result], @"");
+        return nil;
+    },^id(NSError*error){
+        STFail(@"must not be called");
+        NSLog(@"ERROR: %@", error);
+        return error;
+    });
+    
+    // wait until the first task and its handler has been finished:
+    [first wait];
+    
+    // Wait until the last handler has been invoked:
+    // It's a bit tricky to wait for a number of handlers to have all finished
+    // when we do not have the promises. We just sleep for a while:
+    usleep(4*1000);
+    
+    STAssertTrue( std::memcmp(buffer, "aBcde", sizeof(buffer)) == 0, @"");
+}
+
+
+#pragma mark -
+
+-(void) testAPIPromisesAPlus_1 {
+
+//    $ 1     Both onFulfilled and onRejected are optional arguments:
+//            If onFulfilled is not a function, it must be ignored.
+//            If onRejected is not a function, it must be ignored.
+
+    RXPromise* promise = [RXPromise new];
+    [promise fulfillWithValue:@"OK"];
+    RXPromise* p1 = promise.then(nil, nil);
+    [p1 wait];
+    STAssertTrue(p1.isFulfilled, @"");
+    
+    promise = [RXPromise new];
+    [promise rejectWithReason:@"ERROR"];
+    RXPromise* p2 = promise.then(nil, nil);
+    [p2 wait];
+    STAssertTrue(p2.isRejected, @"");
+}
+
+
+-(void) testAPIPromisesAPlus_2 {
+    
+//  §2    If onFulfilled is a function:
+//  §2.1  it must be called after promise is fulfilled, with promise's value as its first argument.
+//  §2.2  it must not be called before promise is fulfilled.
+//  §2.3  it must not be called more than once.
+    
+    char buffer[] = {'X', 'X', 'X', 'X'};
+    char* pb = &buffer[0];
+    
+    RXPromise* promise = [RXPromise new];
+
+    promise_completionHandler_t onFulfilled = ^id(id result) {
+        STAssertTrue(*pb == 'X', @"onFulfilled must not be called more than once.");
+        char ch = (char)[(NSString*)result characterAtIndex:0];
+        *pb = ch;
+        STAssertTrue(promise.isFulfilled  && ch == 'A', @"onFulfilled must be called after promise is fulfilled, with promise's value as its first argument.");
+        return nil;
+    };
+    
+    promise.then(onFulfilled, nil);
+    for (int i = 0; i < 10; ++i) {
+        usleep(1000);
+        STAssertTrue( buffer[0] == 'X', @"onFulfilled must not be called before promise is fulfilled");
+    }
+    [promise fulfillWithValue:@"A"];
+    [promise wait];
+    for (int i = 0; i < 10; ++i) {
+        usleep(1000);
+        [promise fulfillWithValue:@"B"];
+        [promise wait];
+    }
+}
+
+
+-(void) testAPIPromisesAPlus_3 {
+    
+// § 3    If onRejected is a function,
+// § 3.1   it must be called after promise is rejected, with promise's reason as its first argument.
+// § 3.2   it must not be called before promise is rejected.
+// § 3.3   it must not be called more than once.
+    
+    char buffer[] = {'X', 'X', 'X', 'X'};
+    char* pb = &buffer[0];
+    
+    RXPromise* promise = [RXPromise new];
+    
+    promise_errorHandler_t onRejected = ^id(NSError* error) {
+        STAssertTrue(*pb == 'X', @"onRejected must not be called more than once.");
+        char ch = (char)([error.userInfo[NSLocalizedFailureReasonErrorKey] characterAtIndex:0]);
+        *pb = ch;
+        STAssertTrue(promise.isRejected  && ch == 'A', @"onRejected must be called after promise is rejected, with promise's reason as its first argument.");
+        return nil;
+    };
+    
+    promise.then(nil, onRejected);
+    for (int i = 0; i < 10; ++i) {
+        usleep(1000);
+        STAssertTrue( buffer[0] == 'X', @"onRejected must not be called before promise is rejected");
+    }
+    [promise rejectWithReason:@"A"];
+    [promise wait];
+    for (int i = 0; i < 10; ++i) {
+        usleep(1000);
+        [promise rejectWithReason:@"B"];
+        [promise wait];
+    }
+}
+
+
+-(void) testAPIPromisesAPlus_4
+{
+    // § 4 then must return before onFulfilled or onRejected is called [4.1].
+    
+    const char* QueueID = "test.queue.id";
+    dispatch_queue_t sync_queue = dispatch_queue_create("test.sync.queue", NULL);
+    dispatch_queue_set_specific(sync_queue, QueueID, (__bridge void*)sync_queue, NULL);
+    
+    
+    char buffer[] = {'X', 'X', 'X', 'X'};
+    __block const char* pb = &buffer[0];
+    __block char* p = &buffer[0];
+    
+    
+    promise_completionHandler_t onFulfilled = ^id(id result) {
+        (*p++) = 'B';
+        return nil;
+    };
+    promise_completionHandler_t onRejected = ^id(id result) {
+        (*p++) = 'b';
+        return nil;
+    };
+    
+    RXPromise* promise = [RXPromise new];
+    [promise fulfillWithValue:@"OK"];
+    
+    __block RXPromise* promise2;
+    dispatch_sync(sync_queue, ^{
+        promise2 = promise.thenOn(sync_queue, onFulfilled, onRejected);
+        (*p++) = 'A';
+        STAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
+    });
+    [promise2 wait];
+    STAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
+    
+    buffer[0] = 'X';
+    buffer[1] = 'X';
+    p = &buffer[0];
+    
+    promise = [RXPromise new];
+    [promise rejectWithReason:@"ERROR"];
+    
+    dispatch_sync(sync_queue, ^{
+        promise2 = promise.thenOn(sync_queue, onFulfilled, onRejected);
+        (*p++) = 'A';
+        STAssertTrue(*pb == 'A', @"then must return before onRejected is called");
+    });
+    [promise2 wait];
+    STAssertTrue(*pb == 'A', @"then must return before onRejected is called");
+}
+
+    // All handlers of a particular promise MUST run in serial in the order as
+    // they have been defined. This is a requirement of the promise spec.
+    //
+    // If the user explicitly specifies a dedicated handler queue through using
+    // the `thenOn` property the above rule may no longer hold true. The behavior
+    // shall be implementation defined:
+    //
+    // Handlers of a particular promise with a specified handler queue run on
+    // the queue with their respective property:
+    //
+    // a) A serial handler queue SHALL execute the handlers in serial and in order
+    //    as they have been defined.
+    //
+    // b) A concurrent handler queue SHALL execute the handlers in parallel.
+    //
+    //
+    // RXPromise library also gives the guarantee that all handlers for a particular
+    // promise tree run in serial, unless a dedicated handler queue is specified.
+    // It is desired, that handlers from different promise trees should not be
+    // forced to run in serial.
+
+
+
+
+-(void) testAPIPromisesAPlus_6
+{
+    //  §6  `then` may be called multiple times on the same promise.
+    //      If/when promise is fulfilled, all respective onFulfilled callbacks
+    //      must execute in the order of their originating calls to then.
+    //      If/when promise is rejected, all respective onRejected callbacks must
+    //      execute in the order of their originating calls to then.
+    
+    // Note: Since handlers run in parallel by default in RXPromise, in this
+    // test RXPromise used a serial queue to verify the rule.
+    
+    const char* QueueID = "test.queue.id";
+    dispatch_queue_t sync_queue = dispatch_queue_create("test.sync.queue", NULL);
+    dispatch_queue_set_specific(sync_queue, QueueID, (__bridge void*)sync_queue, NULL);
+    
+    
+
+    const int Count = 5;
+    
+    // Expected Result
+    std::array<char, 2*Count> expectedResults;
+    for (int i = 0; i < Count; ++i) {
+        expectedResults[2*i] = char('a' + i);
+        expectedResults[2*i+1] = char('A' + i);  // "aAbBcC..."
+    };
+    
+    // Actual Result
+    std::array<char, 2*Count> results;
+    __block char* data = results.data();
+    
+    
+    // § 6.1 fulfilled
+    std::fill(results.begin(), results.end(), 'X');
+    __block int c = 0;
+    dispatch_semaphore_t sem1 = dispatch_semaphore_create(0);
+
+    RXPromise* root = [RXPromise new];
+    for (int i = 0; i < Count; ++i) {
+        root.thenOn(sync_queue, ^id(id result) {
+            *data++ = char('a'+i);
+            usleep(Count*1000 - i*1000);
+            *data++ = char('A'+i);
+            if (++c == Count) {
+                dispatch_semaphore_signal(sem1);
+            }
+            return nil;
+        }, nil);
+    }
+    [root fulfillWithValue:@"OK"];
+    
+    STAssertTrue(0 == dispatch_semaphore_wait(sem1, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    STAssertTrue(results == expectedResults, @"§6.1 failed");
+    
+    // § 6.2 rejected
+    std::fill(results.begin(), results.end(), 'X');
+    data = results.data();
+    dispatch_semaphore_t sem2 = dispatch_semaphore_create(0);
+    c = 0;
+    
+    root = [RXPromise new];
+    for (int i = 0; i < Count; ++i) {
+        root.thenOn(sync_queue, nil, ^id(NSError* error) {
+            *data++ = char('a'+i);
+            usleep(Count*1000 - i*1000);
+            *data++ = char('A'+i);
+            if (++c == Count) {
+                dispatch_semaphore_signal(sem2);
+            }
+            return nil;
+        });
+    }
+    [root rejectWithReason:@"Failed"];
+    
+    STAssertTrue(0 == dispatch_semaphore_wait(sem2, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    STAssertTrue(results == expectedResults, @"§6.2 failed");
+}
+
+
+#pragma mark -
+
+-(void) testHandlersOfDistinctPromiseTreesShouldRunConcurrently {
+    
+    // Handlers of promises which belong to distincts trees SHOULD be
+    // executed concurrently.
+    
+    const int Count = 2*4;
+    std::array<char, Count> results;
+    std::fill(results.begin(), results.end(), 'X');
+    
+    std::array<char, Count> expectedResults = {'a', 'b', 'c', 'd', 'A', 'D', 'C', 'B'};
+    
+    __block char* data = results.data();
+    
+    RXPromise* root1 = async(0.01, @"OK");
+    RXPromise* root2 = async(0.02, @"OK");
+    RXPromise* root3 = async(0.03, @"OK");
+    RXPromise* root4 = async(0.04, @"OK");
+    
+    NSArray* promises = @[
+        root1.then(^id(id result) {
+            *data++ = char('a');
+            usleep(200*1000);  // 200 ms
+            *data++ = char('A');
+            return nil;
+        }, nil),
+
+        root2.then(^id(id result) {
+            *data++ = char('b');
+            usleep(350*1000);  // 350 ms
+            *data++ = char('B');
+            return nil;
+        }, nil),
+        
+        root3.then(^id(id result) {
+            *data++ = char('c');
+            usleep(300*1000);  // 300 ms
+            *data++ = char('C');
+            return nil;
+        }, nil),
+    
+        root4.then(^id(id result) {
+            *data++ = char('d');
+            usleep(250*1000);  // 250 ms
+            *data++ = char('D');
+            return nil;
+        }, nil)
+    ];
+    
+    [[RXPromise all:promises] wait];
+    STAssertTrue(results == expectedResults, @"Handlers of promises which belong to distinct trees SHOULD be executed concurrently");
+}
+
+
+-(void) testHandlersOfAParticularPromiseWithDedicatedSerialQueueMustRunInSerial {
+    
+    // Handlers of a particular promise with a specified handler queue run on
+    // the queue with their respective property:
+    //
+    // a) A serial handler queue SHALL execute the handlers in serial and in order
+    //    as they have been defined.
+    
+    const char* QueueID = "com.test.queue.id";
+    dispatch_queue_t sync_queue = dispatch_queue_create("my.sync.queue", NULL);
+    dispatch_queue_set_specific(sync_queue, QueueID, (__bridge void*)sync_queue, NULL);
+
+    const int Count = 10;
+    std::array<char, Count> results;
+    std::fill(results.begin(), results.end(), 'X');
+    
+    std::array<char, Count> expectedResults;
+    for (int i = 0; i < Count; ++i) {
+        expectedResults[i] = char('A' + i);  // "ABCDEF"
+    };
+    
+    std::atomic_int c(0);
+    std::atomic_int* pc = &c;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block char* data = results.data();
+    
+    RXPromise* root = async(0.01, @"OK");
+    
+    for (int i = 0; i < Count; ++i) {
+        root.thenOn(sync_queue, ^id(id result) {
+            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(sync_queue), @"Handler does not execute on dedicated queue");
+            usleep(Count*1000 - i*1000);
+            *data++ = char('A'+i);
+            if (++(*pc) == Count) {
+                dispatch_semaphore_signal(sem);
+            }
+            return nil;
+        }, nil);
+    }
+    
+    STAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    STAssertTrue(results == expectedResults, @"");
+    
+}
+
+
+-(void) testHandlersOfAParticularPromiseWithDedicatedConcurrentQueueMustRunConcurrently {
+    
+    // Handlers of a particular promise with a specified handler queue run on
+    // the queue with their respective property:
+    //
+    // b) A concurrent handler queue SHALL execute the handlers in parallel.
+    
+    const char* QueueID = "com.test.queue.id";
+    dispatch_queue_t concurrent_queue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_set_specific(concurrent_queue, QueueID, (__bridge void*)concurrent_queue, NULL);
+    
+    const int Count = 10;
+    std::array<char, Count> results;
+    std::fill(results.begin(), results.end(), 'X');
+    
+    std::array<char, Count> expectedResults;
+    for (int i = 0; i < Count; ++i) {
+        expectedResults[i] = char('A' + (Count - i - 1));  // "FEDCBA"
+    };
+    
+    std::atomic_int c(0);
+    std::atomic_int* pc = &c;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block char* data = results.data();
+    
+    RXPromise* root = async(0.01, @"OK");
+    for (int i = 0; i < Count; ++i) {
+        root.thenOn(concurrent_queue, ^id(id result) {
+            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrent_queue), @"Handler does not execute on dedicated queue");
+            usleep((Count+1)*10000 - i*10000);
+            *data++ = char('A'+i);
+            if (++(*pc) == Count) {
+                dispatch_semaphore_signal(sem);
+            }
+            return nil;
+        }, nil);
+    }
+    
+    STAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    STAssertTrue(results == expectedResults, @"Handlers do not run in parallel");
 }
 
 
