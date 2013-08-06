@@ -60,8 +60,11 @@ The API has two parts: one for the "asynchronous service provider" and one for t
  Promise Client API
 */
 @interface RXPromise : NSObject
+
 @property (nonatomic, readonly) then_on_t   thenOn;
+
 @property (nonatomic, readonly) then_t      then;
+
 @end
 ```
 
@@ -75,8 +78,9 @@ The signatures are defined below:
 ```objective-c
 typedef id (^completionHandler_t)(id result);
 typedef id (^errorHandler_t)(NSError* error);
-typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
+
 typedef RXPromise* (^then_on_t)(dispatch_queue_t, completionHandler_t, errorHandler_t);
+typedef RXPromise* (^then_t)(completionHandler_t, errorHandler_t);
 ```
 
  One very important fact is that the return value of the block, which is the value of the property `thenOn` respectively `then` is again a promise. This enables to _chain_ promises. Chaining asynchronous tasks will be explained in more detail below in section "Chaining".
@@ -249,11 +253,14 @@ Again, an example will describe the concept of "chaining" promises in a more com
         });
 ```
 
-The code above chains four asynchronous tasks and a last one which just immediately returns the result respectively an error, which is executed on the main thread - since here it has been explicitly defined.
+The code above chains four asynchronous tasks and a last one which returns an _immediate_ result: the result of the last task or the error of the first task that failed. The asynchronous methods `async_B`, `async_C` and `async_D` are invoked on a _implicit_ execution context. That execution context is actualy a _concurrent dispatch queue_.
+
+The last handler on the other hand executes on the main thread - as specified through using the `thenOn` property.
 
 
 
-The first promise will be obtained through invoking the first asynchronous task via `[self async_A]`. The return value - a promise - will be immediately used to define the handlers via the `then` property whose completion handler just invokes the next asynchronous task `async_B`:
+
+The _root promise_, that is the first promise which has no parent promise, will be obtained through invoking the first asynchronous task via `[self async_A]`. The return value - a promise, whose parent is the root promise - will be immediately used to define the handlers via the `then` property whose completion handler just invokes the next asynchronous task `async_B`:
 
 ```objective-c
 [self async_A].then(
@@ -268,9 +275,9 @@ Here, when task A finishes successful, the final result of task A will be passed
 When task B completes, its final result will be passed to the next completion handler and so force - up until there is no handler anymore.
 
 
-Note that the return values of the tasks are promises which will be returned from the handler. Since `then` returns a promise, the next `then` can be chained upon its previous `then` the same way. And so force.
+Note that the return values of the tasks are promises which will be returned from the handler. Since `then` and `thenOn` returns a promise, the next `then` or `thenOn` can be chained upon its previous `then` respectively `thenOn` the same way. And so force.
 
-The last `thenOn` eventually handles the end result - by simply logging the result of the four chained asynchronous tasks to the console. Here, the execution context has been explicitly defined. That is, the handler executes on the specified queue - the main queue in the example.
+The last `thenOn` eventually handles the result returned from task_D - by simply logging the result to the console. Here, the execution context has been explicitly defined. That is, the handler executes on the specified queue - the main queue in the example.
 
 At the end of the statement, promise _endResult_ will be the promise returned from the _last_ `thenOn`. When all tasks have been finished successfully, the _endResult_'s `value` will become the return value of the last completion handler - which is actually the result of the last task D.
 
@@ -325,7 +332,7 @@ In fact, this is perfectly valid:
 In the code snippet above the "root promise" will be obtained first and a reference is kept.
 The root promise will invoke several `then` blocks  - each returning a promise, which are not used in this sample, though.
 
-The effect of this is that once the root promise has been resolved, as the result of taskA is available, it _concurrently_ executes all four handlers. These handler may start an asynchronous task or return an immediate value. 
+The effect of this is that once the root promise has been resolved, as the result of taskA is available, it _concurrently_ executes all four handlers. These handlers may start an asynchronous task or return an immediate value. 
 
 If those handlers access shared resources we MUST be worried about concurrent access! In order to synchronize concurrent access to a shared resource we can explicitly specify the execution context of the handlers for example by setting a dedicated serial queue:
 
@@ -348,7 +355,7 @@ If those handlers access shared resources we MUST be worried about concurrent ac
 
 
 
-With this design it is possible to define even _complex trees_ of tasks in a concise way. Since access of shared resources can be made safe from within handlers, setting up complex composed tasks becomes quite easy.
+With this design it is possible to define even _complex trees_ of tasks in a concise way. Since access of shared resources can be made safe from within handlers, setting up complex composed tasks with access to shared resources becomes quite easy.
 
 
 Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just invoke the `thenOn` or `then` block and define what shall happen anywhere in a program. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.

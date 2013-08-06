@@ -67,10 +67,10 @@
 		A10A620817858A4F0019F7EA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A10A620B17858A4F0019F7EA /* Sample3-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample3-Prefix.pch"; sourceTree = "<group>"; };
 		A10A621117858AAF0019F7EA /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
-		A112718917A6C13400C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
-		A112718B17A6C13B00C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
-		A112718D17A6C14100C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
-		A112718F17A6C14600C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A112718917A6C13400C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A112718B17A6C13B00C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A112718D17A6C14100C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A112718F17A6C14600C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
 		A14AD8581786FAD800750722 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
 		A1A378B817847AC00037A3AC /* Sample1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample1; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378BB17847AC00037A3AC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -80,9 +80,9 @@
 		A1A378CD1784BC6A0037A3AC /* Sample2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample2; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378D01784BC6A0037A3AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1A378D31784BC6A0037A3AC /* Sample2-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample2-Prefix.pch"; sourceTree = "<group>"; };
-		A1D9632217953DBC00090EDC /* NSArrayExtension */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NSArrayExtension; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1D9632217953DBC00090EDC /* Sample4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample4; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1D9632517953DBC00090EDC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		A1D9632817953DBC00090EDC /* NSArrayExtension-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArrayExtension-Prefix.pch"; sourceTree = "<group>"; };
+		A1D9632817953DBC00090EDC /* Sample4-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample4-Prefix.pch"; sourceTree = "<group>"; };
 		A1D9632E1795412C00090EDC /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../../../Library/Developer/Xcode/DerivedData/Promise-dgyrvqswrkfnaoathrecbvjiyjmc/Build/Products/Debug/RXPromise.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -153,7 +153,7 @@
 				A1A378BD17847AC00037A3AC /* Sample1 */,
 				A1A378CF1784BC6A0037A3AC /* Sample2 */,
 				A10A620717858A4F0019F7EA /* Sample3 */,
-				A1D9632417953DBC00090EDC /* NSArrayExtension */,
+				A1D9632417953DBC00090EDC /* Sample4 */,
 				A1A378BA17847AC00037A3AC /* Frameworks */,
 				A1A378B917847AC00037A3AC /* Products */,
 			);
@@ -165,7 +165,7 @@
 				A1A378B817847AC00037A3AC /* Sample1 */,
 				A1A378CD1784BC6A0037A3AC /* Sample2 */,
 				A10A620517858A4F0019F7EA /* Sample3 */,
-				A1D9632217953DBC00090EDC /* NSArrayExtension */,
+				A1D9632217953DBC00090EDC /* Sample4 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -218,19 +218,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		A1D9632417953DBC00090EDC /* NSArrayExtension */ = {
+		A1D9632417953DBC00090EDC /* Sample4 */ = {
 			isa = PBXGroup;
 			children = (
 				A1D9632517953DBC00090EDC /* main.m */,
 				A1D9632717953DBC00090EDC /* Supporting Files */,
 			);
-			path = NSArrayExtension;
+			path = Sample4;
 			sourceTree = "<group>";
 		};
 		A1D9632717953DBC00090EDC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				A1D9632817953DBC00090EDC /* NSArrayExtension-Prefix.pch */,
+				A1D9632817953DBC00090EDC /* Sample4-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -289,9 +289,9 @@
 			productReference = A1A378CD1784BC6A0037A3AC /* Sample2 */;
 			productType = "com.apple.product-type.tool";
 		};
-		A1D9632117953DBC00090EDC /* NSArrayExtension */ = {
+		A1D9632117953DBC00090EDC /* Sample4 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1D9632D17953DBC00090EDC /* Build configuration list for PBXNativeTarget "NSArrayExtension" */;
+			buildConfigurationList = A1D9632D17953DBC00090EDC /* Build configuration list for PBXNativeTarget "Sample4" */;
 			buildPhases = (
 				A1D9631E17953DBC00090EDC /* Sources */,
 				A1D9631F17953DBC00090EDC /* Frameworks */,
@@ -301,9 +301,9 @@
 			);
 			dependencies = (
 			);
-			name = NSArrayExtension;
+			name = Sample4;
 			productName = NSArrayExtension;
-			productReference = A1D9632217953DBC00090EDC /* NSArrayExtension */;
+			productReference = A1D9632217953DBC00090EDC /* Sample4 */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -329,7 +329,7 @@
 				A1A378B717847AC00037A3AC /* Sample1 */,
 				A1A378CC1784BC6A0037A3AC /* Sample2 */,
 				A10A620417858A4F0019F7EA /* Sample3 */,
-				A1D9632117953DBC00090EDC /* NSArrayExtension */,
+				A1D9632117953DBC00090EDC /* Sample4 */,
 			);
 		};
 /* End PBXProject section */
@@ -607,7 +607,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NSArrayExtension/NSArrayExtension-Prefix.pch";
+				GCC_PREFIX_HEADER = "Sample4/Sample4-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -651,7 +651,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NSArrayExtension/NSArrayExtension-Prefix.pch";
+				GCC_PREFIX_HEADER = "Sample4/Sample4-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -704,7 +704,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1D9632D17953DBC00090EDC /* Build configuration list for PBXNativeTarget "NSArrayExtension" */ = {
+		A1D9632D17953DBC00090EDC /* Build configuration list for PBXNativeTarget "Sample4" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1D9632B17953DBC00090EDC /* Debug */,

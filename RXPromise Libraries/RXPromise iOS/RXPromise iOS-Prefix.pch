@@ -1,5 +1,5 @@
 //
-// Prefix header for all source files of the 'RXPRomise iOS' target in the 'RXPRomise iOS' project
+// Prefix header for all source files of the 'RXPromise iOS' target in the 'RXPromise iOS' project
 //
 
 #ifdef __OBJC__

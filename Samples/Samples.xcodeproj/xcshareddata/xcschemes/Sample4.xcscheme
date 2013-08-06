@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A19C19C01759E8CA008E3F63"
-               BuildableName = "libRXPromise.a"
-               BlueprintName = "RXPRomise iOS"
-               ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
+               BlueprintIdentifier = "A1D9632117953DBC00090EDC"
+               BuildableName = "Sample4"
+               BlueprintName = "Sample4"
+               ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,15 @@
       buildConfiguration = "Debug">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1D9632117953DBC00090EDC"
+            BuildableName = "Sample4"
+            BlueprintName = "Sample4"
+            ReferencedContainer = "container:Samples.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -39,6 +48,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1D9632117953DBC00090EDC"
+            BuildableName = "Sample4"
+            BlueprintName = "Sample4"
+            ReferencedContainer = "container:Samples.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -48,6 +66,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1D9632117953DBC00090EDC"
+            BuildableName = "Sample4"
+            BlueprintName = "Sample4"
+            ReferencedContainer = "container:Samples.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

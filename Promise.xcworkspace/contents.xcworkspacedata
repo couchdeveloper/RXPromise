@@ -8,9 +8,6 @@
       location = "group:RXPromise Test/RXPromise Test.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Samples/Samples.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:LICENSE.md">
    </FileRef>
    <FileRef
@@ -18,5 +15,8 @@
    </FileRef>
    <FileRef
       location = "group:README.md">
+   </FileRef>
+   <FileRef
+      location = "group:Samples/Samples.xcodeproj">
    </FileRef>
 </Workspace>

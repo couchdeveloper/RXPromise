@@ -67,15 +67,6 @@ d_unary_async_t d_capitalize = ^(id input, d_completion_t completion) {
     });
 };
 
-@interface NSArray (AsyncExtension)
-- (void) async_forEach(d_unary_async_t task, d_completion_t completion);
-@end
-@implementation NSArray (AsyncExtension)
-- (void) async_forEach(d_unary_async_t task, d_completion_t completion) {
-    d_transformEach(self, task, completion);
-}
-@end
-
 
 /**
     Implementation on top of RXPromise

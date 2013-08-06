@@ -276,9 +276,9 @@
 			productReference = A19C19B21759E894008E3F63 /* libRXPromise.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		A19C19C01759E8CA008E3F63 /* RXPRomise iOS */ = {
+		A19C19C01759E8CA008E3F63 /* RXPromise iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPRomise iOS" */;
+			buildConfigurationList = A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise iOS" */;
 			buildPhases = (
 				A19C19BD1759E8CA008E3F63 /* Sources */,
 				A19C19BE1759E8CA008E3F63 /* Frameworks */,
@@ -288,7 +288,7 @@
 			);
 			dependencies = (
 			);
-			name = "RXPRomise iOS";
+			name = "RXPromise iOS";
 			productName = "RXPRomise iOS";
 			productReference = A19C19C11759E8CA008E3F63 /* libRXPromise.a */;
 			productType = "com.apple.product-type.library.static";
@@ -315,7 +315,7 @@
 			targets = (
 				A19C19971759E879008E3F63 /* RXPromise Framework */,
 				A19C19B11759E894008E3F63 /* RXPromise Static */,
-				A19C19C01759E8CA008E3F63 /* RXPRomise iOS */,
+				A19C19C01759E8CA008E3F63 /* RXPromise iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -541,12 +541,12 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DSTROOT = /tmp/RXPRomise_iOS.dst;
+				DSTROOT = /tmp/RXPromise_iOS.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPRomise iOS-Prefix.pch";
+				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPromise iOS-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -574,10 +574,10 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				DSTROOT = /tmp/RXPRomise_iOS.dst;
+				DSTROOT = /tmp/RXPromise_iOS.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPRomise iOS-Prefix.pch";
+				GCC_PREFIX_HEADER = "RXPRomise iOS/RXPromise iOS-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(PRJ_GCC_PREPROCESSOR_DEFINITIONS)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -620,7 +620,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPRomise iOS" */ = {
+		A19C19CB1759E8CB008E3F63 /* Build configuration list for PBXNativeTarget "RXPromise iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A19C19CC1759E8CB008E3F63 /* Debug */,
