@@ -106,7 +106,7 @@ Here, _sync_queue_ is a serial queue, and due to this, concurrent access from wi
 The _explicit_ execution context can also be a concurrent dispatch queue.
 
 
-The advantage of an implicit concurrent execution context is, that handlers now do execute independently from each other, and will have to wait until one other handler is finished. This improves CPU utilization and is less prone to unwanted blocking.
+The advantage of an implicit concurrent execution context is, that handlers now do execute independently from each other, and handlers will not have to wait until one other handler is finished. This improves CPU utilization and is less prone to unwanted blocking.
 
 Note though, that handler still SHOULD NOT perform lengthy tasks and SHOULD NOT block. If this is the case, the handler should be wrapped into an asynchronous task.
 

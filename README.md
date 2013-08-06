@@ -1,7 +1,13 @@
 "Promises are a awesome!"
 
+------------------
+### NOTE:  There are *BREAKING CHANGES* in Version 0.7 beta.
 
 
+Please read the CHANGES.md file.
+
+
+-------------------
 # RXPromise
 
 An Objective-C Class which implements the Promises/A+ specification.
