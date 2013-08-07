@@ -716,7 +716,7 @@ static void RXPromise_init() {
         [desc appendString:[NSString stringWithFormat:@", children: [\n"]];
         while (range.first != range.second) {
             RXPromise* p = (*(range.first)).second;
-            [desc appendString:[p rxp_descriptionLevel:level+1]];
+            [desc appendString:p ? [p rxp_descriptionLevel:level+1] : @"<nil>"];
             [desc appendString:@"\n"];
             ++range.first;
         }
