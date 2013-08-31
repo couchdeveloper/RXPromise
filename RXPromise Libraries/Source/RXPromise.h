@@ -514,6 +514,19 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
 
 /**
+ @brief Resolves the promise with value _result_.
+ 
+ If _result_ is a promise, the receiver will "bind" to the given promise, which 
+ includes to forward cancellation from the receiver to the given promise.
+ 
+ @param result The result given from the asynchronous result provider which can
+ can be a promise , `nil`, an NSError object or any other object.
+ */
+- (void) resolveWithResult:(id)result;
+
+
+
+/**
  internal
  */
 

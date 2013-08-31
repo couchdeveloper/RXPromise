@@ -567,7 +567,7 @@ static void RXPromise_init() {
             [self synced_fulfillWithValue:ps.result];
             break;
         case Rejected:
-            [self synced_fulfillWithValue:ps.result];
+            [self synced_rejectWithReason:ps.result];
             break;
         case Cancelled:
             [self synced_cancelWithReason:ps.result];

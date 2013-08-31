@@ -102,7 +102,7 @@
 		A19C198C1759E846008E3F63 = {
 			isa = PBXGroup;
 			children = (
-				A19C19E11759EA63008E3F63 /* Config */,
+				A19C19E11759EA63008E3F63 /* Xcode.Config */,
 				A19C19CE1759EA3B008E3F63 /* Source */,
 				A19C19A11759E879008E3F63 /* RXPromise Framework */,
 				A19C19B41759E894008E3F63 /* RXPromise Static */,
@@ -212,7 +212,7 @@
 			path = utility;
 			sourceTree = "<group>";
 		};
-		A19C19E11759EA63008E3F63 /* Config */ = {
+		A19C19E11759EA63008E3F63 /* Xcode.Config */ = {
 			isa = PBXGroup;
 			children = (
 				A19C19DC1759EA5D008E3F63 /* common.xcconfig */,
@@ -223,7 +223,7 @@
 				A19C19E01759EA5D008E3F63 /* release.macosx.xcconfig */,
 				A19C19DF1759EA5D008E3F63 /* release.ios.xcconfig */,
 			);
-			name = Config;
+			name = Xcode.Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
