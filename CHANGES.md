@@ -117,3 +117,10 @@ The `thenOn` property has been added which provides a means to explicitly specif
 
 
 
+### Version 0.7.3 beta (31.08.2013)
+
+#### Bug Fixes
+
+* Fixed a bug in method bind, which errornously fulfilled the target promise if the other promise was rejected.
+
+
