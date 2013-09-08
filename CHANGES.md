@@ -142,3 +142,12 @@ This sets a timeout for the promise. If the timeout expires before the promise h
  and previously queued handlers have been finished.
  
 
+
+### Version 0.8.1 beta (08.09.2013)
+
+#### Changes:
+
+Added a strict requirement when using `runLoopWait`: The current thread MUST have a run loop and at least one event source. Otherwise the behavior is undefined. 
+
+Well, the main thread will always fulfill this prerequisite - but it may not be true for secondary threads unless the program to test is carefully designed and has an event source attached to the secondary thread (e.g. a NSURLConnection).
+In the current implementation and in the _worst case_, the behavior *MAY* be such that `runLoopWait` MAY _busy wait_ and hog a CPU for a short time. This is entirely a cause of how `NSRunLoop` is implemented internally.

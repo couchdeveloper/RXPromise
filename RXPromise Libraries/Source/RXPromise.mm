@@ -587,7 +587,13 @@ static NSError* makeTimeoutError() {
 }
 
 
-- (void) runLoopWait {
+- (void) runLoopWait
+{
+    // The current thread MUST have a run loop and at least one event source!
+    // This is difficult to verfy in this method - thus this is simply
+    // a prerequisite which must be ensured by the client. If there is no
+    // event source, the run lopp may quickly return with the effect that the
+    // while loop will "busy wait".
     
     NSThread* thread = [NSThread currentThread];
     self.then(^id(id result) {
@@ -598,7 +604,6 @@ static NSError* makeTimeoutError() {
         return nil;
     });
     NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
-    [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
     while (1) {
         if (!self.isPending) {
             break;

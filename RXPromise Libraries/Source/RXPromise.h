@@ -406,6 +406,9 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  @brief Runs the current run loop until after the receiver has been resolved,
  and previously queued handlers have been finished.
  
+ Prerequisite: The current thread MUST have a run loop with at least one event
+ source. Otherwise, the behavior is undefined.
+ 
  Note: The method should be used for debugging and testing only.
  */
 - (void) runLoopWait;
