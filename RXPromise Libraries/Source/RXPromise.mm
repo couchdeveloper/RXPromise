@@ -132,6 +132,11 @@ static void RXPromise_init() {
     });
 }
 
+static NSError* makeTimeoutError() {
+    return [[NSError alloc] initWithDomain:@"RXPromise" code:-1001 userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}];
+}
+
+
 
 // Designated Initializer
 - (id)initWithParent:(RXPromise*)parent {
@@ -296,6 +301,38 @@ static void RXPromise_init() {
         [self synced_cancelWithReason:reason];
     });
 }
+
+
+- (RXPromise*) setTimeout:(NSTimeInterval)timeout {
+    if (timeout < 0) {
+        return self;
+    }
+    else if (timeout == 0) {
+        [self rejectWithReason:makeTimeoutError()];
+        return self;
+    }
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, s_sync_queue);
+    dispatch_source_set_event_handler(timer, ^{
+        dispatch_source_cancel(timer); // one shot timer
+        [self rejectWithReason:makeTimeoutError()];
+    });
+    [self registerWithQueue:s_sync_queue onSuccess:^id(id result) {
+        dispatch_source_cancel(timer);
+        RX_DISPATCH_RELEASE(timer);
+        return nil;
+    }  onFailure:^id(NSError *error) {
+        dispatch_source_cancel(timer);
+        RX_DISPATCH_RELEASE(timer);
+        return nil;
+    }
+    returnPromise:NO];
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)),
+                              DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
+    dispatch_resume(timer);
+
+    return self;
+}
+
 
 
 - (void) synced_resolveWithResult:(id)result {
@@ -491,7 +528,12 @@ static void RXPromise_init() {
 
 #pragma mark -
 
-- (id) get
+- (id) get {
+    return [self getWithTimeout:-1.0];  // negative means infinitive
+}
+
+
+- (id) getWithTimeout:(NSTimeInterval)timeout
 {
     assert(dispatch_get_specific(QueueID) != s_sync_queue_id); // Must not execute on the private sync queue!
     
@@ -509,15 +551,21 @@ static void RXPromise_init() {
     });
     if (avail) {
         // result was not yet availbale: queue a handler
-        if (dispatch_semaphore_wait(avail, DISPATCH_TIME_FOREVER) == 0) { // wait until handler_queue will be resumed ...
+        dispatch_time_t t = timeout < 0 ? DISPATCH_TIME_FOREVER : dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
+        if (dispatch_semaphore_wait(avail, t) == 0) { // wait until handler_queue will be resumed ...
             dispatch_sync(s_sync_queue, ^{  // safely retrieve _result
                 result = _result;
             });
         }
+        else {
+            result = makeTimeoutError();
+        }
         RX_DISPATCH_RELEASE(avail);
     }
-    return _result;
+    return result;
 }
+
+
 
 
 - (id) get2 {
@@ -539,6 +587,28 @@ static void RXPromise_init() {
 }
 
 
+- (void) runLoopWait {
+    
+    NSThread* thread = [NSThread currentThread];
+    self.then(^id(id result) {
+        [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
+        return nil;
+    }, ^id(NSError* error) {
+        [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
+        return nil;
+    });
+    NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
+    [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+    while (1) {
+        if (!self.isPending) {
+            break;
+        }
+        [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+}
+
+
+
 - (void) bind:(RXPromise*) other {
     if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
         [self synced_bind:other];
@@ -555,10 +625,12 @@ static void RXPromise_init() {
 - (void) synced_bind:(RXPromise*) other {
     assert(other != nil);
     assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
-    assert(_state == Pending || _state == Cancelled);
 
     if (_state == Cancelled) {
         [other cancelWithReason:_result];
+        return;
+    }
+    if (_state != Pending) {
         return;
     }
     RXPomise_StateAndResult ps = [other synced_peakStateAndResult];
@@ -701,8 +773,8 @@ static void RXPromise_init() {
 
 
 - (NSString*) rxp_descriptionLevel:(int)level {
-    NSString* indent = [NSString stringWithFormat:@"%*s",4*level+4,""];
-    NSMutableString* desc = [[NSMutableString alloc] initWithFormat:@"%@<%@:%p> { State: %@ }",
+    NSString* indent = [NSString stringWithFormat:@"%*s",4*level,""];
+    NSMutableString* desc = [[NSMutableString alloc] initWithFormat:@"%@<%@:%p> { %@ }",
                              indent,
                              NSStringFromClass([self class]), (__bridge void*)self,
                              ( (_state == Fulfilled)?[NSString stringWithFormat:@"fulfilled with value: %@", _result]:

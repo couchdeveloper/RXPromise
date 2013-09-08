@@ -3672,4 +3672,53 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 
 
+- (void) testTimeoutShouldRejectPromiseWithTimeoutError {
+    
+    RXPromise* promise = [RXPromise new];
+    
+    [promise setTimeout:0.1];
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    promise.then(nil, ^id(NSError* error) {
+        STAssertTrue(error != nil, @"error must not be nil");
+        STAssertTrue([error.domain isEqualToString:@"RXPromise"], @"");
+        STAssertTrue(error.code == -1001, @"");
+        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"timeout"], @"");
+        dispatch_semaphore_signal(sem);
+        return nil;
+    });
+
+    STAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.05*NSEC_PER_SEC)) != 0, @"promise resoveld prematurely");
+    STAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC)) == 0, @"test timed out");
+}
+
+
+- (void) testRunLoopWait {
+    
+    RXPromise* promise = [RXPromise new];
+    
+    NSAssert([NSThread currentThread] == [NSThread mainThread], @"this test must run on the main thread");
+    
+    double delayInSeconds = 0.2;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+        NSAssert([NSThread currentThread] == [NSThread mainThread], @"this test must run on the main thread");
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise setTimeout:1];
+    [promise runLoopWait];
+    
+    [promise.then(^id(id result) {
+        STAssertTrue([@"OK" isEqualToString:result], @"");
+        return nil;
+    }, ^id(NSError* error) {
+        STFail(@"Error handler not expeted");
+        return error;
+    }) wait];
+    
+
+}
+
 @end

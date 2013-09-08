@@ -124,3 +124,21 @@ The `thenOn` property has been added which provides a means to explicitly specif
 * Fixed a bug in method bind, which errornously fulfilled the target promise if the other promise was rejected.
 
 
+
+### Version 0.8 beta (08.09.2013)
+
+
+#### New APIs
+
+    - (RXPromise*) setTimeout:(NSTimeInterval)timeout;
+    
+This sets a timeout for the promise. If the timeout expires before the promise has been resolved, the promise will be rejected with an error with domain: @"RXPromise", code:-1001, userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}
+
+
+
+    - (void) runLoopWait;
+
+ Runs the current run loop until after the receiver has been resolved,
+ and previously queued handlers have been finished.
+ 
+

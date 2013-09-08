@@ -353,6 +353,18 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
 
 /**
+ Sets a resolver which rejects the receiver after the specideid timeout value 
+ with reason: NSError {@"RXPromise", code = 1001)}
+ and returns the receiver.
+ 
+ @param timeout The timeout in seconds.
+ 
+ @return returns the receiver.
+ */
+- (RXPromise*) setTimeout:(NSTimeInterval)timeout;
+
+
+/**
  @brief Binds the receiver to the given promise  @p other.
  
  @discussion The receiver will take in the state of the given promise @p other, and
@@ -381,19 +393,52 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
 
 /**
- @brief Blocks the current thread until after the promise has been resolved, and previously
- queued handlers have been finished.
+ @brief Blocks the current thread until after the receiver has been resolved, and 
+ previously queued handlers have been finished.
+ 
+ Note: The method should be used for debugging and testing only.
+ 
  */
 - (void) wait;
 
+
 /**
- Returns the value of the promise.
+ @brief Runs the current run loop until after the receiver has been resolved,
+ and previously queued handlers have been finished.
+ 
+ Note: The method should be used for debugging and testing only.
+ */
+- (void) runLoopWait;
+
+
+/**
+ Synchronously returns the value of the promise.
  
  Will block the current thread until after the promise has been resolved.
+ 
+ Note: The method should be used for debugging and testing only.
  
  @return Returns the _value_ of the receiver.
  */
 - (id) get;
+
+
+/**
+ Synchronously returns the value of the promise.
+ 
+ Will block the current thread until after the promise has been resolved or the
+ timeout has been expired. The method does not change the state of the receiver.
+
+ Note: The method should be used for debugging and testing only.
+ 
+ @param timeout The timeout in seconds.
+ 
+ @return If the timeout has not been expired, returns the _value_ of the receiver.
+ Otherwise, returns an NSError object whose domain equals @"RXPromise" and whose
+ code equals -1001.
+ 
+ */
+- (id) getWithTimeout:(NSTimeInterval)timeout;
 
 
 /**
