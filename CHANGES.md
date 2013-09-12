@@ -174,4 +174,14 @@ A Unit Test has been fixed which potentially has reported a false positve.
 #### Misc:
 
  Fixed a spurious Static Analyser warning.
+
+
+
+### Version 0.8.3 beta (13.09.2013)
+
+
+#### Changes
+
+Added a "How To Install" section in the README.md file.
+
  

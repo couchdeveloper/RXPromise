@@ -421,7 +421,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
 				WRAPPER_EXTENSION = framework;
@@ -458,7 +457,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PRJ_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = RXPromise;
 				WRAPPER_EXTENSION = framework;
 			};
