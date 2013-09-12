@@ -1,4 +1,4 @@
-"Promises are a awesome!"
+"Promises are awesome!"
 
 ------------------
 ### NOTE:  There are *BREAKING CHANGES* in Version 0.7 beta.
@@ -255,7 +255,7 @@ Again, an example will describe the concept of "chaining" promises in a more com
            return result;
         }, ^id(NSError* error) {
             NSLog(@"ERROR: %@", error);
-           return error";
+           return error;
         });
 ```
 

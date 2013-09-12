@@ -79,17 +79,17 @@
 
 
 /** RXPomise_State */
-typedef enum RXPomise_StateT {
+typedef enum RXPromise_StateT {
     Pending     = 0x0,
     Fulfilled   = 0x01,
     Rejected    = 0x02,
     Cancelled   = 0x06
-} RXPomise_State;
+} RXPromise_State;
 
 
-struct RXPomise_StateAndResult {
-    RXPomise_StateT  state;
-    id               result;
+struct RXPromise_StateAndResult {
+    RXPromise_StateT  state;
+    id                result;
 };
 
 @interface RXPromise ()
@@ -100,7 +100,7 @@ struct RXPomise_StateAndResult {
     RXPromise*          _parent;
     dispatch_queue_t    _handler_queue;  // a serial queue, uses target queue: s_sync_queue
     id                  _result;
-    RXPomise_State      _state;
+    RXPromise_State     _state;
 }
 @synthesize result = _result;
 @synthesize parent = _parent;
@@ -201,12 +201,12 @@ static NSError* makeTimeoutError() {
 }
 
 
-- (RXPomise_StateAndResult) peakStateAndResult {
+- (RXPromise_StateAndResult) peakStateAndResult {
     if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
         return {_state, _result};
     }
     else {
-        __block RXPomise_StateAndResult result;
+        __block RXPromise_StateAndResult result;
         dispatch_sync(s_sync_queue, ^{
             result.result = _result;
             result.state = _state;
@@ -216,7 +216,7 @@ static NSError* makeTimeoutError() {
 }
 
 
-- (RXPomise_StateAndResult) synced_peakStateAndResult {
+- (RXPromise_StateAndResult) synced_peakStateAndResult {
     assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
     return {_state, _result};
 }
@@ -445,7 +445,7 @@ static NSError* makeTimeoutError() {
     
     dispatch_block_t handlerBlock = ^{
         @autoreleasepool { // mainly for releasing unused return values from the handlers
-            RXPomise_StateAndResult ps = [blockSelf peakStateAndResult];
+            RXPromise_StateAndResult ps = [blockSelf peakStateAndResult];
             assert(ps.state != Pending);
             if (ps.state == Fulfilled && onSuccess) {
                 ps.result = onSuccess(ps.result);
@@ -638,7 +638,7 @@ static NSError* makeTimeoutError() {
     if (_state != Pending) {
         return;
     }
-    RXPomise_StateAndResult ps = [other synced_peakStateAndResult];
+    RXPromise_StateAndResult ps = [other synced_peakStateAndResult];
     switch (ps.state) {
         case Fulfilled:
             [self synced_fulfillWithValue:ps.result];
