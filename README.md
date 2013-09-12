@@ -112,11 +112,11 @@ The part interfacing to the service provider is also often called "Deferred":
 
 ## Asynchronous Service Provider's Responsibility
 
-A promise shall always be created by the asynchronous service provider. Initially, a promise is in the _pending_ state.
+A promise - more precisely, the _root promise_ - will be usually created by the asynchronous service provider. Initially, a promise is in the _pending_ state.
 
 When the asynchronous function eventually succeeds or fails the asynchronous service provider must _resolve_ its associated promise. "Resolving" is either fulfilling or rejecting the promise with it's corresponding values, either the final result or an error.
 
-That means, in order to resolve the promise when the task succeeded the asynchronous service provider must send the promise a _fulfillWithResult:_ message whose parameter represents the result value of the asynchronous function. Otherwise, if the asynchronous function fails, the asynchronous service provider must send the promise a _rejectWithReason:_ message whose parameter represents the reason for the failure, possibly an `NSError` object.
+That means, in order to resolve the promise when the task succeeded the asynchronous service provider must send the promise a _fulfillWithValue:_ message whose parameter represents the result value of the asynchronous function. Otherwise, if the asynchronous function fails, the asynchronous service provider must send the promise a _rejectWithReason:_ message whose parameter represents the reason for the failure, possibly an `NSError` object.
 
 
 An example how an asynchronous method could be implement which uses a subclass of a `NSOperation` as the underlaying asynchronous service provider is illustrated below:
@@ -127,7 +127,7 @@ An example how an asynchronous method could be implement which uses a subclass o
     RXPromise* promise = [[RXPromise alloc] init];
     
     MyOperation* op = [MyOperation alloc] initWithCompletionHandler: ^(id result){
-        [promise fulfillWithResult:result];
+        [promise fulfillWithValue:result];
     } 
     errorHandler:^(NSError* error){
         [promise rejectWithReason:error];
@@ -142,7 +142,7 @@ An example how an asynchronous method could be implement which uses a subclass o
 The relevant API for the asynchronous service provider are just these methods:
 
 ```objective-c
-- (void) fulfillWithResult:(id)result;
+- (void) fulfillWithValue:(id)result;
 - (void) rejectWithReason:(id)reason;
 ```
 
@@ -210,7 +210,7 @@ In a more intuitively example:
     RXPromise* newPromise = promise.thenOn(queue, onSuccess, onError);
 
 
-The very first promise, the "root promise", must be obtained from an asynchronous service provider, though:
+The very first promise, the "root promise", should be obtained from an asynchronous service provider, for example:
 
 ```objective-c
     RXPromise* rootPromise = [self doSomethingAsync];
@@ -259,7 +259,7 @@ Again, an example will describe the concept of "chaining" promises in a more com
         });
 ```
 
-The code above chains four asynchronous tasks and a last one which returns an _immediate_ result: the result of the last task or the error of the first task that failed. The asynchronous methods `async_B`, `async_C` and `async_D` are invoked on a _implicit_ execution context. That execution context is actualy a _concurrent dispatch queue_.
+The code above chains four asynchronous tasks and a last one which returns an _immediate_ result: the result of the last task or the error of the first task that failed. The asynchronous methods `async_B`, `async_C` and `async_D` are invoked on a _implicit_ execution context. That execution context is actually a _concurrent dispatch queue_.
 
 The last handler on the other hand executes on the main thread - as specified through using the `thenOn` property.
 
@@ -391,7 +391,7 @@ A asynchronous service provider should - if it supports cancellation at all - ad
     RXPromise* promise = [[RXPromise alloc] init];
 
     MyOperation* op = [MyOperation alloc] initWithCompletionHandler: ^(id result){
-        [promise fulfillWithResult:result];
+        [promise fulfillWithValue:result];
     } 
     errorHandler:^(NSError* error){
         [promise rejectWithReason:error];

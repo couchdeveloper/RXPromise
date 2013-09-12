@@ -1477,7 +1477,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // succeed.
     
     
-    NSMutableString* s = [[NSMutableString alloc] init];
+    char buffer[4];
+    char* bp = buffer;
+    
+    memset(buffer, 0, sizeof(buffer));
     
     RXPromise* p0, *p00, *p01, *p02, *p03;
     
@@ -1485,44 +1488,44 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     
     p0 = async(0.01, @"0:success");
+    
     p00 = p0.then(^id(id result){
         STAssertTrue([result isEqualToString:@"0:success"], @"");
         STAssertFalse(p0.isPending, @"");
         STAssertTrue(p0.isFulfilled, @"");
         STAssertFalse(p0.isCancelled, @"");
         STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@""], @"" );
-        [s appendString:@"A"];
+        *bp  = 'A';
         return async(0.01, @"00:success");
     }, nil);
+    
     p01 = p0.then(^id(id result){
         STAssertTrue([result isEqualToString:@"0:success"], @"");
         STAssertFalse(p0.isPending, @"");
         STAssertTrue(p0.isFulfilled, @"");
         STAssertFalse(p0.isCancelled, @"");
         STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"A"], @"" );
-        [s appendString:@"B"];
+        *(bp+1)='B';
         return async(0.01, @"01:success");
     }, nil);
+    
     p02 = p0.then(^id(id result){
         STAssertTrue([result isEqualToString:@"0:success"], @"");
         STAssertFalse(p0.isPending, @"");
         STAssertTrue(p0.isFulfilled, @"");
         STAssertFalse(p0.isCancelled, @"");
         STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"AB"], @"" );
-        [s appendString:@"C"];
+        *(bp+2)='C';
         return async(0.01, @"02:success");
     }, nil);
+    
     p03 = p0.then(^id(id result){
         STAssertTrue([result isEqualToString:@"0:success"], @"");
         STAssertFalse(p0.isPending, @"");
         STAssertTrue(p0.isFulfilled, @"");
         STAssertFalse(p0.isCancelled, @"");
         STAssertFalse(p0.isRejected, @"");
-        STAssertTrue( [s isEqualToString:@"ABC"], @"" );
-        [s appendString:@"D"];
+        *(bp+3)='D';
         return async(0.01, @"03:success");
     }, ^(NSError* error){
         return error;
@@ -1586,7 +1589,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     STAssertFalse(p03.isRejected, @"");
     STAssertTrue([p03.get isEqualToString:@"03:success"], @"");
     
-    STAssertTrue( [s isEqualToString:@"ABCD"], @"%@", s);
+    STAssertTrue( (memcmp("ABCD", buffer, sizeof(buffer)) == 0), @"" );
 }
 
 -(void) testChainedOPsWithFailure

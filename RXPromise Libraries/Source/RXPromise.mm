@@ -24,8 +24,13 @@
 #include <dispatch/dispatch.h>
 #include <cassert>
 #include <map>
-#import "utility/DLog.h"
 #include <cstdio>
+
+// Set default logger serverity to "Error" (logs only errors)
+#if !defined (DEBUG_LOG)
+#define DEBUG_LOG 1
+#endif
+#import "utility/DLog.h"
 
 
 #if TARGET_OS_IPHONE
@@ -78,7 +83,7 @@
 
 
 
-/** RXPomise_State */
+/** RXPromise_State */
 typedef enum RXPromise_StateT {
     Pending     = 0x0,
     Fulfilled   = 0x01,
@@ -231,6 +236,7 @@ static NSError* makeTimeoutError() {
     }
     else {
         __block dispatch_queue_t queue = nil;
+        assert(s_sync_queue);
         dispatch_barrier_sync(s_sync_queue, ^{
             queue = [self synced_handlerQueue];
             RX_DISPATCH_RETAIN(queue);
