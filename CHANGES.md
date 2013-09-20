@@ -186,7 +186,7 @@ Added a "How To Install" section in the README.md file.
 
 
 
-### Version 0.9 beta ()
+### Version 0.9 beta (2013-09-20)
 
 
 #### Changes
