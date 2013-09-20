@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		A10F1DB617ECC00F00801746 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DB517ECC00F00801746 /* XCTest.framework */; };
 		A10F1DBC17ECC00F00801746 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10F1DBA17ECC00F00801746 /* InfoPlist.strings */; };
-		A10F1DBE17ECC00F00801746 /* RXPromiseTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A10F1DBD17ECC00F00801746 /* RXPromiseTest.m */; };
+		A10F1DCA17ECC66600801746 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A10F1DC917ECC66600801746 /* RXPromiseTest.mm */; };
+		A10F1DCD17ECC68C00801746 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A10F1DCC17ECC68C00801746 /* RXTimer.m */; };
+		A10F1DCF17ECC6AC00801746 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DCE17ECC6AC00801746 /* RXPromise.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -17,8 +19,11 @@
 		A10F1DB517ECC00F00801746 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		A10F1DB917ECC00F00801746 /* RXPromiseTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromiseTest-Info.plist"; sourceTree = "<group>"; };
 		A10F1DBB17ECC00F00801746 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		A10F1DBD17ECC00F00801746 /* RXPromiseTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RXPromiseTest.m; sourceTree = "<group>"; };
 		A10F1DBF17ECC00F00801746 /* RXPromiseTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromiseTest-Prefix.pch"; sourceTree = "<group>"; };
+		A10F1DC917ECC66600801746 /* RXPromiseTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseTest.mm; sourceTree = "<group>"; };
+		A10F1DCB17ECC68C00801746 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RXTimer.h; path = ../../Common/RXTimer.h; sourceTree = "<group>"; };
+		A10F1DCC17ECC68C00801746 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RXTimer.m; path = ../../Common/RXTimer.m; sourceTree = "<group>"; };
+		A10F1DCE17ECC6AC00801746 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../Build/Products/Release/RXPromise.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A10F1DCF17ECC6AC00801746 /* RXPromise.framework in Frameworks */,
 				A10F1DB617ECC00F00801746 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,6 +59,7 @@
 		A10F1DB417ECC00F00801746 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A10F1DCE17ECC6AC00801746 /* RXPromise.framework */,
 				A10F1DB517ECC00F00801746 /* XCTest.framework */,
 			);
 			name = Frameworks;
@@ -61,7 +68,9 @@
 		A10F1DB717ECC00F00801746 /* RXPromiseTest */ = {
 			isa = PBXGroup;
 			children = (
-				A10F1DBD17ECC00F00801746 /* RXPromiseTest.m */,
+				A10F1DCB17ECC68C00801746 /* RXTimer.h */,
+				A10F1DCC17ECC68C00801746 /* RXTimer.m */,
+				A10F1DC917ECC66600801746 /* RXPromiseTest.mm */,
 				A10F1DB817ECC00F00801746 /* Supporting Files */,
 			);
 			path = RXPromiseTest;
@@ -138,7 +147,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10F1DBE17ECC00F00801746 /* RXPromiseTest.m in Sources */,
+				A10F1DCA17ECC66600801746 /* RXPromiseTest.mm in Sources */,
+				A10F1DCD17ECC68C00801746 /* RXTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +197,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					/Users/agrosam/Develop/Promise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -197,6 +208,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"DEBUG_LOG=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -235,11 +247,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					/Users/agrosam/Develop/Promise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RXPromiseTest/RXPromiseTest-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG_LOG=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -273,6 +287,7 @@
 				A10F1DC217ECC00F00801746 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

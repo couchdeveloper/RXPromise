@@ -2,10 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:RXPromise Libraries/RXPromise Libraries.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Test/Test.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:RXPromise Libraries/RXPromise Libraries.xcodeproj">
+      location = "group:Samples/Samples.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:LICENSE.md">
@@ -15,8 +18,5 @@
    </FileRef>
    <FileRef
       location = "group:README.md">
-   </FileRef>
-   <FileRef
-      location = "group:Samples/Samples.xcodeproj">
    </FileRef>
 </Workspace>
