@@ -1,7 +1,14 @@
 "Promises are awesome!"
 
 ------------------
-### NOTE:  There are *BREAKING CHANGES* in Version 0.7 beta.
+### NOTE:  There are *BREAKING CHANGES* in Version 0.9 beta:
+
+The class method 
+
+`+ (RXPromise*)all:(NSArray*)promises;`
+
+now returns a `RXPromise` whose success handler returns an array containing the _result_ of each asynchronous task (in the corresponding order).
+Before, the _results_ parameter contained the array of promises. So basically, it _was_ the same array as the array specified in parameter _promises_.
 
 
 Please read the CHANGES.md file.

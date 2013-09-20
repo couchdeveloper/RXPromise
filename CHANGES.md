@@ -198,6 +198,16 @@ Added a "How To Install" section in the README.md file.
 - Documentation style is optimized for Xcode's 5 inline help bubbles.
 
 
+#### BREAKING CHANGES
+
+The class method 
+
+`+ (RXPromise*)all:(NSArray*)promises;`
+
+now returns a `RXPromise` whose success handler returns an array containing the _result_ of each asynchronous task (in the corresponding order).
+Before, the _results_ parameter contained the array of promises. So basically, it _was_ the same array as the array specified in parameter _promises_.
+
+
 #### New APIs
 
 - Added two convenient class methods 
@@ -221,4 +231,9 @@ inputs array. The sequence method supports cancellation.
 
 
 
- 
+### Version 0.9.1 beta (2013-09-20)
+
+
+#### Changes
+
+Minor updates in documentation.

@@ -45,19 +45,24 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 @property (nonatomic, readonly) BOOL isCancelled;
 
 @property (nonatomic, readonly) then_t then;
+@property (nonatomic, readonly) then_t thenOn;
  
- 
-+ (RXPromise *)promiseWithTask:(id(^)(void))asyncTask;
-+ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
- 
+@property (nonatomic, readonly) RXPromise* parent;
+@property (nonatomic, readonly) RXPromise* root;
 
-+ (RXPromise*)all:(NSArray*)promises;
+ 
 - (void) cancel;
 - (void) bind:(RXPromise*) other;
-- (RXPromise*) root;
 - (id) get;
 - (void) wait;
 
++ (RXPromise*) promiseWithTask:(id(^)(void))task;
++ (RXPromise*) promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
+ 
++ (RXPromise*) all:(NSArray*)promises;
++ (RXPromise*) any:(NSArray*)promises;
++ (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
+ 
 @end
 
 @interface RXPromise(Deferred)
