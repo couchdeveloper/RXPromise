@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A19C19B11759E894008E3F63"
+               BlueprintIdentifier = "A19C19C01759E8CA008E3F63"
                BuildableName = "libRXPromise.a"
-               BlueprintName = "RXPromise Static"
+               BlueprintName = "RXPromise iOS"
                ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

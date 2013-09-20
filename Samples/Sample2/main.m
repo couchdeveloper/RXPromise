@@ -23,6 +23,9 @@
  error handling may become elaborated and where cancellation is very likely
  impossible to implement.
  
+
+ see also: RXPromise' class method `sequence:task:`
+ 
  */
 
 

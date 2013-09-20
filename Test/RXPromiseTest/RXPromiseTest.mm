@@ -1,13 +1,29 @@
 //
-//  RXPromiseTest.m
+//  RXPromiseTest.mm
+//  RXPromiseTest
 //
+//  Copyright 2013 Andreas Grosam
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #if !defined(DEBUG_LOG)
 #warning DEBUG_LOG not defined
 #endif
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <RXPromise/RXPromise.h>
+
+#import "RXTimer.h"
 #include <dispatch/dispatch.h>
 #include <atomic>
 #include <algorithm>  // std::min
@@ -20,7 +36,6 @@
 #if defined (NDBEUG)
 #error NDEBUG shall not be defined for testing.
 #endif
-
 
 
 #pragma mark  Semaphore
@@ -247,6 +262,8 @@ static int32_t s_ID = 0;
 
 
 
+
+
 typedef void (^completion_t)();
 
 __attribute((ns_returns_retained))
@@ -359,36 +376,217 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 
 
-@interface RXPromiseTest : SenTestCase
+
+@interface RXPromiseTest : XCTestCase
 
 @end
 
 @implementation RXPromiseTest
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Set-up code here.
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)tearDown {
-    // Tear-down code here.
+- (void)tearDown
+{
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
 
-
-#pragma mark -
+#pragma mark - API
 
 -(void) testPromiseAPI {
     
     RXPromise* promise = [[RXPromise alloc] init];
-    STAssertTrue( [promise respondsToSelector:@selector(then)], @"A promise must have a property 'then'" );
-    STAssertTrue( [[promise then] isKindOfClass:NSClassFromString(@"NSBlock")], @"property 'then' must return a block");    
+    XCTAssertTrue( [promise respondsToSelector:@selector(then)], @"A promise must have a property 'then'" );
+    XCTAssertTrue( [[promise then] isKindOfClass:NSClassFromString(@"NSBlock")], @"property 'then' must return a block");    
 }
 
 
-- (void) testPromiseMustNotBeDeallocatedIfHandlersSetupAndNotResolved
+#pragma mark - Initial Invariants
+
+-(void)testPromiseShouldInitiallyBeInPendingState
 {
+    @autoreleasepool {
+        
+        RXPromise* promise = [[RXPromise alloc] init];
+        
+        XCTAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
+        XCTAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
+        XCTAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
+        XCTAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
+        
+        promise.then(^id(id result) {
+            return nil;
+        }, nil);
+        
+        XCTAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
+        XCTAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
+        XCTAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
+        XCTAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
+    }
+}
+
+
+
+#pragma mark - Once
+
+-(void) testStateFulfilledOnce
+{
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    [promise fulfillWithValue:@"OK"];
+    
+    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
+    // sure that the promise actually has been resolved.
+    int count = 4;
+    while (count--) {
+        usleep(100); // yield
+    }
+    
+    XCTAssertTrue(promise.isPending == NO, @"promise.isPending == NO");
+    XCTAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
+    XCTAssertTrue(promise.isFulfilled == YES, @"promise.isFulfilled == YES");
+    XCTAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSString class]], @"[promise.get isKindOfClass:[NSString class]]");
+    XCTAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description]);
+    
+    [promise fulfillWithValue:@"NO"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == YES, @"");
+    XCTAssertTrue(promise.isRejected == NO, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description]);
+    
+    [promise rejectWithReason:@"Fail!"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == YES, @"");
+    XCTAssertTrue(promise.isRejected == NO, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSString class]], @"" );
+    XCTAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description] );
+    
+    [promise cancelWithReason:@"Cancelled"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == YES, @"");
+    XCTAssertTrue(promise.isRejected == NO, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSString class]], @"" );
+    XCTAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise get] );
+}
+
+
+-(void)testStateRejectedOnce
+{
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    [promise rejectWithReason:@"Fail"];
+    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
+    // sure that the promise actually has been resolved.
+    int count = 4;
+    while (count--) {
+        usleep(100); // yield
+    }
+    
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue((promise.isPending == NO), @"promise.isPending: %d", (int)promise.isPending);
+    XCTAssertTrue((promise.isCancelled == NO), @"");
+    XCTAssertTrue((promise.isFulfilled == NO), @"");
+    XCTAssertTrue((promise.isRejected == YES), @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
+    
+    [promise fulfillWithValue:@"NO"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
+    
+    [promise rejectWithReason:@"Fail!"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
+    
+    [promise cancelWithReason:@"Cancelled"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
+}
+
+
+-(void)testStateCancelledOnce
+{
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    [promise cancelWithReason:@"Cancelled"];
+    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
+    // sure that the promise actually has been resolved.
+    int count = 10;
+    while (count--) {
+        usleep(100); // yield
+    }
+    
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isPending == NO, @"promise.isPending: %d", (int)promise.isPending);
+    XCTAssertTrue(promise.isCancelled == YES, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue([promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([promise.get code] == -1, @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
+    
+    [promise fulfillWithValue:@"NO"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == YES, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue([promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([promise.get code] == -1, @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
+    
+    [promise rejectWithReason:@"Fail!"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == YES, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([promise.get code] == -1, @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
+    
+    [promise cancelWithReason:@"Cancelled"];
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == YES, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
+    XCTAssertTrue([promise.get code] == -1, @"");
+    XCTAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
+}
+
+
+#pragma mark - Livetime
+
+- (void) testPromiseMustNotBeDeallocatedIfHandlersSetupAndNotResolved {
     // Requirement:
     //
     // A promise MUST be retained when handlers will be registered and released
@@ -420,187 +618,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
                 usleep(1000); // yield
             }
         }
-        //STAssertTrue(weakPromise != nil, @"");
+        //XCTAssertTrue(weakPromise != nil, @"");
         [weakPromise cancel];
         int count = 10;
         while (count--) {
             usleep(1000); // yield
         }
     }
-    STAssertTrue(weakPromise == nil, @"");
-}
-
-
--(void)testPromiseShouldInitiallyBeInPendingState
-{
-    @autoreleasepool {
-        
-        RXPromise* promise = [[RXPromise alloc] init];
-        
-        STAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
-        STAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
-        STAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
-        STAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
-        
-        promise.then(^id(id result) {
-            return nil;
-        }, nil);
-        
-        STAssertTrue(promise.isPending == YES, @"promise.isPending == YES");
-        STAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
-        STAssertTrue(promise.isFulfilled == NO, @"promise.isFulfilled == NO");
-        STAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
-    }
-}
-
-
--(void) testStateFulfilledOnce
-{
-    RXPromise* promise = [[RXPromise alloc] init];
-    
-    [promise fulfillWithValue:@"OK"];
-    
-    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
-    // sure that the promise actually has been resolved.
-    int count = 4;
-    while (count--) {
-        usleep(100); // yield
-    }
-    
-    STAssertTrue(promise.isPending == NO, @"promise.isPending == NO");
-    STAssertTrue(promise.isCancelled == NO, @"promise.isCancelled == NO");
-    STAssertTrue(promise.isFulfilled == YES, @"promise.isFulfilled == YES");
-    STAssertTrue(promise.isRejected == NO, @"promise.isRejected == NO");
-    STAssertTrue( [promise.get isKindOfClass:[NSString class]], @"[promise.get isKindOfClass:[NSString class]]");
-    STAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description]);
-    
-    [promise fulfillWithValue:@"NO"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == YES, @"");
-    STAssertTrue(promise.isRejected == NO, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSString class]], @"");
-    STAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description]);
-    
-    [promise rejectWithReason:@"Fail!"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == YES, @"");
-    STAssertTrue(promise.isRejected == NO, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSString class]], @"" );
-    STAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise.get description] );
-    
-    [promise cancelWithReason:@"Cancelled"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == YES, @"");
-    STAssertTrue(promise.isRejected == NO, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSString class]], @"" );
-    STAssertTrue( [promise.get isEqualToString:@"OK"], @"%@", [promise get] );
-}
-
-
--(void)testStateRejectedOnce
-{
-    RXPromise* promise = [[RXPromise alloc] init];
-    
-    [promise rejectWithReason:@"Fail"];
-    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
-    // sure that the promise actually has been resolved.
-    int count = 4;
-    while (count--) {
-        usleep(100); // yield
-    }
-    
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue((promise.isPending == NO), @"promise.isPending: %d", (int)promise.isPending);
-    STAssertTrue((promise.isCancelled == NO), @"");
-    STAssertTrue((promise.isFulfilled == NO), @"");
-    STAssertTrue((promise.isRejected == YES), @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
-    
-    [promise fulfillWithValue:@"NO"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
-    
-    [promise rejectWithReason:@"Fail!"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
-    
-    [promise cancelWithReason:@"Cancelled"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Fail"], @"");
-}
-
-
--(void)testStateCancelledOnce
-{
-    RXPromise* promise = [[RXPromise alloc] init];
-    
-    [promise cancelWithReason:@"Cancelled"];
-    // Note: fulfillWithValue is asynchronous. That is, we need to yield to be
-    // sure that the promise actually has been resolved.
-    int count = 10;
-    while (count--) {
-        usleep(100); // yield
-    }
-    
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isPending == NO, @"promise.isPending: %d", (int)promise.isPending);
-    STAssertTrue(promise.isCancelled == YES, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue([promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([promise.get code] == -1, @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
-    
-    [promise fulfillWithValue:@"NO"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == YES, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue([promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([promise.get code] == -1, @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
-    
-    [promise rejectWithReason:@"Fail!"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == YES, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([promise.get code] == -1, @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
-    
-    [promise cancelWithReason:@"Cancelled"];
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == YES, @"");
-    STAssertTrue(promise.isFulfilled == NO, @"");
-    STAssertTrue(promise.isRejected == YES, @"");
-    STAssertTrue( [promise.get isKindOfClass:[NSError class]], @"" );
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isKindOfClass:[NSString class]], @"");
-    STAssertTrue([promise.get code] == -1, @"");
-    STAssertTrue([[promise.get userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"Cancelled"], @"");
+    XCTAssertTrue(weakPromise == nil, @"");
 }
 
 
@@ -623,14 +648,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             int count = 10;
             while (count--)
                 usleep(100);
-            STAssertTrue(weakOther == nil, @"other promise must be deallocated");
+            XCTAssertTrue(weakOther == nil, @"other promise must be deallocated");
         }
     }
     int count = 5;
     while (count--)
         usleep(100);
     
-    STAssertTrue(weakPromise == nil, @"promise must be deallocated");
+    XCTAssertTrue(weakPromise == nil, @"promise must be deallocated");
 }
 
 
@@ -660,12 +685,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         return nil;
     }, nil);
     
-    STAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
-    STAssertTrue([@"ABCDE" isEqualToString:s], @"");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
+    XCTAssertTrue([@"ABCDE" isEqualToString:s], @"");
 }
 
 
-- (void) testBoundPromiseShouldForwardResult {
+#pragma mark - bind
+
+- (void) testBoundPromiseShouldAdoptFulfillment {
 
     __weak RXPromise* weakOther;
     RXPromise* promise = [[RXPromise alloc] init];
@@ -678,15 +705,114 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         other = nil;
     }
     id result = promise.get;
-    STAssertTrue(promise.isPending == NO, @"");
-    STAssertTrue(promise.isCancelled == NO, @"");
-    STAssertTrue(promise.isFulfilled == YES, @"");
-    STAssertTrue(promise.isRejected == NO, @"");
-    STAssertTrue(weakOther == nil, @"other promise must be deallocated");
-    STAssertTrue( [result isEqualToString:@"OK"],  @"promise shall assimilate the result of the bound promise - which is @\"OK\"" );
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == YES, @"");
+    XCTAssertTrue(promise.isRejected == NO, @"");
+    XCTAssertTrue(weakOther == nil, @"other promise must be deallocated");
+    XCTAssertTrue( [result isEqualToString:@"OK"],  @"promise shall assimilate the result of the bound promise - which is @\"OK\"" );
 
 }
 
+- (void) testBoundPromiseShouldAdoptRejection {
+    
+    __weak RXPromise* weakOther;
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    @autoreleasepool {
+        RXPromise* other = [[RXPromise alloc] init];
+        weakOther = other;
+        [promise bind:other];
+        [other rejectWithReason:@"FAIL"];
+        other = nil;
+    }
+    id result = promise.get;
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == NO, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue(weakOther == nil, @"other promise must be deallocated");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue( [[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"FAIL"],  @"promise shall assimilate the result of the bound promise" );
+    
+}
+
+- (void) testBoundPromiseShouldAdoptCancellation {
+    
+    __weak RXPromise* weakOther;
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    @autoreleasepool {
+        RXPromise* other = [[RXPromise alloc] init];
+        weakOther = other;
+        [promise bind:other];
+        [other cancel];
+        other = nil;
+    }
+    id result = promise.get;
+    XCTAssertTrue(promise.isPending == NO, @"");
+    XCTAssertTrue(promise.isCancelled == YES, @"");
+    XCTAssertTrue(promise.isFulfilled == NO, @"");
+    XCTAssertTrue(promise.isRejected == YES, @"");
+    XCTAssertTrue(weakOther == nil, @"other promise must be deallocated");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue( [result code] == -1, @""); /* cancelled */
+}
+
+- (void) testMultipleBindAtoCandBtoC {
+//    
+//         /--< A
+//    C - /
+//        \
+//         \--< B
+//    
+//    - C will adopt A OR B, which ever will be resolved first.
+//    - If C will be fulfilled through A, B SHALL not be affected.
+//    - If C will be rejected through A, B SHALL not be affected.
+//    - If C receives a cancel message, C will forward cancellation to A AND B.
+    
+    
+    RXPromise* a = [[RXPromise alloc] init];
+    RXPromise* b = [[RXPromise alloc] init];
+    RXPromise* c = [[RXPromise alloc] init];
+    
+    [c bind:a];
+    [c bind:b];
+    
+    [a fulfillWithValue:@"OK"];
+
+    id ra = a.get;
+    id rc = c.get;
+    [b setTimeout:0.1];
+    [b.then(^id(id result) {
+        XCTFail(@"success handler not expected");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTAssertTrue(error.code == -1001, @"");
+        return nil;
+    }) wait];
+    
+    XCTAssertTrue(ra == rc, @"");
+    
+    XCTAssertTrue(a.isPending == NO, @"");
+    XCTAssertTrue(a.isCancelled == NO, @"");
+    XCTAssertTrue(a.isFulfilled == YES, @"");
+    XCTAssertTrue(a.isRejected == NO, @"");
+
+    XCTAssertTrue(c.isPending == NO, @"");
+    XCTAssertTrue(c.isCancelled == NO, @"");
+    XCTAssertTrue(c.isFulfilled == YES, @"");
+    XCTAssertTrue(c.isRejected == NO, @"");
+
+    XCTAssertTrue(b.isPending == NO, @"");
+    XCTAssertTrue(b.isCancelled == NO, @"");
+    XCTAssertTrue(b.isFulfilled == NO, @"");
+    XCTAssertTrue(b.isRejected == YES, @"");  // timeout
+}
+
+
+
+#pragma mark - Success / Failure
 
 -(void) testBasicSuccess
 {
@@ -702,14 +828,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return nil;
         },
         ^id(NSError* error) {
-            STFail(@"error handler must not be called");
+            XCTFail(@"error handler must not be called");
             dispatch_semaphore_signal(finished_sem);
             return nil;
         });
         
         // The operation is finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
-        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+        XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
         @"success callback not called after 1 second");
     }
 }
@@ -729,16 +855,16 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
         asyncOp(@"A", 1, nil, 0.01).thenOn(concurrentQueue, ^id(id){
-            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+            XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
             dispatch_semaphore_signal(finished_sem); return nil;
         }, ^id(NSError* error){
-            STFail(@"error handler must not be called");
+            XCTFail(@"error handler must not be called");
             return nil;
         });
         
         // The operation is finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
-        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+        XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
                      @"success callback not called after 1 second");
     }
 }
@@ -752,7 +878,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
         async_fail(.01).then(^id(id){
-            STFail(@"success handler must not be called");
+            XCTFail(@"success handler must not be called");
             return nil;
         }, ^id(NSError* error){
             dispatch_semaphore_signal(finished_sem);
@@ -761,7 +887,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         // The operation is finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
-        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+        XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
                      @"error callback not called after 1 second");
     }
 }
@@ -782,22 +908,60 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
         async_fail(.01).thenOn(concurrentQueue, ^id(id){
-            STFail(@"success handler must not be called");
+            XCTFail(@"success handler must not be called");
             return nil;
         }, ^id(NSError* error){
-            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+            XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
             dispatch_semaphore_signal(finished_sem);
             return nil;
         });
         
         // The operation is finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
-        STAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+        XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
                      @"error callback not called after 1 second");
     }
 }
 
+-(void) testBasicFailureWithoutErrorHandler
+{
+    // Check whether a promise fires its handlers in due time:
+    
+    @autoreleasepool {
+        
+        semaphore finished_sem;
+        semaphore& semRef = finished_sem;
+        
+        RXPromise* promise0 = async_fail(0.01, @"Failure");
+        RXPromise* promise1 = promise0.then(^id(id){
+            semRef.signal();
+            return nil;
+        }, nil);
+        
+        // The operation is finished with a failure after about 0.01 s. Thus, the
+        // success handler should not be called, and the semaphore must timeout:
+        XCTAssertFalse(finished_sem.wait(0.10), @"success callback called after 0.10 second");
+        XCTAssertFalse(promise0.isPending, @"");
+        XCTAssertFalse(promise0.isFulfilled, @"");
+        XCTAssertFalse(promise0.isCancelled, @"");
+        XCTAssertTrue(promise0.isRejected, @"");
+        id result0 = promise0.get;
+        XCTAssertTrue([result0 isKindOfClass:[NSError class]], @"%@", [result0 description]);
+        
+        XCTAssertFalse(promise1.isPending, @"");
+        XCTAssertFalse(promise1.isFulfilled, @"");
+        XCTAssertFalse(promise1.isCancelled, @"");
+        XCTAssertTrue(promise1.isRejected, @"");
+        id result1 = promise1.get;
+        XCTAssertTrue([result1 isKindOfClass:[NSError class]], @"%@", result1);
+        
+    }
+}
 
+
+
+
+#pragma mark - Chaining
 
 -(void) testBasicChaining1
 {
@@ -808,10 +972,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"A"), unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"A"],  @"result shall have the result of the last async function - which is @\"A\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"A"],  @"result shall have the result of the last async function - which is @\"A\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -827,10 +991,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"B"), unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"B"],  @"result shall have the result of the last async function - which is @\"B\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"B"],  @"result shall have the result of the last async function - which is @\"B\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -843,10 +1007,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"C"), unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"C"],  @"result shall have the result of the last async function - which is @\"C\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"C"],  @"result shall have the result of the last async function - which is @\"C\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -860,10 +1024,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"D"), unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -877,10 +1041,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"D"],  @"result shall have the result of the last async function - which is @\"D\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -893,10 +1057,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
-    STAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -910,10 +1074,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
-    STAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( result == nil, @"result shall have the result of the last async function - which is nil" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -926,10 +1090,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -943,10 +1107,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
-    STAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
-    STAssertTrue( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertFalse( p.isRejected, @"");
+    XCTAssertTrue( [result isEqualToString:@"OK"], @"result shall have the result of the last async function - which is @\"OK\"" );
+    XCTAssertTrue( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertFalse( p.isRejected, @"");
 }
 
 
@@ -958,11 +1122,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     .then(^(id){return async(0.01, @"D");}, nil);
     
     id result = p.get;
-    STAssertTrue( [result isKindOfClass:[NSError class]], @"");
-    STAssertTrue( [[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"C:Failure"], @"" );
-    STAssertFalse( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertTrue( p.isRejected, @"");
+    XCTAssertTrue( [result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue( [[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"C:Failure"], @"" );
+    XCTAssertFalse( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertTrue( p.isRejected, @"");
 }
 
 
@@ -975,11 +1139,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     .then(^(id){return async_bind(0.01, @"D");}, nil);
     
     id result = p.get;
-    STAssertTrue( [result isKindOfClass:[NSError class]], @"");
-    STAssertTrue( [[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"C:Failure"], @"" );
-    STAssertFalse( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertTrue( p.isRejected, @"");
+    XCTAssertTrue( [result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue( [[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"C:Failure"], @"" );
+    XCTAssertFalse( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertTrue( p.isRejected, @"");
 }
 
 
@@ -991,11 +1155,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
     
     id result = p.get;
-    STAssertTrue( [result isKindOfClass:[NSError class]] == YES, @"" );
-    STAssertTrue(10 == (int)[result code], @"");
-    STAssertFalse( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertTrue( p.isRejected, @"");
+    XCTAssertTrue( [result isKindOfClass:[NSError class]] == YES, @"" );
+    XCTAssertTrue(10 == (int)[result code], @"");
+    XCTAssertFalse( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertTrue( p.isRejected, @"");
 }
 
 
@@ -1007,31 +1171,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
     
     id result = p.get;
-    STAssertTrue( [result isKindOfClass:[NSError class]], @"" );
-    STAssertTrue(10 == (int)[result code], @"");
-    STAssertFalse( p.isFulfilled, @"");
-    STAssertFalse( p.isCancelled, @"");
-    STAssertTrue( p.isRejected, @"");
+    XCTAssertTrue( [result isKindOfClass:[NSError class]], @"" );
+    XCTAssertTrue(10 == (int)[result code], @"");
+    XCTAssertFalse( p.isFulfilled, @"");
+    XCTAssertFalse( p.isCancelled, @"");
+    XCTAssertTrue( p.isRejected, @"");
 }
-
-
-//    TEST_F(RXPromiseTest, Test2)
-//    {
-//        RXPromise* p = async(1, @"A")
-//        .then(^(id){
-//                return async(1, @"B");
-//        }, nil)
-//        .then(^(id){
-//                return async(1, @"C");
-//        }, nil)
-//        .then(^(id){
-//            return async(1, @"D");
-//        }, nil);
-//
-//        id result = p.get;
-//        STAssertTrue( [result isKindOfClass:[NSString class]] );
-//        STAssertTrue( [p.get isEqualToString:@"A"] );
-//    }
 
 
 - (void) testChainingTestForwardResult
@@ -1056,12 +1201,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     },nil);
     
     dispatch_semaphore_wait(finished_sem, DISPATCH_TIME_FOREVER);
-    STAssertTrue( [s isEqualToString:@"ABCD"], @"" );
-    STAssertFalse(p.isPending, @"");
-    STAssertTrue(p.isFulfilled, @"");
-    STAssertFalse(p.isCancelled, @"");
-    STAssertFalse(p.isRejected, @"");
-    STAssertTrue( [p.get isEqualToString:@"A"], @"" );
+    XCTAssertTrue( [s isEqualToString:@"ABCD"], @"" );
+    XCTAssertFalse(p.isPending, @"");
+    XCTAssertTrue(p.isFulfilled, @"");
+    XCTAssertFalse(p.isCancelled, @"");
+    XCTAssertFalse(p.isRejected, @"");
+    XCTAssertTrue( [p.get isEqualToString:@"A"], @"" );
 }
 
 
@@ -1087,12 +1232,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     },nil);
     
     dispatch_semaphore_wait(finished_sem, DISPATCH_TIME_FOREVER);
-    STAssertTrue( [s isEqualToString:@"ABCD"], @"" );
-    STAssertFalse(p.isPending, @"");
-    STAssertTrue(p.isFulfilled, @"");
-    STAssertFalse(p.isCancelled, @"");
-    STAssertFalse(p.isRejected, @"");
-    STAssertTrue( [p.get isEqualToString:@"A"], @"" );
+    XCTAssertTrue( [s isEqualToString:@"ABCD"], @"" );
+    XCTAssertFalse(p.isPending, @"");
+    XCTAssertTrue(p.isFulfilled, @"");
+    XCTAssertFalse(p.isCancelled, @"");
+    XCTAssertFalse(p.isRejected, @"");
+    XCTAssertTrue( [p.get isEqualToString:@"A"], @"" );
 }
 
 
@@ -1109,101 +1254,65 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     p1 = p0.then(^(id){
         // Note: accessing p1 in this handler is not safe!
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"A"];
         return async(0.01);
     },^id(NSError* error){
-        STFail(@"p1 error handler called");
+        XCTFail(@"p1 error handler called");
         return error;
     });
     p2 = p1.then(^(id){
-        STAssertFalse(p1.isPending, @"");
-        STAssertTrue(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertFalse(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertTrue(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertFalse(p1.isRejected, @"");
         [s appendString:@"B"];
         return async(0.01);
     },^id(NSError* error){
-        STFail(@"p2 error handler called");
+        XCTFail(@"p2 error handler called");
         return error;
     });
     p3 = p2.then(^(id){
-        STAssertFalse(p2.isPending, @"");
-        STAssertTrue(p2.isFulfilled, @"");
-        STAssertFalse(p2.isCancelled, @"");
-        STAssertFalse(p2.isRejected, @"");
+        XCTAssertFalse(p2.isPending, @"");
+        XCTAssertTrue(p2.isFulfilled, @"");
+        XCTAssertFalse(p2.isCancelled, @"");
+        XCTAssertFalse(p2.isRejected, @"");
         [s appendString:@"C"];
         return async(0.01);
     },^id(NSError* error){
-        STFail(@"p3 error handler called");
+        XCTFail(@"p3 error handler called");
         return error;
     });
     p4 = p3.then(^(id){
-        STAssertFalse(p3.isPending, @"");
-        STAssertTrue(p3.isFulfilled, @"");
-        STAssertFalse(p3.isCancelled, @"");
-        STAssertFalse(p3.isRejected, @"");
+        XCTAssertFalse(p3.isPending, @"");
+        XCTAssertTrue(p3.isFulfilled, @"");
+        XCTAssertFalse(p3.isCancelled, @"");
+        XCTAssertFalse(p3.isRejected, @"");
         [s appendString:@"D"];
         return async(0.01);
     },^id(NSError* error){
-        STFail(@"p4 error handler called");
+        XCTFail(@"p4 error handler called");
         return error;
     });
     
     // p0 will resolve after 0.1 seconds, so hurry to check all promises:
-    STAssertTrue(p0.isPending, @"");
-    STAssertTrue(p1.isPending, @"");
-    STAssertTrue(p2.isPending, @"");
-    STAssertTrue(p3.isPending, @"");
-    STAssertTrue(p4.isPending, @"");
+    XCTAssertTrue(p0.isPending, @"");
+    XCTAssertTrue(p1.isPending, @"");
+    XCTAssertTrue(p2.isPending, @"");
+    XCTAssertTrue(p3.isPending, @"");
+    XCTAssertTrue(p4.isPending, @"");
     
     // wait until p4 has been resolved:
     id result = p4.get;
-    STAssertTrue([result isEqualToString:@"OK"], @"");  // note: @"OK" is the default value for success.
-    STAssertFalse(p4.isPending, @"");
-    STAssertTrue(p4.isFulfilled, @"");
-    STAssertFalse(p4.isCancelled, @"");
-    STAssertFalse(p4.isRejected, @"");
-    STAssertTrue([s isEqualToString:@"ABCD"], @"");
-}
-
-
--(void) testBasicFailureWithoutErrorHandler
-{
-    // Check whether a promise fires its handlers in due time:
-    
-    @autoreleasepool {
-        
-        semaphore finished_sem;
-        semaphore& semRef = finished_sem;
-        
-        RXPromise* promise0 = async_fail(0.01, @"Failure");
-        RXPromise* promise1 = promise0.then(^id(id){
-            semRef.signal();
-            return nil;
-        }, nil);
-        
-        // The operation is finished with a failure after about 0.01 s. Thus, the
-        // success handler should not be called, and the semaphore must timeout:
-        STAssertFalse(finished_sem.wait(0.10), @"success callback called after 0.10 second");
-        STAssertFalse(promise0.isPending, @"");
-        STAssertFalse(promise0.isFulfilled, @"");
-        STAssertFalse(promise0.isCancelled, @"");
-        STAssertTrue(promise0.isRejected, @"");
-        id result0 = promise0.get;
-        STAssertTrue([result0 isKindOfClass:[NSError class]], @"%@", [result0 description]);
-        
-        STAssertFalse(promise1.isPending, @"");
-        STAssertFalse(promise1.isFulfilled, @"");
-        STAssertFalse(promise1.isCancelled, @"");
-        STAssertTrue(promise1.isRejected, @"");
-        id result1 = promise1.get;
-        STAssertTrue([result1 isKindOfClass:[NSError class]], @"%@", result1);
-        
-    }
+    XCTAssertTrue([result isEqualToString:@"OK"], @"");  // note: @"OK" is the default value for success.
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertTrue(p4.isFulfilled, @"");
+    XCTAssertFalse(p4.isCancelled, @"");
+    XCTAssertFalse(p4.isRejected, @"");
+    XCTAssertTrue([s isEqualToString:@"ABCD"], @"");
 }
 
 
@@ -1218,101 +1327,101 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     p0 = async_fail(0.2, @"A:ERROR");
     
     p1 = p0.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
         // Note: accessing p1 in this handler is not correct, since the
         // handler will determince how the returned promise will be resolved!
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"a"];
         return error;
     });
     p2 = p1.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"b"];
         return error;
     });
     p3 = p2.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
-        STAssertFalse(p2.isPending, @"");
-        STAssertFalse(p2.isFulfilled, @"");
-        STAssertFalse(p2.isCancelled, @"");
-        STAssertTrue(p2.isRejected, @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
+        XCTAssertFalse(p2.isPending, @"");
+        XCTAssertFalse(p2.isFulfilled, @"");
+        XCTAssertFalse(p2.isCancelled, @"");
+        XCTAssertTrue(p2.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"c"];
         return error;
     });
     p4 = p3.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
-        STAssertFalse(p3.isPending, @"");
-        STAssertFalse(p3.isFulfilled, @"");
-        STAssertFalse(p3.isCancelled, @"");
-        STAssertTrue(p3.isRejected, @"");
-        STAssertFalse(p2.isPending, @"");
-        STAssertFalse(p2.isFulfilled, @"");
-        STAssertFalse(p2.isCancelled, @"");
-        STAssertTrue(p2.isRejected, @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
+        XCTAssertFalse(p3.isPending, @"");
+        XCTAssertFalse(p3.isFulfilled, @"");
+        XCTAssertFalse(p3.isCancelled, @"");
+        XCTAssertTrue(p3.isRejected, @"");
+        XCTAssertFalse(p2.isPending, @"");
+        XCTAssertFalse(p2.isFulfilled, @"");
+        XCTAssertFalse(p2.isCancelled, @"");
+        XCTAssertTrue(p2.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"d"];
         return error;
     });
     
     // p0 will resolve after 0.2 seconds, so hurry to check all promises:
-    STAssertTrue(p0.isPending, @"");
-    STAssertTrue(p1.isPending, @"");
-    STAssertTrue(p2.isPending, @"");
-    STAssertTrue(p3.isPending, @"");
-    STAssertTrue(p4.isPending, @"");
+    XCTAssertTrue(p0.isPending, @"");
+    XCTAssertTrue(p1.isPending, @"");
+    XCTAssertTrue(p2.isPending, @"");
+    XCTAssertTrue(p3.isPending, @"");
+    XCTAssertTrue(p4.isPending, @"");
     
     // p4 will be resolved shortly after, as the error gets forwarded quickly:
     id result = p4.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertTrue([[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertFalse(p4.isCancelled, @"");
-    STAssertTrue(p4.isRejected, @"");
-    STAssertTrue([e isEqualToString:@"abcd"], @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue([[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertFalse(p4.isCancelled, @"");
+    XCTAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([e isEqualToString:@"abcd"], @"");
 }
 
 
@@ -1331,143 +1440,104 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     p0 = async(0.1);
     
     p1 = p0.then(^id(id){
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"A"];
         return async_fail(0.01, @"B:ERROR");;
         
     },^id(NSError* error){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return error;
     });
     p2 = p1.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [e appendString:@"b"];
         return error;
     });
     p3 = p2.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
-        STAssertFalse(p2.isPending, @"");
-        STAssertFalse(p2.isFulfilled, @"");
-        STAssertFalse(p2.isCancelled, @"");
-        STAssertTrue(p2.isRejected, @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
+        XCTAssertFalse(p2.isPending, @"");
+        XCTAssertFalse(p2.isFulfilled, @"");
+        XCTAssertFalse(p2.isCancelled, @"");
+        XCTAssertTrue(p2.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [e appendString:@"c"];
         return error;
     });
     p4 = p3.then(^id(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertTrue([error isKindOfClass:[NSError class]], @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
-        STAssertFalse(p3.isPending, @"");
-        STAssertFalse(p3.isFulfilled, @"");
-        STAssertFalse(p3.isCancelled, @"");
-        STAssertTrue(p3.isRejected, @"");
-        STAssertFalse(p2.isPending, @"");
-        STAssertFalse(p2.isFulfilled, @"");
-        STAssertFalse(p2.isCancelled, @"");
-        STAssertTrue(p2.isRejected, @"");
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertFalse(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
+        XCTAssertFalse(p3.isPending, @"");
+        XCTAssertFalse(p3.isFulfilled, @"");
+        XCTAssertFalse(p3.isCancelled, @"");
+        XCTAssertTrue(p3.isRejected, @"");
+        XCTAssertFalse(p2.isPending, @"");
+        XCTAssertFalse(p2.isFulfilled, @"");
+        XCTAssertFalse(p2.isCancelled, @"");
+        XCTAssertTrue(p2.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertFalse(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [e appendString:@"d"];
         return error;
     });
     
     // p0 will resolve after 0.2 seconds, so hurry to check all promises:
-    STAssertTrue(p0.isPending, @"");
-    STAssertTrue(p1.isPending, @"");
-    STAssertTrue(p2.isPending, @"");
-    STAssertTrue(p3.isPending, @"");
-    STAssertTrue(p4.isPending, @"");
+    XCTAssertTrue(p0.isPending, @"");
+    XCTAssertTrue(p1.isPending, @"");
+    XCTAssertTrue(p2.isPending, @"");
+    XCTAssertTrue(p3.isPending, @"");
+    XCTAssertTrue(p4.isPending, @"");
     
     // p4 will be resolved shortly after, as the error gets forwarded quickly:
     id result = p4.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertTrue([[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertFalse(p4.isCancelled, @"");
-    STAssertTrue(p4.isRejected, @"");
-    STAssertTrue([s isEqualToString:@"A"], @"");
-    STAssertTrue([e isEqualToString:@"bcd"], @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertTrue([[result userInfo][NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertFalse(p4.isCancelled, @"");
+    XCTAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([s isEqualToString:@"A"], @"");
+    XCTAssertTrue([e isEqualToString:@"bcd"], @"");
 }
 
 
--(void) testThenMustReturnBeforeHandlersWillBeCalled {
-    
-    // Actually, this is tricky to test and verify correctly due to
-    // avoiding race conditions. The code below seems correct, though.
-    // A possible improvement would be to run it in a loop in
-    // order to provoke a possibly race.
-    
-    dispatch_queue_t serial_queue = dispatch_queue_create("serial_queue", 0);
-    
-    for (int i = 0; i < 100; ++i) {
-        semaphore finished;
-        semaphore& finishedRef = finished;
-        
-        RXPromise* promise1 = [[RXPromise alloc] init];
-        __block RXPromise* promise2;
-        
-        bool returnedFromThen = false;
-        bool& returnedFromThenRef = returnedFromThen;
-        dispatch_async(serial_queue, ^{
-            [promise1 fulfillWithValue:@"Finished"];
-        });
-        dispatch_async(serial_queue, ^{
-            promise2 = promise1.then(^(id value){
-                dispatch_sync(serial_queue, ^{
-                    STAssertTrue(returnedFromThenRef, @"");
-                });
-                STAssertTrue([value isEqualToString:@"Finished"], @"");
-                finishedRef.signal();
-                return @"OK";
-            }, nil);
-            returnedFromThenRef = true;
-        });
-        
-        STAssertTrue(finishedRef.wait(1), @"");
-        STAssertTrue(promise2 != nil, @"");
-        STAssertTrue([promise2.get isEqualToString:@"OK"], @"%@", [promise2.get description]);
-    }
-    
-}
 
-
+#pragma mark -
 
 -(void) testSpawnParallelOPs
 {
@@ -1490,41 +1560,41 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     p0 = async(0.01, @"0:success");
     
     p00 = p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"0:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([result isEqualToString:@"0:success"], @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         *bp  = 'A';
         return async(0.01, @"00:success");
     }, nil);
     
     p01 = p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"0:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([result isEqualToString:@"0:success"], @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         *(bp+1)='B';
         return async(0.01, @"01:success");
     }, nil);
     
     p02 = p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"0:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([result isEqualToString:@"0:success"], @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         *(bp+2)='C';
         return async(0.01, @"02:success");
     }, nil);
     
     p03 = p0.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"0:success"], @"");
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertTrue([result isEqualToString:@"0:success"], @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         *(bp+3)='D';
         return async(0.01, @"03:success");
     }, ^(NSError* error){
@@ -1532,64 +1602,64 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     p00.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"00:success"], @"");
+        XCTAssertTrue([result isEqualToString:@"00:success"], @"");
         return nil;
     }, ^id(NSError* error){
-        STFail(@"p00 error handler called");
+        XCTFail(@"p00 error handler called");
         return nil;
     });
     
     p01.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"01:success"], @"");
+        XCTAssertTrue([result isEqualToString:@"01:success"], @"");
         return nil;
     }, ^id(NSError* error){
-        STFail(@"p01 error handler called");
+        XCTFail(@"p01 error handler called");
         return nil;
     });
     
     p02.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"02:success"], @"");
+        XCTAssertTrue([result isEqualToString:@"02:success"], @"");
         return nil;
     }, ^id(NSError* error){
-        STFail(@"p02 error handler called");
+        XCTFail(@"p02 error handler called");
         return nil;
     });
     
     p03.then(^id(id result){
-        STAssertTrue([result isEqualToString:@"03:success"], @"");
+        XCTAssertTrue([result isEqualToString:@"03:success"], @"");
         return nil;
     }, ^id(NSError* error){
-        STFail(@"p03 error handler called");
+        XCTFail(@"p03 error handler called");
         return nil;
     });
     
     [p00 wait], [p01 wait], [p02 wait], [p03 wait];
     
-    STAssertFalse(p00.isPending, @"");
-    STAssertTrue(p00.isFulfilled, @"");
-    STAssertFalse(p00.isCancelled, @"");
-    STAssertFalse(p00.isRejected, @"");
-    STAssertTrue([p00.get isEqualToString:@"00:success"], @"");
+    XCTAssertFalse(p00.isPending, @"");
+    XCTAssertTrue(p00.isFulfilled, @"");
+    XCTAssertFalse(p00.isCancelled, @"");
+    XCTAssertFalse(p00.isRejected, @"");
+    XCTAssertTrue([p00.get isEqualToString:@"00:success"], @"");
     
-    STAssertFalse(p01.isPending, @"");
-    STAssertTrue(p01.isFulfilled, @"");
-    STAssertFalse(p01.isCancelled, @"");
-    STAssertFalse(p01.isRejected, @"");
-    STAssertTrue([p01.get isEqualToString:@"01:success"], @"");
+    XCTAssertFalse(p01.isPending, @"");
+    XCTAssertTrue(p01.isFulfilled, @"");
+    XCTAssertFalse(p01.isCancelled, @"");
+    XCTAssertFalse(p01.isRejected, @"");
+    XCTAssertTrue([p01.get isEqualToString:@"01:success"], @"");
     
-    STAssertFalse(p02.isPending, @"");
-    STAssertTrue(p02.isFulfilled, @"");
-    STAssertFalse(p02.isCancelled, @"");
-    STAssertFalse(p02.isRejected, @"");
-    STAssertTrue([p02.get isEqualToString:@"02:success"], @"");
+    XCTAssertFalse(p02.isPending, @"");
+    XCTAssertTrue(p02.isFulfilled, @"");
+    XCTAssertFalse(p02.isCancelled, @"");
+    XCTAssertFalse(p02.isRejected, @"");
+    XCTAssertTrue([p02.get isEqualToString:@"02:success"], @"");
     
-    STAssertFalse(p03.isPending, @"");
-    STAssertTrue(p03.isFulfilled, @"");
-    STAssertFalse(p03.isCancelled, @"");
-    STAssertFalse(p03.isRejected, @"");
-    STAssertTrue([p03.get isEqualToString:@"03:success"], @"");
+    XCTAssertFalse(p03.isPending, @"");
+    XCTAssertTrue(p03.isFulfilled, @"");
+    XCTAssertFalse(p03.isCancelled, @"");
+    XCTAssertFalse(p03.isRejected, @"");
+    XCTAssertTrue([p03.get isEqualToString:@"03:success"], @"");
     
-    STAssertTrue( (memcmp("ABCD", buffer, sizeof(buffer)) == 0), @"" );
+    XCTAssertTrue( (memcmp("ABCD", buffer, sizeof(buffer)) == 0), @"" );
 }
 
 -(void) testChainedOPsWithFailure
@@ -1617,29 +1687,29 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         asyncOp(@"A", 1, queue, 0.01)
         .then(^id(id){
-            STAssertTrue(sr == "", @"");
+            XCTAssertTrue(sr == "", @"");
             sr.append("A");
             return asyncOp(@"B", 1, queue, 0.01);
         }, nil)
         .then(^id(id){
-               STAssertTrue(sr == "A", @"");
+               XCTAssertTrue(sr == "A", @"");
                sr.append("B");
                return asyncOp(@"C", 3, queue, 0.01, 2, @"Failure at step 2");
            }, nil)
         .then(^id(id){
-              STAssertTrue(sr == "AB", @"");
+              XCTAssertTrue(sr == "AB", @"");
               sr.append("C");
               return asyncOp(@"D", 1, queue, 0.01);
           }, nil)
         .then(^id(id){
-             STAssertTrue(sr == "ABC", @"");
+             XCTAssertTrue(sr == "ABC", @"");
              sr.append("D");
              semRef.signal(); return nil;
          }, nil);
         
         // We expect the finished_sem to timeout:
-        STAssertFalse(finished_sem.wait(0.5), @"success callback called after 0.5 second");
-        STAssertTrue(s == "AB", @"");
+        XCTAssertFalse(finished_sem.wait(0.5), @"success callback called after 0.5 second");
+        XCTAssertTrue(s == "AB", @"");
         
         // We do not have any promises to check.
     }
@@ -1670,7 +1740,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         asyncOp(@"A", 1, queue, 0.01)
         .then(^id(id){
-            STAssertTrue([s isEqualToString:@""], @"");
+            XCTAssertTrue([s isEqualToString:@""], @"");
             [s appendString:@"A"];
             return asyncOp(@"B", 1, queue, 0.01);
         }, ^id(NSError *error) {
@@ -1679,7 +1749,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return error;
         })
         .then(^id(id){
-            STAssertTrue([s isEqualToString:@"A"], @"");
+            XCTAssertTrue([s isEqualToString:@"A"], @"");
             [s appendString:@"B"];
             return asyncOp(@"C", 3, queue, 0.01, 2, @"Failure at step 2");
         },^id(NSError *error) {
@@ -1688,7 +1758,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return error;
         })
         .then(^id(id){
-          STAssertTrue([s isEqualToString:@"AB"], @"");
+          XCTAssertTrue([s isEqualToString:@"AB"], @"");
           [s appendString:@"C"];
           return asyncOp(@"D", 1, queue, 0.01);
         }, ^id(NSError *error) {
@@ -1697,7 +1767,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return error;
         })
         .then(^id(id){
-            STAssertTrue([s isEqualToString:@"ABC"], @"");
+            XCTAssertTrue([s isEqualToString:@"ABC"], @"");
             [s appendString:@"D"];
             semRef.signal(); return nil;
         }, ^id(NSError *error) {
@@ -1706,12 +1776,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return error;
         });
         
-        STAssertTrue(finished_sem.wait(1000), @"any callback not called after 0.5 second");
+        XCTAssertTrue(finished_sem.wait(1000), @"any callback not called after 0.5 second");
         for (int i = 0; i < 10; ++i) {
             usleep(100);
         }
-        STAssertTrue([@"AB" isEqualToString:s], @"");
-        STAssertTrue([@"cd" isEqualToString:e], @"");
+        XCTAssertTrue([@"AB" isEqualToString:s], @"");
+        XCTAssertTrue([@"cd" isEqualToString:e], @"");
         
         // We do not have any promises to check.
     }
@@ -1774,11 +1844,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             esr.append("E100"); return error;
         });
         
-        STAssertFalse(finished_sem.wait(0.5), @"expected to timeout after 0.5 s");
-        STAssertTrue(es == "", @"");
+        XCTAssertFalse(finished_sem.wait(0.5), @"expected to timeout after 0.5 s");
+        XCTAssertTrue(es == "", @"");
     }
 }
 
+
+#pragma mark - Cancellation
 
 -(void)testChainCancel1 {
     
@@ -1799,46 +1871,46 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSMutableString* e = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertTrue(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertTrue(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"1"];
         return error;
     });
     p2 = p1.then(^(id){
-        STFail(@"p2 success handler called");
+        XCTFail(@"p2 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"2"];
         return error;
     });
     p3 = p2.then(^(id){
-        STFail(@"p3 success handler called");
+        XCTFail(@"p3 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"3"];
         return error;
     });
     p4 = p3.then(^(id){
-        STFail(@"p4 success handler called");
+        XCTFail(@"p4 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"4"];
         return error;
     });
@@ -1850,49 +1922,49 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     // p0 will resolve with a cancel after 0.2 seconds, so hurry to check all promises:
-    STAssertTrue(p0.isPending, @"");
-    STAssertTrue(p1.isPending, @"");
-    STAssertTrue(p2.isPending, @"");
-    STAssertTrue(p3.isPending, @"");
-    STAssertTrue(p4.isPending, @"");
+    XCTAssertTrue(p0.isPending, @"");
+    XCTAssertTrue(p1.isPending, @"");
+    XCTAssertTrue(p2.isPending, @"");
+    XCTAssertTrue(p3.isPending, @"");
+    XCTAssertTrue(p4.isPending, @"");
     
     // wait until p4 has been resolved:
     id result = p4.get;
-    STAssertTrue([e isEqualToString:@"1234"], @"%@", e);
+    XCTAssertTrue([e isEqualToString:@"1234"], @"%@", e);
     
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertTrue(p4.isCancelled, @""); // p4 MUST be "cancelled"
-    STAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertTrue(p4.isCancelled, @""); // p4 MUST be "cancelled"
+    XCTAssertTrue(p4.isRejected, @"");
     
     result = p3.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p3.isPending, @"");
-    STAssertFalse(p3.isFulfilled, @"");
-    STAssertTrue(p3.isCancelled, @"");  // p3 MUST be "cancelled"
-    STAssertTrue(p3.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p3.isPending, @"");
+    XCTAssertFalse(p3.isFulfilled, @"");
+    XCTAssertTrue(p3.isCancelled, @"");  // p3 MUST be "cancelled"
+    XCTAssertTrue(p3.isRejected, @"");
     
     result = p2.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p2.isPending, @"");
-    STAssertFalse(p2.isFulfilled, @"");
-    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
-    STAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p2.isPending, @"");
+    XCTAssertFalse(p2.isFulfilled, @"");
+    XCTAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    XCTAssertTrue(p2.isRejected, @"");
     
     result = p1.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p1.isPending, @"");
-    STAssertFalse(p1.isFulfilled, @"");
-    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
-    STAssertTrue(p1.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p1.isPending, @"");
+    XCTAssertFalse(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    XCTAssertTrue(p1.isRejected, @"");
     
     result = p0.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p0.isPending, @"");
-    STAssertFalse(p0.isFulfilled, @"");
-    STAssertTrue(p0.isCancelled, @"");  // p0 MUST be cancelled.
-    STAssertTrue(p0.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p0.isPending, @"");
+    XCTAssertFalse(p0.isFulfilled, @"");
+    XCTAssertTrue(p0.isCancelled, @"");  // p0 MUST be cancelled.
+    XCTAssertTrue(p0.isRejected, @"");
 }
 
 
@@ -1915,46 +1987,46 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSMutableString* e = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
-        STFail(@"p1 success handler called");
+        XCTFail(@"p1 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p0.isPending, @"");
-        STAssertFalse(p0.isFulfilled, @"");
-        STAssertTrue(p0.isCancelled, @"");
-        STAssertTrue(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertFalse(p0.isFulfilled, @"");
+        XCTAssertTrue(p0.isCancelled, @"");
+        XCTAssertTrue(p0.isRejected, @"");
         [e appendString:@"1"];
         return error;
     });
     p2 = p1.then(^(id){
-        STFail(@"p2 success handler called");
+        XCTFail(@"p2 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"2"];
         return error;
     });
     p3 = p2.then(^(id){
-        STFail(@"p3 success handler called");
+        XCTFail(@"p3 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"3"];
         return error;
     });
     p4 = p3.then(^(id){
-        STFail(@"p4 success handler called");
+        XCTFail(@"p4 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"4"];
         return error;
     });
@@ -1966,49 +2038,49 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     // p0 will resolve with a cancel after 0.2 seconds, so hurry to check all promises:
-    STAssertTrue(p0.isPending, @"");
-    STAssertTrue(p1.isPending, @"");
-    STAssertTrue(p2.isPending, @"");
-    STAssertTrue(p3.isPending, @"");
-    STAssertTrue(p4.isPending, @"");
+    XCTAssertTrue(p0.isPending, @"");
+    XCTAssertTrue(p1.isPending, @"");
+    XCTAssertTrue(p2.isPending, @"");
+    XCTAssertTrue(p3.isPending, @"");
+    XCTAssertTrue(p4.isPending, @"");
     
     // wait until p4 has been resolved:
     id result = p4.get;
-    STAssertTrue([e isEqualToString:@"1234"], @"%@", e);
+    XCTAssertTrue([e isEqualToString:@"1234"], @"%@", e);
     
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertTrue(p4.isCancelled, @""); // p4 MUST be "cancelled"
-    STAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertTrue(p4.isCancelled, @""); // p4 MUST be "cancelled"
+    XCTAssertTrue(p4.isRejected, @"");
     
     result = p3.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p3.isPending, @"");
-    STAssertFalse(p3.isFulfilled, @"");
-    STAssertTrue(p3.isCancelled, @"");  // p3 MUST be "cancelled"
-    STAssertTrue(p3.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p3.isPending, @"");
+    XCTAssertFalse(p3.isFulfilled, @"");
+    XCTAssertTrue(p3.isCancelled, @"");  // p3 MUST be "cancelled"
+    XCTAssertTrue(p3.isRejected, @"");
     
     result = p2.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p2.isPending, @"");
-    STAssertFalse(p2.isFulfilled, @"");
-    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
-    STAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p2.isPending, @"");
+    XCTAssertFalse(p2.isFulfilled, @"");
+    XCTAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    XCTAssertTrue(p2.isRejected, @"");
     
     result = p1.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p1.isPending, @"");
-    STAssertFalse(p1.isFulfilled, @"");
-    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
-    STAssertTrue(p1.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p1.isPending, @"");
+    XCTAssertFalse(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    XCTAssertTrue(p1.isRejected, @"");
     
     result = p0.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p0.isPending, @"");
-    STAssertFalse(p0.isFulfilled, @"");
-    STAssertTrue(p0.isCancelled, @"");  // p0 MUST be cancelled.
-    STAssertTrue(p0.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p0.isPending, @"");
+    XCTAssertFalse(p0.isFulfilled, @"");
+    XCTAssertTrue(p0.isCancelled, @"");  // p0 MUST be cancelled.
+    XCTAssertTrue(p0.isRejected, @"");
 }
 
 
@@ -2030,46 +2102,46 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSMutableString* s = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"1"];
         return async(1000); // takes a while to finish
     },^id(NSError* error){
-        STFail(@"p1 error handler called");
+        XCTFail(@"p1 error handler called");
         return error;
     });
     p2 = p1.then(^(id){
-        STFail(@"p2 success handler called");
+        XCTFail(@"p2 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"2"];
         return error;
     });
     p3 = p2.then(^(id){
-        STFail(@"p3 success handler called");
+        XCTFail(@"p3 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"3"];
         return error;
     });
     p4 = p3.then(^(id){
-        STFail(@"p4 success handler called");
+        XCTFail(@"p4 success handler called");
         return async(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"4"];
         return error;
     });
@@ -2082,42 +2154,42 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // wait until p4 has been resolved:
     id result = p4.get;
-    STAssertTrue([s isEqualToString:@"1"], @"%@", s);
-    STAssertTrue([e isEqualToString:@"234"], @"%@", e);
+    XCTAssertTrue([s isEqualToString:@"1"], @"%@", s);
+    XCTAssertTrue([e isEqualToString:@"234"], @"%@", e);
     
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertTrue(p4.isCancelled, @"p4 MUST be cancelled");
-    STAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertTrue(p4.isCancelled, @"p4 MUST be cancelled");
+    XCTAssertTrue(p4.isRejected, @"");
     
     result = p3.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p3.isPending, @"");
-    STAssertFalse(p3.isFulfilled, @"");
-    STAssertTrue(p3.isCancelled, @"p3 MUST be cancelled");
-    STAssertTrue(p3.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p3.isPending, @"");
+    XCTAssertFalse(p3.isFulfilled, @"");
+    XCTAssertTrue(p3.isCancelled, @"p3 MUST be cancelled");
+    XCTAssertTrue(p3.isRejected, @"");
     
     result = p2.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p2.isPending, @"");
-    STAssertFalse(p2.isFulfilled, @"");
-    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
-    STAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p2.isPending, @"");
+    XCTAssertFalse(p2.isFulfilled, @"");
+    XCTAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    XCTAssertTrue(p2.isRejected, @"");
     
     result = p1.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p1.isPending, @"");
-    STAssertFalse(p1.isFulfilled, @"");
-    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
-    STAssertTrue(p1.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p1.isPending, @"");
+    XCTAssertFalse(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    XCTAssertTrue(p1.isRejected, @"");
     
     result = p0.get;
-    STAssertFalse([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p0.isPending, @"");
-    STAssertTrue(p0.isFulfilled, @"");   // P0 MUST not be cancelled
-    STAssertFalse(p0.isCancelled, @"");  // p0 MUST be fulfilled.
-    STAssertFalse(p0.isRejected, @"");
+    XCTAssertFalse([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p0.isPending, @"");
+    XCTAssertTrue(p0.isFulfilled, @"");   // P0 MUST not be cancelled
+    XCTAssertFalse(p0.isCancelled, @"");  // p0 MUST be fulfilled.
+    XCTAssertFalse(p0.isRejected, @"");
 }
 
 
@@ -2139,46 +2211,46 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSMutableString* s = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
-        STAssertFalse(p0.isPending, @"");
-        STAssertTrue(p0.isFulfilled, @"");
-        STAssertFalse(p0.isCancelled, @"");
-        STAssertFalse(p0.isRejected, @"");
+        XCTAssertFalse(p0.isPending, @"");
+        XCTAssertTrue(p0.isFulfilled, @"");
+        XCTAssertFalse(p0.isCancelled, @"");
+        XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"1"];
         return async_bind(1000); // takes a while to finish
     },^id(NSError* error){
-        STFail(@"p1 error handler called");
+        XCTFail(@"p1 error handler called");
         return error;
     });
     p2 = p1.then(^(id){
-        STFail(@"p2 success handler called");
+        XCTFail(@"p2 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"2"];
         return error;
     });
     p3 = p2.then(^(id){
-        STFail(@"p3 success handler called");
+        XCTFail(@"p3 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"3"];
         return error;
     });
     p4 = p3.then(^(id){
-        STFail(@"p4 success handler called");
+        XCTFail(@"p4 success handler called");
         return async_bind(0.01);
     },^id(NSError* error){
-        STAssertFalse(p1.isPending, @"");
-        STAssertFalse(p1.isFulfilled, @"");
-        STAssertTrue(p1.isCancelled, @"");
-        STAssertTrue(p1.isRejected, @"");
+        XCTAssertFalse(p1.isPending, @"");
+        XCTAssertFalse(p1.isFulfilled, @"");
+        XCTAssertTrue(p1.isCancelled, @"");
+        XCTAssertTrue(p1.isRejected, @"");
         [e appendString:@"4"];
         return error;
     });
@@ -2191,42 +2263,42 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // wait until p4 has been resolved:
     id result = p4.get;
-    STAssertTrue([s isEqualToString:@"1"], @"%@", s);
-    STAssertTrue([e isEqualToString:@"234"], @"%@", e);
+    XCTAssertTrue([s isEqualToString:@"1"], @"%@", s);
+    XCTAssertTrue([e isEqualToString:@"234"], @"%@", e);
     
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p4.isPending, @"");
-    STAssertFalse(p4.isFulfilled, @"");
-    STAssertTrue(p4.isCancelled, @"p4 MUST be cancelled");
-    STAssertTrue(p4.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p4.isPending, @"");
+    XCTAssertFalse(p4.isFulfilled, @"");
+    XCTAssertTrue(p4.isCancelled, @"p4 MUST be cancelled");
+    XCTAssertTrue(p4.isRejected, @"");
     
     result = p3.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p3.isPending, @"");
-    STAssertFalse(p3.isFulfilled, @"");
-    STAssertTrue(p3.isCancelled, @"p3 MUST be cancelled");
-    STAssertTrue(p3.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p3.isPending, @"");
+    XCTAssertFalse(p3.isFulfilled, @"");
+    XCTAssertTrue(p3.isCancelled, @"p3 MUST be cancelled");
+    XCTAssertTrue(p3.isRejected, @"");
     
     result = p2.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p2.isPending, @"");
-    STAssertFalse(p2.isFulfilled, @"");
-    STAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
-    STAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p2.isPending, @"");
+    XCTAssertFalse(p2.isFulfilled, @"");
+    XCTAssertTrue(p2.isCancelled, @"");  // p2 MUST be "cancelled"
+    XCTAssertTrue(p2.isRejected, @"");
     
     result = p1.get;
-    STAssertTrue([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p1.isPending, @"");
-    STAssertFalse(p1.isFulfilled, @"");
-    STAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
-    STAssertTrue(p1.isRejected, @"");
+    XCTAssertTrue([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p1.isPending, @"");
+    XCTAssertFalse(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isCancelled, @"");  // p1 MUST be "cancelled"
+    XCTAssertTrue(p1.isRejected, @"");
     
     result = p0.get;
-    STAssertFalse([result isKindOfClass:[NSError class]], @"");
-    STAssertFalse(p0.isPending, @"");
-    STAssertTrue(p0.isFulfilled, @"");   // P0 MUST not be cancelled
-    STAssertFalse(p0.isCancelled, @"");  // p0 MUST be fulfilled.
-    STAssertFalse(p0.isRejected, @"");
+    XCTAssertFalse([result isKindOfClass:[NSError class]], @"");
+    XCTAssertFalse(p0.isPending, @"");
+    XCTAssertTrue(p0.isFulfilled, @"");   // P0 MUST not be cancelled
+    XCTAssertFalse(p0.isCancelled, @"");  // p0 MUST be fulfilled.
+    XCTAssertFalse(p0.isRejected, @"");
 }
 
 
@@ -2356,9 +2428,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // wait for the leaves to be resolved:
         [p_0 wait]; [p_1 wait]; [p_2 wait];
         
-        STAssertTrue([s0 isEqualToString:@"0RC00RC000RC"], @"%@", s0);
-        STAssertTrue([s1 isEqualToString:@"0RC01RC010RC"], @"%@", s1);
-        STAssertTrue([s2 isEqualToString:@"0RC02RC020RC"], @"%@", s2);
+        XCTAssertTrue([s0 isEqualToString:@"0RC00RC000RC"], @"%@", s0);
+        XCTAssertTrue([s1 isEqualToString:@"0RC01RC010RC"], @"%@", s1);
+        XCTAssertTrue([s2 isEqualToString:@"0RC02RC020RC"], @"%@", s2);
     }
 }
 
@@ -2489,9 +2561,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // wait for the leaves to be resolved:
         [p_0 wait]; [p_1 wait]; [p_2 wait];
         
-        STAssertTrue([s0 isEqualToString:@"0RC00RC000RC"], @"%@", s0);
-        STAssertTrue([s1 isEqualToString:@"0RC01RC010RC"], @"%@", s1);
-        STAssertTrue([s2 isEqualToString:@"0RC02RC020RC"], @"%@", s2);
+        XCTAssertTrue([s0 isEqualToString:@"0RC00RC000RC"], @"%@", s0);
+        XCTAssertTrue([s1 isEqualToString:@"0RC01RC010RC"], @"%@", s1);
+        XCTAssertTrue([s2 isEqualToString:@"0RC02RC020RC"], @"%@", s2);
     }
 }
 
@@ -2624,9 +2696,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // wait for the leaves to be resolved and handlers have been returned:
         [p_0 wait]; [p_1 wait]; [p_2 wait];
         
-        STAssertTrue([s0 isEqualToString:@"0F00RC000RC"], @"%@", s0);
-        STAssertTrue([s1 isEqualToString:@"0F01RC010RC"], @"%@", s1);
-        STAssertTrue([s2 isEqualToString:@"0F02RC020RC"], @"%@", s2);
+        XCTAssertTrue([s0 isEqualToString:@"0F00RC000RC"], @"%@", s0);
+        XCTAssertTrue([s1 isEqualToString:@"0F01RC010RC"], @"%@", s1);
+        XCTAssertTrue([s2 isEqualToString:@"0F02RC020RC"], @"%@", s2);
     }
 }
 
@@ -2759,17 +2831,19 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // wait for the leaves to be resolved and handlers have been returned:
         [p_0 wait]; [p_1 wait]; [p_2 wait];
         
-        STAssertTrue([s0 isEqualToString:@"0F00RC000RC"], @"%@", s0);
-        STAssertTrue([s1 isEqualToString:@"0F01RC010RC"], @"%@", s1);
-        STAssertTrue([s2 isEqualToString:@"0F02RC020RC"], @"%@", s2);
+        XCTAssertTrue([s0 isEqualToString:@"0F00RC000RC"], @"%@", s0);
+        XCTAssertTrue([s1 isEqualToString:@"0F01RC010RC"], @"%@", s1);
+        XCTAssertTrue([s2 isEqualToString:@"0F02RC020RC"], @"%@", s2);
     }
 }
 
 
-#pragma mark -
+#pragma mark - all
 
 -(void) testAllFulfilled1
 {
+    NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
+    
     // Run eight tasks in parallel:
     NSArray* promises = @[async(0.05, @"A"),
                           async(0.05, @"B"),
@@ -2781,15 +2855,16 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
                           async(0.05, @"H")];
     
 
-    RXPromise* all = [RXPromise all:promises].then(^id(id result){
-        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
-        STAssertTrue(result == promises, @"");
-        for (RXPromise* p in result) {
-            STAssertTrue(p.isFulfilled, @"");
+    RXPromise* all = [RXPromise all:promises].then(^id(id results){
+        XCTAssertTrue([results isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue(results != promises, @"");
+        XCTAssertTrue([expectedResults isEqualToArray:results], @"");
+        for (RXPromise* p in promises) {
+            XCTAssertTrue(p.isFulfilled, @"");
         }
         return nil;
     },^id(NSError*error){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
@@ -2800,68 +2875,69 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testAllFulfilled2 {
     
     // Run eight tasks in parallel. For each task, on success execute success handler
-    // on undspecified queue. Fill the array with the returned promises from `then`
+    // on unspecified queue. Fill the results array with the return value of the handler
     // and wait until all handlers are finished.
     
     // Note: we are accessing buffer from multiple threads without synchronization!
     char buffer[8] = {'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'};
     char* p = buffer;
     
-    // Note: The array does NOT hold the promises of the tasks, instead it holds
-    // the promises of the return value of the `then` property, aka the result of
-    // the handlers!
+    NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
+    
+    // Note: The results array will contain the return value of the success handler
     NSArray* promises = @[
     async(0.08, @"A").then(^id(id result){
         *p='A';
-        return nil;
+        return result;
     },nil),
     async(0.07, @"B").then(^id(id result){
         *(p+1)='B';
-        return nil;
+        return result;
     },nil),
     async(0.06, @"C").then(^id(id result){
         *(p+2)='C';
-        return nil;
+        return result;
     },nil),
     async(0.05, @"D").then(^id(id result){
         *(p+3)='D';
-        return nil;
+        return result;
     },nil),
     async(0.04, @"E").then(^id(id result){
         *(p+4)='E';
-        return nil;
+        return result;
     },nil),
     async(0.03, @"F").then(^id(id result){
         *(p+5)='F';
-        return nil;
+        return result;
     },nil),
     async(0.02, @"G").then(^id(id result){
         *(p+6)='G';
-        return nil;
+        return result;
     },nil),
     async(0.01, @"H").then(^id(id result){
         *(p+7)='H';
-        return nil;
+        return result;
     },nil)];
     
-    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+    RXPromise* all = [RXPromise all:promises].then(^id(id results){
         // Note: when we reach here all handlers have been finished since we
         // filled the 'all' array with the promise of the handlers.
-        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
-        STAssertTrue(result == promises, @"");
+        XCTAssertTrue([results isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue(results != promises, @"");
+        XCTAssertTrue([expectedResults isEqualToArray:results], @"");
         // All tasks shall be completed at this time!
-        for (RXPromise* p in result) {
-            STAssertTrue(p.isFulfilled, @"");
+        for (RXPromise* p in promises) {
+            XCTAssertTrue(p.isFulfilled, @"");
         }
         return nil;
     },^id(NSError*error){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
     [all wait];
     // All tasks and all handlers shall be completed at this time.
-    STAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
+    XCTAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
 }
 
 -(void) testAllFulfilledWithQueue {
@@ -2885,56 +2961,59 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     char buffer[8] = {'X'};
     __block char* p = buffer;
     
+    NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
+    
     NSArray* promises = @[
     async(0.2, @"A").thenOn(syncQueue, ^id(id result){
         void* q = dispatch_get_specific(QueueID);
-        STAssertTrue((__bridge void*)syncQueue == q, @"not running on sync_queue");
+        XCTAssertTrue((__bridge void*)syncQueue == q, @"not running on sync_queue");
         *p++='A';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"B").thenOn(syncQueue, ^id(id result){
         *p++='B';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"C").thenOn(syncQueue, ^id(id result){
         *p++='C';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"D").thenOn(syncQueue, ^id(id result){
         *p++='D';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"E").thenOn(syncQueue, ^id(id result){
         *p++='E';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"F").thenOn(syncQueue, ^id(id result){
         *p++='F';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"G").thenOn(syncQueue, ^id(id result){
         *p++='G';
-        return nil;
+        return result;
     },nil).parent,
     async(0.01, @"H").thenOn(syncQueue, ^id(id result){
         *p++='H';
-        return nil;
+        return result;
     },nil).parent
     ];
     
-    RXPromise* all = [RXPromise all:promises].thenOn(syncQueue, ^id(id result){
-        STAssertTrue([result isKindOfClass:[NSArray class]], @"");
-        STAssertTrue(result == promises, @"");
+    RXPromise* all = [RXPromise all:promises].thenOn(syncQueue, ^id(id results){
+        XCTAssertTrue([results isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue(results != promises, @"");
+        XCTAssertTrue([expectedResults isEqualToArray:results], @"");
         return nil;
     },^id(NSError*error){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
     
     [all wait];
     std::sort(buffer, buffer+sizeof(buffer));
-    STAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
+    XCTAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
 }
 
 -(void) testAllOneRejected1
@@ -2944,14 +3023,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     [[RXPromise all:tasks]
     .then(^id(id result) {
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error) {
-        STAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        XCTAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
         
-        STAssertTrue([tasks[0] isFulfilled], @"");
-        STAssertTrue([tasks[1] isRejected], @"");
-        STAssertTrue([tasks[2] isCancelled], @"");
+        XCTAssertTrue([tasks[0] isFulfilled], @"");
+        XCTAssertTrue([tasks[1] isRejected], @"");
+        XCTAssertTrue([tasks[2] isCancelled], @"");
         return error;
     }) wait];
 }
@@ -2962,28 +3041,28 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSArray* promises = @[async(0.1, @"A")
                           .then(^id(id result){
                               [s0 appendString:result];
-                              return nil;
+                              return result;
                           },nil).parent,
                           async_fail(0.2, @"B")
                           .then(^id(id result){
                               [s0 appendString:result];
-                              return nil;
+                              return result;
                           },nil).parent,
                           async(0.3, @"C")
                           .then(^id(id result){
                               [s0 appendString:result];
-                              return nil;
+                              return result;
                           },nil).parent];
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error){
-        STAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        XCTAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
         return error;
     });
     
     [all wait];
-    STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
 
 -(void) testAllOneRejectedWithQueue {
@@ -3002,15 +3081,15 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     [RXPromise all:tasks].thenOn(concurrentQueue,
       ^id(id result) {
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error) {
-        STAssertTrue( dispatch_get_specific(QueueIDKey) == (void *)(concurrent_queue_id), @"");
-        STAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        XCTAssertTrue( dispatch_get_specific(QueueIDKey) == (void *)(concurrent_queue_id), @"");
+        XCTAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
         
-        STAssertTrue([tasks[0] isFulfilled], @"");
-        STAssertTrue([tasks[1] isRejected], @"");
-        STAssertTrue([tasks[2] isCancelled], @"");
+        XCTAssertTrue([tasks[0] isFulfilled], @"");
+        XCTAssertTrue([tasks[1] isRejected], @"");
+        XCTAssertTrue([tasks[2] isCancelled], @"");
         return error;
     });
 }
@@ -3034,10 +3113,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
                               return nil;
                           },nil).parent];
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error){
-        STAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+        XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
         return error;
     });
     
@@ -3048,7 +3127,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     [all wait];
-    STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
 
 -(void) testAllCancelledWithQueue {
@@ -3063,29 +3142,29 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     NSArray* promises = @[async(0.1, @"A")
                           .thenOn(concurrentQueue, ^id(id result) {
-                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
                           },nil).parent,
                           async_fail(1, @"B")
                           .thenOn(concurrentQueue, ^id(id result) {
-                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
                           },nil).parent,
                           async(1, @"C")
                           .thenOn(concurrentQueue, ^id(id result) {
-                              STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                              XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
                           },nil).parent];
     RXPromise* all = [RXPromise all:promises].thenOn(concurrentQueue,
                                                      ^id(id result){
-                                                         STFail(@"must not be called");
+                                                         XCTFail(@"must not be called");
                                                          return nil;
                                                      },^id(NSError*error){
-                                                         STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
-                                                         STAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+                                                         XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
+                                                         XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
                                                          return error;
                                                      });
     
@@ -3096,9 +3175,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     
     [all wait];
-    STAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
 
+
+
+#pragma mark - any
 
 -(void) testAnyGetFirst {
     
@@ -3160,8 +3242,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     RXPromise* firstTaskHandlerPromise = [RXPromise any:promises].then(^id(id result){
         // When we reach here - executing on an unspecified queue - the first
         // task finished - yet it's handler may not be finished.
-        STAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
-        STAssertTrue([@"A" isEqualToString:result], @"");
+        XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
+        XCTAssertTrue([@"A" isEqualToString:result], @"");
         // Synchronously dispatch a block on the sync queue, which is guaranteed enqueued after
         // the task's handler:
         dispatch_sync(sync_queue, ^{
@@ -3174,7 +3256,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // the former block behind all others.
         return @"first task handler finished";
     },^id(NSError*error){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
@@ -3183,9 +3265,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // When we reach here - executing on an unspecified queue - the first
     // task and it's handler finished.
     NSLog(@"firstTaskHandlerPromise = %@", firstTaskHandlerPromiseValue);
-    STAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
+    XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
 }
-
 
 -(void) testAnyGetSecond {
     
@@ -3264,11 +3345,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         // The RXPromise `any` method will forward the cancel message only after
         // the first task's handler has been finished.
         firstResult = result;
-        STAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
-        STAssertTrue([@"B" isEqualToString:result], @"");
+        XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
+        XCTAssertTrue([@"B" isEqualToString:result], @"");
         return nil;
     },^id(NSError*error){
-        STFail(@"must not be called");
+        XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
@@ -3281,11 +3362,53 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // when we do not have the promises. We just sleep for a while:
     usleep(4*1000);
     
-    STAssertTrue( std::memcmp(buffer, "aBcde", sizeof(buffer)) == 0, @"");
+    XCTAssertTrue( std::memcmp(buffer, "aBcde", sizeof(buffer)) == 0, @"");
 }
 
 
-#pragma mark -
+
+#pragma mark - API Promises APlus
+
+-(void) testThenMustReturnBeforeHandlersWillBeCalled {
+    
+    // Actually, this is tricky to test and verify correctly due to
+    // avoiding race conditions. The code below seems correct, though.
+    // A possible improvement would be to run it in a loop in
+    // order to provoke a possibly race.
+    
+    dispatch_queue_t serial_queue = dispatch_queue_create("serial_queue", 0);
+    
+    for (int i = 0; i < 100; ++i) {
+        semaphore finished;
+        semaphore& finishedRef = finished;
+        
+        RXPromise* promise1 = [[RXPromise alloc] init];
+        __block RXPromise* promise2;
+        
+        bool returnedFromThen = false;
+        bool& returnedFromThenRef = returnedFromThen;
+        dispatch_async(serial_queue, ^{
+            [promise1 fulfillWithValue:@"Finished"];
+        });
+        dispatch_async(serial_queue, ^{
+            promise2 = promise1.then(^(id value){
+                dispatch_sync(serial_queue, ^{
+                    XCTAssertTrue(returnedFromThenRef, @"");
+                });
+                XCTAssertTrue([value isEqualToString:@"Finished"], @"");
+                finishedRef.signal();
+                return @"OK";
+            }, nil);
+            returnedFromThenRef = true;
+        });
+        
+        XCTAssertTrue(finishedRef.wait(1), @"");
+        XCTAssertTrue(promise2 != nil, @"");
+        XCTAssertTrue([promise2.get isEqualToString:@"OK"], @"%@", [promise2.get description]);
+    }
+    
+}
+
 
 -(void) testAPIPromisesAPlus_1 {
 
@@ -3297,13 +3420,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     [promise fulfillWithValue:@"OK"];
     RXPromise* p1 = promise.then(nil, nil);
     [p1 wait];
-    STAssertTrue(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isFulfilled, @"");
     
     promise = [RXPromise new];
     [promise rejectWithReason:@"ERROR"];
     RXPromise* p2 = promise.then(nil, nil);
     [p2 wait];
-    STAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue(p2.isRejected, @"");
 }
 
 
@@ -3320,17 +3443,17 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     RXPromise* promise = [RXPromise new];
 
     promise_completionHandler_t onFulfilled = ^id(id result) {
-        STAssertTrue(*pb == 'X', @"onFulfilled must not be called more than once.");
+        XCTAssertTrue(*pb == 'X', @"onFulfilled must not be called more than once.");
         char ch = (char)[(NSString*)result characterAtIndex:0];
         *pb = ch;
-        STAssertTrue(promise.isFulfilled  && ch == 'A', @"onFulfilled must be called after promise is fulfilled, with promise's value as its first argument.");
+        XCTAssertTrue(promise.isFulfilled  && ch == 'A', @"onFulfilled must be called after promise is fulfilled, with promise's value as its first argument.");
         return nil;
     };
     
     promise.then(onFulfilled, nil);
     for (int i = 0; i < 10; ++i) {
         usleep(1000);
-        STAssertTrue( buffer[0] == 'X', @"onFulfilled must not be called before promise is fulfilled");
+        XCTAssertTrue( buffer[0] == 'X', @"onFulfilled must not be called before promise is fulfilled");
     }
     [promise fulfillWithValue:@"A"];
     [promise wait];
@@ -3355,17 +3478,17 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     RXPromise* promise = [RXPromise new];
     
     promise_errorHandler_t onRejected = ^id(NSError* error) {
-        STAssertTrue(*pb == 'X', @"onRejected must not be called more than once.");
+        XCTAssertTrue(*pb == 'X', @"onRejected must not be called more than once.");
         char ch = (char)([error.userInfo[NSLocalizedFailureReasonErrorKey] characterAtIndex:0]);
         *pb = ch;
-        STAssertTrue(promise.isRejected  && ch == 'A', @"onRejected must be called after promise is rejected, with promise's reason as its first argument.");
+        XCTAssertTrue(promise.isRejected  && ch == 'A', @"onRejected must be called after promise is rejected, with promise's reason as its first argument.");
         return nil;
     };
     
     promise.then(nil, onRejected);
     for (int i = 0; i < 10; ++i) {
         usleep(1000);
-        STAssertTrue( buffer[0] == 'X', @"onRejected must not be called before promise is rejected");
+        XCTAssertTrue( buffer[0] == 'X', @"onRejected must not be called before promise is rejected");
     }
     [promise rejectWithReason:@"A"];
     [promise wait];
@@ -3407,10 +3530,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     dispatch_sync(sync_queue, ^{
         promise2 = promise.thenOn(sync_queue, onFulfilled, onRejected);
         (*p++) = 'A';
-        STAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
+        XCTAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
     });
     [promise2 wait];
-    STAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
+    XCTAssertTrue(*pb == 'A', @"then must return before onFulfilled is called");
     
     buffer[0] = 'X';
     buffer[1] = 'X';
@@ -3422,10 +3545,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     dispatch_sync(sync_queue, ^{
         promise2 = promise.thenOn(sync_queue, onFulfilled, onRejected);
         (*p++) = 'A';
-        STAssertTrue(*pb == 'A', @"then must return before onRejected is called");
+        XCTAssertTrue(*pb == 'A', @"then must return before onRejected is called");
     });
     [promise2 wait];
-    STAssertTrue(*pb == 'A', @"then must return before onRejected is called");
+    XCTAssertTrue(*pb == 'A', @"then must return before onRejected is called");
 }
 
     // All handlers of a particular promise MUST run in serial in the order as
@@ -3448,8 +3571,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // promise tree run in serial, unless a dedicated handler queue is specified.
     // It is desired, that handlers from different promise trees should not be
     // forced to run in serial.
-
-
 
 
 -(void) testAPIPromisesAPlus_6
@@ -3502,8 +3623,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }
     [root fulfillWithValue:@"OK"];
     
-    STAssertTrue(0 == dispatch_semaphore_wait(sem1, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    STAssertTrue(results == expectedResults, @"§6.1 failed");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem1, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    XCTAssertTrue(results == expectedResults, @"§6.1 failed");
     
     // § 6.2 rejected
     std::fill(results.begin(), results.end(), 'X');
@@ -3525,8 +3646,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }
     [root rejectWithReason:@"Failed"];
     
-    STAssertTrue(0 == dispatch_semaphore_wait(sem2, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    STAssertTrue(results == expectedResults, @"§6.2 failed");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem2, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    XCTAssertTrue(results == expectedResults, @"§6.2 failed");
 }
 
 
@@ -3555,33 +3676,33 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             *data++ = char('a');
             usleep(200*1000);  // 200 ms
             *data++ = char('A');
-            return nil;
+            return result;
         }, nil),
 
         root2.then(^id(id result) {
             *data++ = char('b');
             usleep(350*1000);  // 350 ms
             *data++ = char('B');
-            return nil;
+            return result;
         }, nil),
         
         root3.then(^id(id result) {
             *data++ = char('c');
             usleep(300*1000);  // 300 ms
             *data++ = char('C');
-            return nil;
+            return result;
         }, nil),
     
         root4.then(^id(id result) {
             *data++ = char('d');
             usleep(250*1000);  // 250 ms
             *data++ = char('D');
-            return nil;
+            return result;
         }, nil)
     ];
     
     [[RXPromise all:promises] wait];
-    STAssertTrue(results == expectedResults, @"Handlers of promises which belong to distinct trees SHOULD be executed concurrently");
+    XCTAssertTrue(results == expectedResults, @"Handlers of promises which belong to distinct trees SHOULD be executed concurrently");
 }
 
 
@@ -3615,7 +3736,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     for (int i = 0; i < Count; ++i) {
         root.thenOn(sync_queue, ^id(id result) {
-            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(sync_queue), @"Handler does not execute on dedicated queue");
+            XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(sync_queue), @"Handler does not execute on dedicated queue");
             usleep(Count*1000 - i*1000);
             *data++ = char('A'+i);
             if (++(*pc) == Count) {
@@ -3625,8 +3746,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         }, nil);
     }
     
-    STAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    STAssertTrue(results == expectedResults, @"");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    XCTAssertTrue(results == expectedResults, @"");
     
 }
 
@@ -3659,7 +3780,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     RXPromise* root = async(0.01, @"OK");
     for (int i = 0; i < Count; ++i) {
         root.thenOn(concurrent_queue, ^id(id result) {
-            STAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrent_queue), @"Handler does not execute on dedicated queue");
+            XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrent_queue), @"Handler does not execute on dedicated queue");
             usleep((Count+1)*10000 - i*10000);
             *data++ = char('A'+i);
             if (++(*pc) == Count) {
@@ -3669,11 +3790,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         }, nil);
     }
     
-    STAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    STAssertTrue(results == expectedResults, @"Handlers do not run in parallel");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
+    XCTAssertTrue(results == expectedResults, @"Handlers do not run in parallel");
 }
 
 
+#pragma mark - timeout
 
 - (void) testTimeoutShouldRejectPromiseWithTimeoutError {
     
@@ -3684,18 +3806,20 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
     promise.then(nil, ^id(NSError* error) {
-        STAssertTrue(error != nil, @"error must not be nil");
-        STAssertTrue([error.domain isEqualToString:@"RXPromise"], @"");
-        STAssertTrue(error.code == -1001, @"");
-        STAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"timeout"], @"");
+        XCTAssertTrue(error != nil, @"error must not be nil");
+        XCTAssertTrue([error.domain isEqualToString:@"RXPromise"], @"");
+        XCTAssertTrue(error.code == -1001, @"");
+        XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"timeout"], @"");
         dispatch_semaphore_signal(sem);
         return nil;
     });
 
-    STAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.05*NSEC_PER_SEC)) != 0, @"promise resoveld prematurely");
-    STAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC)) == 0, @"test timed out");
+    XCTAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.05*NSEC_PER_SEC)) != 0, @"promise resoveld prematurely");
+    XCTAssertTrue(dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC)) == 0, @"test timed out");
 }
 
+
+#pragma mark - runLoopWait
 
 - (void) testRunLoopWait {
     
@@ -3714,14 +3838,161 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     [promise runLoopWait];
     
     [promise.then(^id(id result) {
-        STAssertTrue([@"OK" isEqualToString:result], @"");
+        XCTAssertTrue([@"OK" isEqualToString:result], @"");
         return nil;
     }, ^id(NSError* error) {
-        STFail(@"Error handler not expeted");
+        XCTFail(@"Error handler not expeted");
+        return error;
+    }) wait];
+}
+
+
+
+#pragma mark - Convenient Class Methods
+
+- (void) testConvenientMethod
+{
+    RXPromise* p = [RXPromise promiseWithTask:^id{
+        // lengthy task
+        return @"OK";
+    }];
+    
+    XCTAssertNotNil(p, @"");
+    
+    p.then(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSString class]], @"");
+        XCTAssertTrue([@"OK" isEqualToString:result], @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"error handler not expected");
+        return nil;
+    });
+    
+    [p setTimeout:1];
+    [p runLoopWait];
+    [p.then(nil, ^id(NSError* error) {
+        XCTFail(@"Error handler not expeted");
+        return error;
+    }) wait];
+}
+
+- (void) testConvenientMethodWithQueue
+{
+    RXPromise* p = [RXPromise promiseWithQueue:dispatch_get_main_queue() task:^id{
+        XCTAssertTrue([NSThread currentThread] == [NSThread mainThread], @"");
+        return @"OK";
+    }];
+    
+    XCTAssertNotNil(p, @"");
+    
+    p.then(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSString class]], @"");
+        XCTAssertTrue([@"OK" isEqualToString:result], @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"error handler not expected");
+        return nil;
+    });
+    
+    [p setTimeout:1];
+    [p runLoopWait];
+    [p.then(nil, ^id(NSError* error) {
+        XCTFail(@"Error handler not expeted");
+        return error;
+    }) wait];
+}
+
+
+#pragma mark - root
+
+- (void) testRoot
+{
+    RXPromise* root = [RXPromise new];
+    XCTAssertTrue(root == root.root, @"");
+    
+    RXPromise* p2 = root.then(^id(id result) {
+        return @"OK";
+    }, nil);
+    XCTAssertTrue(root == p2.root, @"");
+    
+    [p2 cancel];
+    XCTAssertTrue(root == p2.root, @"");
+    
+}
+
+
+#pragma mark - sequence
+
+
+- (void) testSequence
+{
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSMutableString* resultString = [[NSMutableString alloc] init];
+    
+    RXPromise* finished = [RXPromise sequence:inputs task:^RXPromise*(id input) {
+        return [RXPromise promiseWithTask:^id{
+            NSString* str = [input capitalizedString];
+            [resultString appendString:str];
+            return @"OK";
+        }];
+    }];
+    
+    [finished runLoopWait];
+    
+    XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
+    
+}
+
+
+- (void) testSequenceWithCancellation {
+
+    typedef RXPromise* (^block_t)(NSString* input);
+    
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSMutableString* resultString = [[NSMutableString alloc] init];
+    RXPromise* didCancelPromise = [RXPromise new];
+    
+    block_t task = ^(NSString* input) {
+        RXPromise* returnedPromise = [[RXPromise alloc] init];
+        RXTimerHandler block = ^(RXTimer* timer) {
+            NSString* result = [input capitalizedString];
+            [resultString appendString:result];
+            [returnedPromise fulfillWithValue:result];
+        };
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
+                                                             tolorance:0
+                                                                 queue:dispatch_get_global_queue(0, 0)
+                                                                 block:block];
+        returnedPromise.then(nil, ^id(NSError*error){
+            [timer cancel];
+            [didCancelPromise fulfillWithValue:@"OK - did cancel"];
+            return nil;
+        });
+        [timer start];
+        return returnedPromise;
+    };
+    
+    
+    
+    RXPromise* finished = [RXPromise sequence:inputs task:^RXPromise*(id input) {
+        return task(input);
+    }];
+    
+    
+    [finished setTimeout:0.125];
+    [finished runLoopWait];
+    
+    [[didCancelPromise setTimeout:0.1].then(^id(id result){
+        XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
+        return result;
+    }, ^id(NSError* error){
+        XCTFail(@"unexpected timeout");
         return error;
     }) wait];
     
-
+    XCTAssertTrue([resultString isEqualToString:@"AB"], @"");
 }
+
+
 
 @end

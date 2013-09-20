@@ -67,6 +67,35 @@
  */
 
 
+namespace {
+    
+    typedef RXPromise* (^rxp_unary_task)(id input);
+    
+    RXPromise* do_sequence(NSEnumerator* iter, RXPromise* returnedPromise, rxp_unary_task task)
+    {
+        if (returnedPromise.isCancelled) {
+            return returnedPromise;
+        }
+        id obj = [iter nextObject];
+        if (obj == nil) {
+            [returnedPromise fulfillWithValue:@"OK"];
+            return returnedPromise;
+        }
+        RXPromise* taskPromise = task(obj);
+        taskPromise.then(^id(id result){
+            return do_sequence(iter, returnedPromise, task);
+        }, ^id(NSError*error){
+            return error;
+        });
+        returnedPromise.then(nil, ^id(NSError*error){
+            DLogInfo(@"cancelling task promise's root: %@", taskPromise.root);
+            [taskPromise.root cancelWithReason:error];
+            return error;
+        });
+        return returnedPromise;
+    }
+}
+
 
 
 @interface NSError (RXResolver)
@@ -206,6 +235,15 @@ static NSError* makeTimeoutError() {
 }
 
 
+- (RXPromise*) root {
+    RXPromise* root = self;
+    while (root.parent) {
+        root = root.parent;
+    }
+    return root;
+}
+
+
 - (RXPromise_StateAndResult) peakStateAndResult {
     if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
         return {_state, _result};
@@ -225,6 +263,14 @@ static NSError* makeTimeoutError() {
     assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
     return {_state, _result};
 }
+
+- (id) synced_peakResult {
+    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(_state != Pending);
+    return _result;
+}
+
+
 
 
 - (dispatch_queue_t) handlerQueue
@@ -475,11 +521,16 @@ static NSError* makeTimeoutError() {
                     } else {
                         dispatch_barrier_sync(s_sync_queue, block);  // MUST be synchronous!
                     }
-                    // There are four cases how the returned promise will be resolved:
+                    //  §2.2: if parent is fulfilled, fulfill the "returned promise" with the same value
+                    //  §2.3: if parent is rejected, reject the "returned promise" with the same value.
+                    //
+                    // There are four cases how the "returned promise" (child) will be resolved:
                     // 1. result isKindOfClass NSError   -> rejected with reason error
                     // 2. result isKindOfClass RXPromise -> fulFilled with promise
                     // 3. result equals nil              -> fulFilled with nil
                     // 4  result is any other object     -> fulFilled with value
+                    //
+                    // Note: if parent is cancelled, the "returned promise" will NOT be cancelled - it just adopts the error reason!
                     if (ps.result && [ps.result isKindOfClass:[NSError class]]) {
                         [strongReturnedPromise rejectWithReason:ps.result];
                     }
@@ -530,6 +581,29 @@ static NSError* makeTimeoutError() {
     };
 }
 
+#pragma mark - Convenient Class Methods
+    
+    
++ (RXPromise *)promiseWithTask:(id(^)(void))task {
+    NSParameterAssert(task);
+    RXPromise* promise = [[RXPromise alloc] init];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise resolveWithResult:task()];
+    });
+    return promise;
+}
+    
+    
++ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task {
+    NSParameterAssert(queue);
+    NSParameterAssert(task);
+    RXPromise* promise = [[RXPromise alloc] init];
+    dispatch_async(queue, ^{
+        [promise resolveWithResult:task()];
+    });
+    return promise;
+}
+    
 
 
 #pragma mark -
@@ -544,21 +618,21 @@ static NSError* makeTimeoutError() {
     assert(dispatch_get_specific(QueueID) != s_sync_queue_id); // Must not execute on the private sync queue!
     
     __block id result;
-    __block dispatch_semaphore_t avail = NULL;
+    __block dispatch_semaphore_t sem = NULL;
     dispatch_sync(s_sync_queue, ^{
         if (_state != Pending) {
             result = _result;
         } else {
-            avail = dispatch_semaphore_create(0);
+            sem = dispatch_semaphore_create(0);
             dispatch_async([self synced_handlerQueue], ^{
-                dispatch_semaphore_signal(avail);
+                dispatch_semaphore_signal(sem);
             });
         }
     });
-    if (avail) {
+    if (sem) {
         // result was not yet availbale: queue a handler
         dispatch_time_t t = timeout < 0 ? DISPATCH_TIME_FOREVER : dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
-        if (dispatch_semaphore_wait(avail, t) == 0) { // wait until handler_queue will be resumed ...
+        if (dispatch_semaphore_wait(sem, t) == 0) { // wait until handler_queue will be resumed ...
             dispatch_sync(s_sync_queue, ^{  // safely retrieve _result
                 result = _result;
             });
@@ -566,7 +640,7 @@ static NSError* makeTimeoutError() {
         else {
             result = makeTimeoutError();
         }
-        RX_DISPATCH_RELEASE(avail);
+        RX_DISPATCH_RELEASE(sem);
     }
     return result;
 }
@@ -620,7 +694,8 @@ static NSError* makeTimeoutError() {
 
 
 
-- (void) bind:(RXPromise*) other {
+- (void) bind:(RXPromise*) other
+{
     if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
         [self synced_bind:other];
     }
@@ -631,8 +706,16 @@ static NSError* makeTimeoutError() {
     }
 }
 
+
+// The receiver will adopt the state of the promise `other`.
+//
 // Promise `other` will be retained and released only until after `other` will be
 // resolved.
+//
+// Caution: if _other_ is or will be cancelled, the receiver (the "bound promise")
+// will be cancelled as well! Unlike in a parent-child relationship, method `bind`
+// will make the receiver not just adopt the error reason - but also adopt its
+// cancellation!
 - (void) synced_bind:(RXPromise*) other {
     assert(other != nil);
     assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
@@ -658,16 +741,18 @@ static NSError* makeTimeoutError() {
         default: {
             __weak RXPromise* weakSelf = self;
             [other registerWithQueue:s_sync_queue onSuccess:^id(id result) {
-                //const char* queue_id = (const char*)dispatch_get_specific(QueueID);
                 assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
                 RXPromise* strongSelf = weakSelf;
-                [strongSelf synced_fulfillWithValue:result];  // §2.2: if self is fulfilled, fulfill promise with the same value
+                [strongSelf synced_fulfillWithValue:result];
                 return nil;
             } onFailure:^id(NSError *error) {
-                //const char* queue_id = (const char*)dispatch_get_specific(QueueID);
                 assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
                 RXPromise* strongSelf = weakSelf;
-                [strongSelf synced_rejectWithReason:error];   // §2.3: if self is rejected, reject promise with the same value.
+                if (other.isCancelled)
+                    [strongSelf synced_cancelWithReason:error];
+                else {
+                    [strongSelf synced_rejectWithReason:error];
+                }
                 return nil;
             } returnPromise:NO];
         }
@@ -675,7 +760,6 @@ static NSError* makeTimeoutError() {
     __weak RXPromise* weakSelf = self;
     __weak RXPromise* weakOther = other;
     [self registerWithQueue:s_sync_queue onSuccess:nil onFailure:^id(NSError *error) {
-        //const char* queue_id = (const char*)dispatch_get_specific(QueueID);
         assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
         RXPromise* strongSelf = weakSelf;
         if (strongSelf) {
@@ -698,21 +782,25 @@ static NSError* makeTimeoutError() {
 +(RXPromise*) all:(NSArray*)promises
 {
     RXPromise* promise = [RXPromise new];
-    __block int count = (int)[promises count];
+    __block NSUInteger count = [promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
-    promise_completionHandler_t onSuccess = ^(id result){
+    promise_completionHandler_t onSuccess = ^id(id result) {
         --count;
         if (count == 0) {
-            [promise fulfillWithValue:promises];
+            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
+            for (RXPromise* p in promises) {
+                [results addObject:[p synced_peakResult]];
+            }
+            [promise fulfillWithValue:results];
         }
-        return result;
+        return nil;
     };
-    promise_errorHandler_t onError = ^(NSError* error) {
+    promise_errorHandler_t onError = ^id(NSError* error) {
         [promise rejectWithReason:error];
-        return error;
+        return nil;
     };
 
     for (RXPromise* p in promises) {
@@ -722,7 +810,7 @@ static NSError* makeTimeoutError() {
         for (RXPromise* p in promises) {
             [p cancelWithReason:error];
         }
-        return error;
+        return nil;
     });
     
     return promise;
@@ -765,6 +853,14 @@ static NSError* makeTimeoutError() {
     return promise;
 }
 
+
++ (RXPromise*) sequence:(NSArray*)inputs task:(rxp_unary_task)task
+{
+    NSParameterAssert(task);
+    RXPromise* returnedPromise = [[RXPromise alloc] init];
+    NSEnumerator* iter = [inputs objectEnumerator];
+    return do_sequence(iter, returnedPromise, task);
+}
 
 
 
