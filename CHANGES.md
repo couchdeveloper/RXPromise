@@ -184,4 +184,41 @@ A Unit Test has been fixed which potentially has reported a false positve.
 
 Added a "How To Install" section in the README.md file.
 
+
+
+### Version 0.9 beta ()
+
+
+#### Changes
+
+- Updated Xcode Project for Xcode 5
+
+- Now using XCTest for Unit Tests.
+
+- Documentation style is optimized for Xcode's 5 inline help bubbles.
+
+
+#### New APIs
+
+- Added two convenient class methods 
+
+`+ (RXPromise*) promiseWithTask:(id(^)(void))task;`
+    
+and
+
+`+ (RXPromise*) promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;`
+
+
+- Added a property `root` which returns the root promise.
+
+
+- Added a class method 
+
+`+ (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;`
+    
+which can be used to chain a number of tasks which can be initialized from the
+inputs array. The sequence method supports cancellation.
+
+
+
  

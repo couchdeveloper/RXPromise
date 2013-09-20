@@ -11,6 +11,8 @@
  
  Objective:  Sequencially invoke N times an asynchronous function.
  
+ See also: RXPromise' class method `sequence:task:`
+ 
  */
 
 

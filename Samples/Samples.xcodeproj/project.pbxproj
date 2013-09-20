@@ -13,6 +13,10 @@
 		A112718C17A6C13B00C7B624 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A112718B17A6C13B00C7B624 /* RXPromise.framework */; };
 		A112718E17A6C14100C7B624 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A112718D17A6C14100C7B624 /* RXPromise.framework */; };
 		A112719017A6C14600C7B624 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A112718F17A6C14600C7B624 /* RXPromise.framework */; };
+		A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
+		A11842A017EC697100EE4FD8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A118429F17EC697100EE4FD8 /* main.m */; };
+		A11842B417EC828900EE4FD8 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11842B317EC828900EE4FD8 /* RXPromise.framework */; };
+		A11842B917ECA6A000EE4FD8 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A11842B717ECA67E00EE4FD8 /* RXTimer.m */; };
 		A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378BF17847AC00037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378BE17847AC00037A3AC /* main.m */; };
 		A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
@@ -23,6 +27,15 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		A10A620317858A4F0019F7EA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		A118429A17EC697000EE4FD8 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -71,6 +84,12 @@
 		A112718B17A6C13B00C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
 		A112718D17A6C14100C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
 		A112718F17A6C14600C7B624 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A118429C17EC697000EE4FD8 /* Sample5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample5; sourceTree = BUILT_PRODUCTS_DIR; };
+		A118429F17EC697100EE4FD8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A11842A217EC697100EE4FD8 /* Sample5-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample5-Prefix.pch"; sourceTree = "<group>"; };
+		A11842B317EC828900EE4FD8 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../Build/Products/Debug/RXPromise.framework; sourceTree = "<group>"; };
+		A11842B617ECA67E00EE4FD8 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RXTimer.h; path = ../../Common/RXTimer.h; sourceTree = "<group>"; };
+		A11842B717ECA67E00EE4FD8 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RXTimer.m; path = ../../Common/RXTimer.m; sourceTree = "<group>"; };
 		A14AD8581786FAD800750722 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
 		A1A378B817847AC00037A3AC /* Sample1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample1; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378BB17847AC00037A3AC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -93,6 +112,15 @@
 			files = (
 				A112718E17A6C14100C7B624 /* RXPromise.framework in Frameworks */,
 				A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A118429917EC697000EE4FD8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A11842B417EC828900EE4FD8 /* RXPromise.framework in Frameworks */,
+				A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +171,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A118429E17EC697100EE4FD8 /* Sample5 */ = {
+			isa = PBXGroup;
+			children = (
+				A11842B617ECA67E00EE4FD8 /* RXTimer.h */,
+				A11842B717ECA67E00EE4FD8 /* RXTimer.m */,
+				A118429F17EC697100EE4FD8 /* main.m */,
+				A11842A117EC697100EE4FD8 /* Supporting Files */,
+			);
+			path = Sample5;
+			sourceTree = "<group>";
+		};
+		A11842A117EC697100EE4FD8 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A11842A217EC697100EE4FD8 /* Sample5-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		A1A3789D17847A980037A3AC = {
 			isa = PBXGroup;
 			children = (
@@ -154,6 +201,7 @@
 				A1A378CF1784BC6A0037A3AC /* Sample2 */,
 				A10A620717858A4F0019F7EA /* Sample3 */,
 				A1D9632417953DBC00090EDC /* Sample4 */,
+				A118429E17EC697100EE4FD8 /* Sample5 */,
 				A1A378BA17847AC00037A3AC /* Frameworks */,
 				A1A378B917847AC00037A3AC /* Products */,
 			);
@@ -166,6 +214,7 @@
 				A1A378CD1784BC6A0037A3AC /* Sample2 */,
 				A10A620517858A4F0019F7EA /* Sample3 */,
 				A1D9632217953DBC00090EDC /* Sample4 */,
+				A118429C17EC697000EE4FD8 /* Sample5 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,6 +222,7 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A11842B317EC828900EE4FD8 /* RXPromise.framework */,
 				A1D9632E1795412C00090EDC /* RXPromise.framework */,
 				A14AD8581786FAD800750722 /* libRXPromise.a */,
 				A1A378C717847B040037A3AC /* RXPromise.framework */,
@@ -255,6 +305,23 @@
 			productReference = A10A620517858A4F0019F7EA /* Sample3 */;
 			productType = "com.apple.product-type.tool";
 		};
+		A118429B17EC697000EE4FD8 /* Sample5 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A11842A717EC697100EE4FD8 /* Build configuration list for PBXNativeTarget "Sample5" */;
+			buildPhases = (
+				A118429817EC697000EE4FD8 /* Sources */,
+				A118429917EC697000EE4FD8 /* Frameworks */,
+				A118429A17EC697000EE4FD8 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Sample5;
+			productName = Sample5;
+			productReference = A118429C17EC697000EE4FD8 /* Sample5 */;
+			productType = "com.apple.product-type.tool";
+		};
 		A1A378B717847AC00037A3AC /* Sample1 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1A378C417847AC00037A3AC /* Build configuration list for PBXNativeTarget "Sample1" */;
@@ -330,6 +397,7 @@
 				A1A378CC1784BC6A0037A3AC /* Sample2 */,
 				A10A620417858A4F0019F7EA /* Sample3 */,
 				A1D9632117953DBC00090EDC /* Sample4 */,
+				A118429B17EC697000EE4FD8 /* Sample5 */,
 			);
 		};
 /* End PBXProject section */
@@ -340,6 +408,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10A620917858A4F0019F7EA /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A118429817EC697000EE4FD8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A11842B917ECA6A000EE4FD8 /* RXTimer.m in Sources */,
+				A11842A017EC697100EE4FD8 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,6 +509,88 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A11842A517EC697100EE4FD8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/Promise/Build/Products/Debug,
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Sample5/Sample5-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A11842A617EC697100EE4FD8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/Promise/Build/Products/Debug,
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Sample5/Sample5-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -676,6 +835,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		A11842A717EC697100EE4FD8 /* Build configuration list for PBXNativeTarget "Sample5" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A11842A517EC697100EE4FD8 /* Debug */,
+				A11842A617EC697100EE4FD8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		A1A378A117847A980037A3AC /* Build configuration list for PBXProject "Samples" */ = {
 			isa = XCConfigurationList;

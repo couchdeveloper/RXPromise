@@ -45,10 +45,16 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 @property (nonatomic, readonly) BOOL isCancelled;
 
 @property (nonatomic, readonly) then_t then;
+ 
+ 
++ (RXPromise *)promiseWithTask:(id(^)(void))asyncTask;
++ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
+ 
 
 + (RXPromise*)all:(NSArray*)promises;
 - (void) cancel;
 - (void) bind:(RXPromise*) other;
+- (RXPromise*) root;
 - (id) get;
 - (void) wait;
 
@@ -75,12 +81,12 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  The handlers use an "execution context" which they are executed on. The execution
  context is either explicit or implicit.
  
- If the `then` propertie's block will be used to define the success and error
+ If the \p then propertie's block will be used to define the success and error
  handler, the handlers will implictily run on an _unspecified_ and _concurrent_
  execution context. That is, once the promise is resolved the corresponding 
  handler MAY execute on any thread and concurrently to any other handler.
  
- If the `thenOn` propertie's block will be used to define success and error handler,
+ If the \p thenOn propertie's block will be used to define success and error handler,
  the execution context will be explicitly defined through the first parameter 
  _queue_ of the block, which is either a serial or concurrent _dispatch queue_.
  Once the promise is resolved, the handler is guaranteed to execute on the specified
@@ -94,7 +100,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  The target queue is responsible for processing the success or error block.
  
  
- It's safe to specify the same execution context where the `then` or `thenOn` 
+ It's safe to specify the same execution context where the \p then or \p thenOn 
  property will be executed.
  
  
@@ -148,80 +154,95 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 // forward
 @class RXPromise;
 
-/**
+/*!
  @brief Type definition for the completion handler block.
  
- @discussion The completion handler will be invoked when the associated promise has 
- been fulfilled. The exucution context is either the execution context specified
- when the handlers have been registered via property `thenOn` or it is 
- unspecified when registred via `then`.
+ @discussion The completion handler will be invoked when the associated promise has
+ been fulfilled.
  
- @param result The value set by the "asynchronous result provider" when it succeeded.
+ The block's return value will resolve the "returned promise" - that is, the promise
+ returned from the "then" block - if there is any. The return value can be a promise 
+ or any other object and \c nil. Returning anything else than an \c NSError object 
+ signals success to the "returned promise", where returning a \c NSErro object will
+ signal a failure the the "returned promise".
  
- @return An object or `nil`. If the return value is an NSError object the handler
- indicates a failure and the associated promise (namely the "returned promise") will
- be rejected with this error. Otherwise, any other value indicates success and the
- associated promise will be fulfilled with this value.
+ @note The execution context is either the execution context specified
+ when the handlers have been registered via property \p thenOn or it is
+ unspecified when registred via \p then.
+ 
+ @param result The result value set by the "asynchronous result provider" when it
+ succeeded.
+ 
+ @return An object or \c nil which resolves the "returned promise".
+ 
  */
 typedef id (^promise_completionHandler_t)(id result);
 
-/**
+/*!
  @brief Type definition for the error handler block.
  
  @discussion The error handler will be invoked when the associated promise has been
- rejected or cancelled. The exucution context is either the execution context specified
- when the handlers have been registered via property `thenOn` or it is
- unspecified when registred via `then`.
+ rejected or cancelled. 
+ 
+ @par The block's return value will resolve the "returned promise" - that is, the promise
+ returned from the "then" block - if there is any. The return value can be a promise 
+ or any other object and \c nil. In most cases the error handler will return a 
+ \c NSError object in order to forward the error. However, a handler may also consider 
+ to signal success in particular cases, where it returns something else than an 
+ \c NSError object.
+ 
+ @note The execution context is either the execution context specified
+ when the handlers have been registered via property \p thenOn or it is
+ unspecified when registred via \p then.
  
  @param error The value set by the "asynchronous result provider" when it failed.
  
- @return An object or `nil`. If the return value is an NSError object the handler
- indicates a failure and the associated promise (namely the "returned promise") will
- be rejected with this error. Otherwise, any other value indicates success and the
- assiciated promise will be fulfilled with this value.
+ @return An object or \c nil which resolves the "returned promise".
+ 
  */
 typedef id (^promise_errorHandler_t)(NSError* error);
 
-/**
+/*!
  @brief Type definition of the "then block". The "then block" is the return value
- of the property `then`.
+ of the property \p then.
  
- @discussion  The "then block" has two blocks as parameters, the completion handler
- and the error handler. The blocks may be NULL. The "then block" returns a promise, 
- the "returned promise". When the parent promise will be resolved the corresponding
- handler will be invoked and executed on a _concurrent_ unspecified execution context.
+ @discussion  The "then block" has two parameters, the success handler block and 
+ the error handler block. The handlers may be \c nil. 
  
- If the handler is not NULL, the minimum implementation of each block must return 
- a value. The returned value becomes the eventual or immediate result of the
- "returned promise", the return value of the `then` property.
- (see `promise_completionHandler_t` and `promise_errorHandler_t`).
+ @par The "then block" returns a promise, the "returned promise". When the parent
+ promise will be resolved the corresponding handler (if not \c nil) will be invoked
+ and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ 
+ @par The handler executes on a \e concurrent unspecified execution context.
  */
 typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t) __attribute((ns_returns_retained));
 
-/**
+/*!
  @brief Type definition of the "then_on block". The "then_on block" is the return 
- value of the property `thenOn`. 
+ value of the property \p thenOn. 
  
  @discussion The "then_on block" has three parameters, the execution context, the
- completion handler and the error handler. The blocks may be NULL. The "then block" 
- returns a promise, the "returned promise". When the parent promise will be resolved 
- the corresponding handler will be invoked and executed on the _specified execution_
- given in the first parameter.
+ success handler block and the error handler block. The handlers may be \c nil.
  
- If the handler is not NULL, the minimum implementation of each block must return
- a value. The returned value becomes the eventual or immediate result of the
- "returned promise", the return value of the `then` property.
- (see `promise_completionHandler_t` and `promise_errorHandler_t`).
+ @par The "then block" returns a promise, the "returned promise". When the parent 
+ promise will be resolved the corresponding handler (if not \c nil) will be invoked 
+ and its return value resolves the "returned promise" (if it exists). Otherwise, 
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved 
+ with the parent promise' result value.
  */
-typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandler_t, promise_errorHandler_t) __attribute((ns_returns_retained));
+typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
+                                      promise_completionHandler_t,
+                                      promise_errorHandler_t) __attribute((ns_returns_retained));
 
 
-/**
+/*!
  
- @brief A \a RXPromise object represents the eventual result of an asynchronous
+ @brief A \p RXPromise object represents the eventual result of an asynchronous
  function or method.
  
- A RXPromise is a lightweight primitive which helps managing asynchronous patterns
+ A \p RXPromise is a lightweight primitive which helps managing asynchronous patterns
  and make them easier to follow and understand. It also adds a few powerful features
  to asynchronous operations like \a continuation , \a grouping and \a cancellation
  
@@ -245,131 +266,186 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  */
 
 @interface RXPromise  : NSObject
-
-
-/**
- @brief Property `then` returns a block whose signature is
-  `RXPromise* (^)(promise_completionHandler_t onSuccess, promise_errorHandler_t onError)`.
+    
+    
+/*!
+ A convenient class method which returns a promise whose associated task is 
+ defined with block \p task.
  
- When the block is called it will register the completion handler _onSuccess_ and
- the error handler _onError_.
+ The block is asynchronously dispatched on a private queue. The task's return 
+ value will eventually resolve the returned promise.
+ 
+ @param task The associated task to execute as a block. The return value of the 
+ block will resolve the returned promise. The return value SHALL be a \c NSError
+ object in order to indicate a failure. _task_ MUST NOT be \c nil.
+
+ @par Example: @code
+ self.fetchUserPromise =
+ [RXPromise promiseWithBlock:^id(void) {
+     id result = [self doSomethingElaborate];
+     return result;
+ }];
+ */
++ (RXPromise *)promiseWithTask:(id(^)(void))task;
+    
+    
+/*!
+ A convenient class method which returns a promise whose associated task is 
+ defined with block \p task.
+ 
+ The block is asynchronously dispatched on the specified queue. The task's return
+ value will eventually resolve the returned promise.
+ 
+ @param queue The dispatch queue where the task will be executed.
+
+ @param task The associated task to execute as a block. The return value of the
+ block will resolve the returned promise. The return value SHALL be a \c NSError
+ object in order to indicate a failure. _task_ MUST NOT be \c nil.
+ 
+ @par Example: @code
+ self.fetchUserPromise = [RXPromise promiseWithQueue:dispatch_get_main_queue() task:^id(void) {
+     id result = [self doSomethingElaborate];
+     return result;
+ }];
+ 
+ */
++ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
+ 
+
+
+/*!
+ @brief Property \p then returns a block whose signature is
+ @code
+ RXPromise* (^)(promise_completionHandler_t onSuccess,
+                promise_errorHandler_t onError) @endcode
+ 
+ When this returned block is called it will register the completion handler and
+ the error handler given as block parameters.
   
- The receiver will be retained and only released until after the receiver has
- been resolved (see "Requirements for an asynchronous result provider").
+ @par The receiver will be retained and released only until after the receiver 
+ has been resolved.
  
- The block returns a new RXPromise, the "returned promise" whose result will become 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
  the return value of either handler that gets called when the receiver will be resolved.
   
- If the receiver is already resolved when the block is invoked, the corresponding
+ @par When the block is invoked and the receiver is already resolved, the corresponding
  handler will be immediately asynchronously scheduled for execution on the 
- _unspecified_ execution context.
+ \e unspecified execution context.
  
- Parameter _onSuccess_ and _onError_ may be `nil`.
+ @par Parameter \p onSuccess and \p onError may be \c nil.
  
- The receiver can register zero or more handler (pairs) through clientes calling
+ @par The receiver can register zero or more handler (pairs) through clientes calling
  the block multiple times.
  
- @return Returns a block of type `RXPromise* (^)(promise_completionHandler_t, promise_errorHandler_t)`.
+ @return Returns a block of type \p then_block_t.
  */
 @property (nonatomic, readonly) then_block_t then;
 
 
-/**
- @brief Property `thenOn` returns a block whose signature is
- `RXPromise* (^)(dispatch_queue_t queue, promise_completionHandler_t onSuccess, promise_errorHandler_t onError)`.
+/*!
+ @brief Property \p thenOn returns a block whose signature is
+ @code
+ RXPromise* (^)(dispatch_queue_t queue, 
+                promise_completionHandler_t onSuccess, 
+                promise_errorHandler_t onError)
+ @endcode
  
+ When the block is called it will register the completion handler \p onSuccess and
+ the error handler \p onError. When the receiver will be fulfilled the success handler
+ will be executed on the specified queue \p queue. When the receiver will be rejected
+ the error handler will be called on the specified queue \p queue.
  
- When the block is called it will register the completion handler _onSuccess_ and 
- the error handler _onError_. When the receiver will be fulfilled the success handler 
- will be executed on the specified queue _queue_. When the receiver will be rejected 
- the error handler will be called on the specified queue _queue_.
+ @par The receiver will be retained and released only until after the receiver has
+ been resolved.
  
- The receiver will be retained and only released until after the receiver has
- been resolved (see "Requirements for an asynchronous result provider").
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of either handler that gets called when the receiver will be resolved.
  
- The block returns a new RXPromise whose result will become the return value
- of either handler that gets called when the receiver will be resolved.
- 
- If the receiver is already resolved when the block is invoked, the corresponding
+ @par When the block is invoked and the receiver is already resolved, the corresponding
  handler will be immediately asynchronously scheduled for execution on the
- _specified_ execution context.
+ \e specified execution context.
+
+ @par Parameter \p onSuccess and \p onError may be \c nil.
  
- Parameter _onSuccess_ and _onError_ may be `nil`.
+ @par Parameter \p queue may be \c nil which effectivle is the same as when using the
+ \c then_block_t block returned from property \p then.
  
- Parameter _queue_ may be `nil` which effectivle is the same as when using the 
- `then_block_t` block returned from property `then`.
- 
- The receiver can register zero or more handler (pairs) through clientes calling
+ @par The receiver can register zero or more handler (pairs) through clientes calling
  the block multiple times.
  
- @return Returns a block of type `RXPromise* (^)(dispatch_queue_t, promise_completionHandler_t, promise_errorHandler_t)`.
+ @return Returns a block of type \c then_on_block_t.
  */
 @property (nonatomic, readonly) then_on_block_t thenOn;
 
-/**
- Returns `YES` if the receiveer is pending.
+/*!
+ Returns \c YES if the receiveer is pending.
  */
 @property (nonatomic, readonly) BOOL isPending;
 
-/**
- Returns `YES` if the receiver is fulfilled.
+/*!
+ Returns \c YES if the receiver is fulfilled.
  */
 @property (nonatomic, readonly) BOOL isFulfilled;
 
-/**
- Returns `YES` if the receiver is rejected.
+/*!
+ Returns \c YES if the receiver is rejected.
  */
 @property (nonatomic, readonly) BOOL isRejected;
 
-/**
- Returns `YES` if the receiver is cancelled.
+/*!
+ Returns \c YES if the receiver is cancelled.
  */
 @property (nonatomic, readonly) BOOL isCancelled;
 
 
-/**
+/*!
  Returns the parent promise - the promise which created
  the receiver.
  */
 @property (nonatomic, readonly) RXPromise* parent;
 
 
-/**
+/*!
+ Returns the root promise.
+ */
+@property (nonatomic, readonly) RXPromise* root;
+
+/*!
  Cancels the promise unless it is already resolved and then forwards the
  message to all children.
  */
 - (void) cancel;
 
-/**
+/*!
  @brief Cancels the promise with the specfied reason unless it is already resolved and
  then forwards the message wto all children.
  
- @param reason The reason. If reason is not a NSError object, the receiver will
- create a NSError object whose demain is @"RXPromise", the error code is -1000
- and the user dictionary contains an entry with key NSLocalizedFailureReason whose
+ @param reason The reason. If reason is not a \c NSError object, the receiver will
+ create a \c NSError object whose demain is \@"RXPromise", the error code is -1000
+ and the user dictionary contains an entry with key \c NSLocalizedFailureReason whose
  value becomes parameter reason.
  */
 - (void) cancelWithReason:(id)reason;
 
 
-/**
- Sets a resolver which rejects the receiver after the specideid timeout value 
- with reason: NSError {@"RXPromise", code = 1001)}
- and returns the receiver.
+/*!
+ Creates a resolver which rejects the receiver after the specified timeout value
+ whose reason is a  \c NSError object with domain \@"RXPromise" and code = -1001,
+ unless it has been resolved before elsewhere.
  
  @param timeout The timeout in seconds.
  
- @return returns the receiver.
+ @return Returns the receiver.
  */
 - (RXPromise*) setTimeout:(NSTimeInterval)timeout;
 
 
-/**
+/*!
  @brief Binds the receiver to the given promise  @p other.
  
  @discussion The receiver will take in the state of the given promise @p other, and
  vice versa: The receiver will be fulfilled or rejected according its bound promise. If the
- receiver receives a `cancel` message, the bound promise will be sent a `cancelWithReason:`
+ receiver receives a \c cancel message, the bound promise will be sent a \c cancelWithReason:
  message with the receiver's reason.<br>
  
  @attention A promise should not be bound to more than one other promise.<p>
@@ -377,13 +453,13 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  
  @par Example: @code
  - (RXPromise*) doSomethingAsync {
- self.promise = [RXPromise new];
- return self.promise;
+    self.promise = [RXPromise new];
+    return self.promise;
  }
  
  - (void) handleEvent:(id)event {
- RXPromise* other = [self handleEvenAsync:event];
- [self.promise bind:other];
+    RXPromise* other = [self handleEvenAsync:event];
+    [self.promise bind:other];
  }
  @endcode
  
@@ -392,112 +468,116 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 - (void) bind:(RXPromise*) other;
 
 
-/**
+/*!
  @brief Blocks the current thread until after the receiver has been resolved, and 
  previously queued handlers have been finished.
  
- Note: The method should be used for debugging and testing only.
+ @note The method should be used for debugging and testing only.
  
  */
 - (void) wait;
 
 
-/**
+/*!
  @brief Runs the current run loop until after the receiver has been resolved,
  and previously queued handlers have been finished.
  
  Prerequisite: The current thread MUST have a run loop with at least one event
  source. Otherwise, the behavior is undefined.
  
- Note: The method should be used for debugging and testing only.
+ @note The method should be used for debugging and testing only.
  */
 - (void) runLoopWait;
 
 
-/**
+/*!
  Synchronously returns the value of the promise.
  
  Will block the current thread until after the promise has been resolved.
  
- Note: The method should be used for debugging and testing only.
+ @note The method should be used for debugging and testing only.
  
  @return Returns the _value_ of the receiver.
  */
 - (id) get;
 
 
-/**
- Synchronously returns the value of the promise.
+/*!
+ @brief Synchronously returns the value of the promise.
  
- Will block the current thread until after the promise has been resolved or the
+ The current thread will be blocked until after the promise has been resolved or the
  timeout has been expired. The method does not change the state of the receiver.
 
- Note: The method should be used for debugging and testing only.
+ @note The method should be used for debugging and testing only.
  
  @param timeout The timeout in seconds.
  
- @return If the timeout has not been expired, returns the _value_ of the receiver.
- Otherwise, returns an NSError object whose domain equals @"RXPromise" and whose
+ @return If the timeout has not been expired, returns the value of the receiver.
+ Otherwise, returns an \c NSError object whose domain equals \@"RXPromise" and whose
  code equals -1001.
  
  */
 - (id) getWithTimeout:(NSTimeInterval)timeout;
 
 
-/**
- @brief Method \a all returns a \a RXPromise object which will be resolved when all promises
- in the array @p promises are fulfilled or when any of it will be rejected.
+/*!
+ @brief Method \a all returns a \p RXPromise object which will be resolved when all 
+ promises in the array @p promises are fulfilled or when any of it will be rejected.
  
- @discussion
+ @discussion The returned promise' success handler(s) (if any) will be called when 
+ all given promises have been resolved successfully. The parameter @p result of the 
+ success handler will be an array containing the eventual result of each promise 
+ from the given array @p promises in the corresponding order.
  
- If any of the promises in the array will be rejected, all others will be send a
- `cancelWithReason:` message whose parameter @p reason is the error reason of the
+ @par The returned promise' error handler(s) (if any) will be called when any given
+ promise has been rejected with the reason of the failed promise.
+ 
+ @par If any promise in the array has been rejected, all others will be send a
+ @p cancelWithReason: message whose parameter @p reason is the error reason of the
  failing promise.
  
- The @p result parameter of the completion handler of the @p then property of the
- returned promise is the `NSArray` @p promises which has been passed as parameter.
+ @par \b Caution:
+ The handler's return value MUST NOT be \c nil. This is due the restriction of
+ \c NSArrays which cannot contain \c nil values.
  
- The @p reason parameter of the error handler of the `then` property of the returned
- promise is the error reason of the first rejected promise.
- 
- Example:
- 
- @code NSArray* promises = @[async_A(),
-     async_B(), async_C();
- RXPromise* all = [RXPromise all:promises]
- .then(^id(id result){
-     assert(result == promise);
-     return nil;
+ @par \b Example: @code
+ [RXPromise all:@[self asyncA], [self asyncB]]
+ .then(^id(id results){
+     id result = [self asyncCWithParamA:results[0]
+                                 paramB:results[1]]
+     assert(result != nil);
+     return result;
  },nil);
  @endcode
+
+ @param promises A @c NSArray containing promises.
+
+ @warning The promise is rejected with reason \c \@"parameter error" if
+ the parameter @p promises is \c nil or empty.
  
- @param promises A `NSArray` containing promises.
+ @return A new promise. 
  
- @return A new promise. The promise is rejected with reason @"parameter error" if
- the parameter _promises_ is `nil` or empty.
  */
 + (RXPromise*)all:(NSArray*)promises;
 
 
 
-/**
- @brief Method \a any returns a \a RXPromise object which will be resolved when
- any promise in the array @p promises is fulfilled or when all have been rejected.
+/*!
+ @brief Method \p any returns a \c RXPromise object which will be resolved when
+ any promise in the array \p promises is fulfilled or when all have been rejected.
  
  @discussion
- 
  If any of the promises in the array will be fulfilled, all others will be send a
- `cancel` message.
+ \c cancel message.
  
  The @p result parameter of the completion handler of the @p then property of the
  returned promise is the result of the first promise which has been fulfilled.
  
- The @p reason parameter of the error handler of the `then` property of the returned
+ The @p reason parameter of the error handler of the @p then property of the returned
  promise indicates that none of the promises has been fulfilled.
  
- Example:
- 
- @code NSArray* promises = @[async_A(),
+ @par \b Example:@code
+ NSArray* promises = @[async_A(),
      async_B(), async_C();
  RXPromise* any = [RXPromise any:promises]
  .then(^id(id result){
@@ -506,21 +586,45 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  },nil);
  @endcode
  
- @param promises A `NSArray` containing promises.
+ @param promises A \c NSArray containing promises.
  
- @return A new promise. The promise is rejected with reason @"parameter error" if
- the parameter _promises_ is `nil` or empty.
+ @note The promise is rejected with reason \c \@"parameter error" if
+ the parameter \p promises is \c nil or empty.
+ 
+ @return A new promise.
  */
 + (RXPromise*)any:(NSArray*)promises;
 
 
+/*!
+ For each element in array \p inputs sequentially call the asynchronous task
+ passing it the element as its input argument.
+ 
+
+ @discussion If the task succeeds, the task will be invoked with the next input,
+ if any. The eventual result of each task is ignored. If the tasks fails, no further 
+ inputs will be processed and the returned promise will be resolved with the error.
+ If all inputs have been processed successfully the returned promise will be 
+ resoveld with @"OK".
+ 
+ The tasks are cancelable. That is, if the returned promise will be cancelled, the
+ cancel signal will be forwarded to the current running task via cancelling the
+ root promise of task's returned promise.
+
+@param inputs A array of input values.
+
+@param task The unary task to be invoked.
+
+@return A promise.
+*/
++ (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
 
 
 @end
 
 
 
-/**
+/*!
  
  See also: `RXPromise` interface.
  
@@ -530,7 +634,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  */
 @interface RXPromise(Deferred)
 
-/**
+/*!
  @brief Returns a new promise whose state is pending.
  
  Designated Initializer
@@ -538,8 +642,8 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 - (id)init;
 
 
-/**
- @brief Fulfilles the promise with value _result_.
+/*!
+ @brief Fulfilles the promise with specified value.
  
  If the promise is already resolved this method has no effect.
  
@@ -548,40 +652,40 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 - (void) fulfillWithValue:(id)value;
 
 
-/**
+/*!
  @brief  Rejects the promise with the specified reason.
  
  If the promise is already resolved this method has no effect.
  
- @param reason The reason. If reason is not a NSError object, the receiver will
- create a NSError object whose demain is @"RXPromise", the error code is -1000 
- and the user dictionary contains an entry with key NSLocalizedFailureReason whose 
- value becomes parameter reason.
+ @param reason The reason. If parameter \p reason is not a \c NSError object, the 
+ receiver will create a \c NSError object whose demain is \@"RXPromise", the 
+ error code is -1000 and the user dictionary contains an entry with key 
+ \c NSLocalizedFailureReason whose value becomes parameter reason.
  */
 - (void) rejectWithReason:(id)reason;
 
 
-/**
- @brief Resolves the promise with value _result_.
+/*!
+ @brief Resolves the promise with the specified result.
  
- If _result_ is a promise, the receiver will "bind" to the given promise, which 
+ If parameter \p result is a promise, the receiver will "bind" to the given promise, which
  includes to forward cancellation from the receiver to the given promise.
  
  @param result The result given from the asynchronous result provider which can
- can be a promise , `nil`, an NSError object or any other object.
+ can be a promise , \c nil, an \c NSError object or any other object.
  */
 - (void) resolveWithResult:(id)result;
 
 
 
-/**
- internal
- */
-
-- (RXPromise*) registerWithQueue:(dispatch_queue_t)target_queue
-                       onSuccess:(promise_completionHandler_t)onSuccess
-                       onFailure:(promise_errorHandler_t)onFailure
-                   returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained));
+///*!
+// internal
+// */
+//
+//- (RXPromise*) registerWithQueue:(dispatch_queue_t)target_queue
+//                       onSuccess:(promise_completionHandler_t)onSuccess
+//                       onFailure:(promise_errorHandler_t)onFailure
+//                   returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained));
 
 @end
 
