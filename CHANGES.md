@@ -262,3 +262,10 @@ Fixed a subtle race condition in method `setTimeout:`.
  -  Xcode cannot run individual Unit Test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same Unit Test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, though.
  
 
+
+### Version 0.9.2 beta (2013-09-20)
+### Version 0.9.3 beta (2013-09-20)
+
+#### Bug Fixes
+
+Fixed silly typos that slipped into the sources accidentally.
