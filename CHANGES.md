@@ -239,7 +239,7 @@ inputs array. The sequence method supports cancellation.
 Minor updates in documentation.
 
 
-### Version 0.9.2 beta (TBD)
+### Version 0.9.2 beta (2013-09-27)
 
 
 #### Bug Fixes
