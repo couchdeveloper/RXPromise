@@ -715,7 +715,7 @@ namespace {
     
     NSThread* thread = [NSThread currentThread];
     self.then(^id(id result) {
-(unless expired)        return nil;
+        return nil;
     }, ^id(NSError* error) {
         [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
         return nil;
