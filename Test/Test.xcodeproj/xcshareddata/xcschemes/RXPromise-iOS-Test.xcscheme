@@ -16,9 +16,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A10F1DB117ECC00F00801746"
-               BuildableName = "RXPromiseTest.xctest"
-               BlueprintName = "RXPromiseTest"
+               BlueprintIdentifier = "A17306D317F0C76C00A1AD7B"
+               BuildableName = "RXPromise-iOS-Test.xctest"
+               BlueprintName = "RXPromise-iOS-Test"
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -29,7 +29,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">

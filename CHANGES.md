@@ -237,3 +237,28 @@ inputs array. The sequence method supports cancellation.
 #### Changes
 
 Minor updates in documentation.
+
+
+### Version 0.9.2 beta (TBD)
+
+
+#### Bug Fixes
+
+Fixed a subtle race condition in method `setTimeout:`.
+
+
+#### Changes
+
+ -  Improved memory management in method `sequence:task:` 
+
+ -  Xcode configuration files updated for iOS 7.
+
+ -  Added Unit Tests for iOS running on the device.
+ 
+ 
+
+#### Kown Issues
+ 
+ -  Xcode cannot run individual Unit Test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same Unit Test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, though.
+ 
+

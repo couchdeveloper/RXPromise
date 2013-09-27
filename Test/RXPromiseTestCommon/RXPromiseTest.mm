@@ -21,7 +21,9 @@
 #endif
 
 #import <XCTest/XCTest.h>
+
 #import <RXPromise/RXPromise.h>
+#include <libkern/OSAtomic.h>
 
 #import "RXTimer.h"
 #include <dispatch/dispatch.h>
@@ -181,7 +183,7 @@ static int32_t s_ID = 0;
 {
     if (self.isCancelled) {
         self.result = [NSString stringWithFormat:@"Operation %@ cancelled with work items left: %ld",
-                       _label, _workCount - _step];
+                       _label, (long)(_workCount - _step)];
         [self terminate];
         return;
     }
@@ -191,7 +193,7 @@ static int32_t s_ID = 0;
     }
     if (_step == _workCount) {
         self.result = [NSString stringWithFormat:@"Operation %@ finished with result: %ld",
-                       _label, _workCount];
+                       _label, (long)(_workCount)];
         [self terminate];
         return;
     }
@@ -394,6 +396,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
+
 
 
 #pragma mark - API
@@ -3951,38 +3954,53 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
     NSMutableString* resultString = [[NSMutableString alloc] init];
     RXPromise* didCancelPromise = [RXPromise new];
+
     
-    block_t task = ^(NSString* input) {
-        RXPromise* returnedPromise = [[RXPromise alloc] init];
+    // Define a cancelable task:
+    block_t task = ^(NSString* input)
+    {
+        RXPromise* taskPromise = [[RXPromise alloc] init];
+
+        // Define a block which gets executed when the timer fires:
         RXTimerHandler block = ^(RXTimer* timer) {
             NSString* result = [input capitalizedString];
             [resultString appendString:result];
-            [returnedPromise fulfillWithValue:result];
+            NSLog(@"processed with result: %@", result);
+            [taskPromise fulfillWithValue:result];
         };
+
+        NSLog(@"processing input: %@", input);
         RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
                                                              tolorance:0
                                                                  queue:dispatch_get_global_queue(0, 0)
                                                                  block:block];
-        returnedPromise.then(nil, ^id(NSError*error){
+
+        // Catch any errors send to the task promise, in which case we cancel the timer:
+        taskPromise.then(nil, ^id(NSError*error){
             [timer cancel];
             [didCancelPromise fulfillWithValue:@"OK - did cancel"];
             return nil;
         });
+        
         [timer start];
-        return returnedPromise;
+        return taskPromise;
     };
     
+    RXPromise* finished = [RXPromise sequence:inputs
+                                         task:^RXPromise*(id input) {
+                                             return task(input);
+                                         }];
     
-    
-    RXPromise* finished = [RXPromise sequence:inputs task:^RXPromise*(id input) {
-        return task(input);
-    }];
+    finished.then(nil, ^id(NSError*error){
+        NSLog(@"sequence failed due to: %@", error);
+        return nil;
+    });
     
     
     [finished setTimeout:0.125];
     [finished runLoopWait];
     
-    [[didCancelPromise setTimeout:0.1].then(^id(id result){
+    [[didCancelPromise setTimeout:1.0].then(^id(id result){
         XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
         return result;
     }, ^id(NSError* error){
@@ -3990,7 +4008,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         return error;
     }) wait];
     
-    XCTAssertTrue([resultString isEqualToString:@"AB"], @"");
+    XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
 }
 
 

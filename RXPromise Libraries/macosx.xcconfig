@@ -1,8 +1,8 @@
 //
-//  common.macosx.xcconfig
+//  macosx.xcconfig
 //
 
-#include "common.xcconfig"
+#include "project.xcconfig"
 
 //
 //  Architectures
@@ -16,6 +16,7 @@ ARCHS = $(ARCHS_STANDARD_64_BIT)
 MACOSX_DEPLOYMENT_TARGET = 10.7
 
 
+HEADER_SEARCH_PATHS = $(PRJ_HEADER_SEARCH_PATHS)
 
 
 

@@ -1,0 +1,18 @@
+//
+//  project.xcconfig
+//
+
+//
+// Compiler and std libraries
+//
+
+// C++ Standard Library
+CLANG_CXX_LIBRARY = libc++
+
+// C++ Language Dialect
+CLANG_CXX_LANGUAGE_STANDARD = c++0x
+
+// Automatic Reference Counting
+CLANG_ENABLE_OBJC_ARC = YES
+
+

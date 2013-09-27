@@ -25,6 +25,7 @@
 #include <cassert>
 #include <map>
 #include <cstdio>
+#include <new>
 
 // Set default logger serverity to "Error" (logs only errors)
 #if !defined (DEBUG_LOG)
@@ -67,35 +68,6 @@
  */
 
 
-namespace {
-    
-    typedef RXPromise* (^rxp_unary_task)(id input);
-    
-    RXPromise* do_sequence(NSEnumerator* iter, RXPromise* returnedPromise, rxp_unary_task task)
-    {
-        if (returnedPromise.isCancelled) {
-            return returnedPromise;
-        }
-        id obj = [iter nextObject];
-        if (obj == nil) {
-            [returnedPromise fulfillWithValue:@"OK"];
-            return returnedPromise;
-        }
-        RXPromise* taskPromise = task(obj);
-        taskPromise.then(^id(id result){
-            return do_sequence(iter, returnedPromise, task);
-        }, ^id(NSError*error){
-            return error;
-        });
-        returnedPromise.then(nil, ^id(NSError*error){
-            DLogInfo(@"cancelling task promise's root: %@", taskPromise.root);
-            [taskPromise.root cancelWithReason:error];
-            return error;
-        });
-        return returnedPromise;
-    }
-}
-
 
 
 @interface NSError (RXResolver)
@@ -126,6 +98,102 @@ struct RXPromise_StateAndResult {
     id                result;
 };
 
+
+@class RXPromise;
+
+
+
+@interface RXPromiseWrapper : NSObject
+@property (nonatomic) RXPromise* promise;
+@end
+
+@implementation RXPromiseWrapper
+@synthesize promise = _promise;
+@end
+
+
+
+
+
+namespace {
+    
+    typedef std::multimap<void const*, __weak RXPromise*> assocs_t;
+    typedef RXPromise* (^rxp_unary_task)(id input);
+    
+    
+    dispatch_queue_t s_sync_queue;
+    const char* s_sync_queue_id = "RXPromise.shared_sync_queue";
+    
+    dispatch_queue_t s_default_concurrent_queue;
+    const char* s_default_concurrent_queue_id = "RXPromise.default_concurrent_queue";
+    
+    
+    assocs_t  s_assocs;
+    dispatch_once_t  onceSharedQueues;
+    
+    const char* QueueID = "RXPromise.queue_id";
+    
+    void RXPromise_init() {
+        dispatch_once(&onceSharedQueues, ^{
+            s_sync_queue = dispatch_queue_create(s_sync_queue_id, NULL);
+            assert(s_sync_queue);
+            dispatch_queue_set_specific(s_sync_queue, QueueID, (void*)(s_sync_queue_id), NULL);
+            
+            s_default_concurrent_queue = dispatch_queue_create(s_default_concurrent_queue_id, DISPATCH_QUEUE_CONCURRENT);
+            assert(s_default_concurrent_queue);
+        });
+    }
+    
+    NSError* makeTimeoutError() {
+        return [[NSError alloc] initWithDomain:@"RXPromise" code:-1001 userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}];
+    }
+    
+}
+
+namespace {
+    
+    void sync_sequence(NSEnumerator* iter, RXPromise* returnedPromise, RXPromiseWrapper* taskPromise, rxp_unary_task task)
+    {
+        // Implementation notes:
+        // We have a shared resource `root` which will be multiple times set by this
+        // method and which is retrieved in the error handler of the returned promise
+        // which is registered only once.
+        
+        assert(s_sync_queue);
+        assert(task);
+        assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+        
+        // If the returned promise has been cancelled or otherwise resolved, bail out:
+        if (returnedPromise && !returnedPromise.isPending) {
+            return;
+        }
+        id obj = [iter nextObject];
+        if (obj == nil) {
+            // Finished processing the inputs:
+            [returnedPromise fulfillWithValue:@"OK"];
+            return;
+        }
+        
+        // Execute the task and get the task promise:
+        taskPromise.promise = task(obj);
+        
+        // Register a continuation for the next object:
+        taskPromise.promise.thenOn(s_sync_queue, ^id(id result){
+            sync_sequence(iter, returnedPromise, taskPromise, task);
+            return returnedPromise;
+        }, ^id(NSError*error){
+            return error;
+        });
+        
+    }
+    
+    
+}
+
+
+
+
+
 @interface RXPromise ()
 @property (nonatomic) id result;
 @end
@@ -139,38 +207,6 @@ struct RXPromise_StateAndResult {
 @synthesize result = _result;
 @synthesize parent = _parent;
 
-typedef std::multimap<void const*, __weak RXPromise*> assocs_t;
-
-static dispatch_queue_t s_sync_queue;
-static const char* s_sync_queue_id = "RXPromise.shared_sync_queue";
-
-static dispatch_queue_t s_default_concurrent_queue;
-static const char* s_default_concurrent_queue_id = "RXPromise.default_concurrent_queue";
-
-
-static assocs_t  s_assocs;
-static dispatch_once_t  onceSharedQueues;
-
-const static char* QueueID = "RXPromise.queue_id";
-
-
-
-static void RXPromise_init() {
-    dispatch_once(&onceSharedQueues, ^{
-        s_sync_queue = dispatch_queue_create(s_sync_queue_id, NULL);
-        assert(s_sync_queue);
-        dispatch_queue_set_specific(s_sync_queue, QueueID, (void*)(s_sync_queue_id), NULL);
-
-        s_default_concurrent_queue = dispatch_queue_create(s_default_concurrent_queue_id, DISPATCH_QUEUE_CONCURRENT);
-        assert(s_default_concurrent_queue);
-    });
-}
-
-static NSError* makeTimeoutError() {
-    return [[NSError alloc] initWithDomain:@"RXPromise" code:-1001 userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}];
-}
-
-
 
 // Designated Initializer
 - (id)initWithParent:(RXPromise*)parent {
@@ -183,16 +219,17 @@ static NSError* makeTimeoutError() {
     return self;
 }
 
-// Designated Initializer
-- (id)initRootWithHandlerQueue:(dispatch_queue_t)handler_queue{
-    self = [super init];
-    if (self) {
-        RXPromise_init();
-        _parent = nil;
-    }
-    DLogInfo(@"create: %p", (__bridge void*)self);
-    return self;
-}
+//// Designated Initializer
+//- (id)initRootWithHandlerQueue:(dispatch_queue_t)handler_queue{
+//    self = [super init];
+//    if (self) {
+//        RXPromise_init();
+//        _parent = nil;
+//    }
+//    DLogInfo(@"create: %p", (__bridge void*)self);
+//    return self;
+//}
+//
 
 - (id)init {
     return [self initWithParent:nil];
@@ -368,6 +405,10 @@ static NSError* makeTimeoutError() {
         dispatch_source_cancel(timer); // one shot timer
         [self rejectWithReason:makeTimeoutError()];
     });
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)),
+                              DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
+    dispatch_resume(timer);
+
     [self registerWithQueue:s_sync_queue onSuccess:^id(id result) {
         dispatch_source_cancel(timer);
         RX_DISPATCH_RELEASE(timer);
@@ -378,9 +419,6 @@ static NSError* makeTimeoutError() {
         return nil;
     }
     returnPromise:NO];
-    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)),
-                              DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
-    dispatch_resume(timer);
 
     return self;
 }
@@ -677,8 +715,7 @@ static NSError* makeTimeoutError() {
     
     NSThread* thread = [NSThread currentThread];
     self.then(^id(id result) {
-        [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
-        return nil;
+(unless expired)        return nil;
     }, ^id(NSError* error) {
         [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
         return nil;
@@ -857,10 +894,30 @@ static NSError* makeTimeoutError() {
 + (RXPromise*) sequence:(NSArray*)inputs task:(rxp_unary_task)task
 {
     NSParameterAssert(task);
-    RXPromise* returnedPromise = [[RXPromise alloc] init];
+    assert(dispatch_get_specific(QueueID) != s_sync_queue_id);
+    RXPromise_init();
     NSEnumerator* iter = [inputs objectEnumerator];
-    return do_sequence(iter, returnedPromise, task);
+
+    // A promise wrapper holding the current task promise:
+    RXPromiseWrapper* currentTaskPromise = [[RXPromiseWrapper alloc] init];
+    
+    // Create the returned promise:
+    RXPromise* returnedPromise = [[RXPromise alloc] init];
+    // Register an error handler which cancels the current task's root:
+    returnedPromise.thenOn(s_sync_queue, nil, ^id(NSError*error){
+        DLogInfo(@"cancelling task promise's root: %@", root);
+        [currentTaskPromise.promise.root cancelWithReason:error];
+        return error;
+    });
+    
+    dispatch_sync(s_sync_queue, ^{
+        sync_sequence(iter, returnedPromise, currentTaskPromise, task);
+    });
+    return returnedPromise;
 }
+
+
+
 
 
 

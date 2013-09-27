@@ -13,9 +13,6 @@
     Then, asynchronously process each item in parallel and return an 
     array containing the processed items.
  
-    Note: 
- 
-
  */
 
 

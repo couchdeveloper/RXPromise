@@ -1,0 +1,21 @@
+//
+//  macosx.xcconfig
+//
+
+#include "project.xcconfig"
+
+//
+//  Architectures
+//
+
+SDKROOT = macosx
+SUPPORTED_PLATFORMS = macosx
+ARCHS = $(ARCHS_STANDARD_64_BIT)
+
+// Deployment Target
+MACOSX_DEPLOYMENT_TARGET = 10.8
+
+
+
+
+

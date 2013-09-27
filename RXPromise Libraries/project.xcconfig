@@ -1,5 +1,5 @@
 //
-//  common.xcconfig
+//  project.xcconfig
 //
 
 
@@ -22,19 +22,5 @@ CLANG_ENABLE_OBJC_ARC = YES
 
 // Header search paths
 PRJ_HEADER_SEARCH_PATHS = $(SOURCE_DIR)
-
-
-
-// BOOST
-BOOST_HEADER_SEARCH_PATH = $(BOOST)/boost_1_53_0
-//BOOST_LIBRARY_SEARCH_PATH =
-//BOOST_OTHER_LDFLAGS =
-
-
-// ICU
-ICU_ROOT = /usr/local/Cellar/icu4c/51.1
-ICU_HEADER_SEARCH_PATH = $(ICU_ROOT)/include
-ICU_LIBRARY_SEARCH_PATH = $(ICU_ROOT)/lib
-ICU_OTHER_LDFLAGS = -licuuc
 
 

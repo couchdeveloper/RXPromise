@@ -5,10 +5,10 @@
       location = "group:RXPromise Libraries/RXPromise Libraries.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Test/Test.xcodeproj">
+      location = "group:Samples/Samples.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Samples/Samples.xcodeproj">
+      location = "group:Test/Test.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:LICENSE.md">

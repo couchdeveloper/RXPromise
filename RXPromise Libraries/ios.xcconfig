@@ -1,0 +1,25 @@
+//
+//  ios.xcconfig
+//
+
+#include "project.xcconfig"
+
+//
+//  Architectures
+//
+
+SDKROOT = iphoneos
+
+//// For 64-bit and 32-bit targets:
+//ARCHS = $(ARCHS_STANDARD_INCLUDING_64_BIT)
+//IPHONEOS_DEPLOYMENT_TARGET = 7.0
+
+// For 32-bit targets:
+ARCHS = $(ARCHS_STANDARD)
+IPHONEOS_DEPLOYMENT_TARGET = 5.1
+
+
+SUPPORTED_PLATFORMS = iphonesimulator iphoneos
+
+
+HEADER_SEARCH_PATHS = $(PRJ_HEADER_SEARCH_PATHS)
