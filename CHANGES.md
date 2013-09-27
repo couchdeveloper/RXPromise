@@ -263,8 +263,8 @@ Fixed a subtle race condition in method `setTimeout:`.
  
 
 
-### Version 0.9.2 beta (2013-09-20)
 ### Version 0.9.3 beta (2013-09-20)
+### Version 0.9.4 beta (2013-09-20)
 
 #### Bug Fixes
 
