@@ -18,7 +18,7 @@ Thus, much of the credits go to their work and to those smart people they based 
 
 
 
-## Contents {#contents}
+## Contents
 
  1. [Overview](#overview)
  1. [The Principal API of the Promise](#the-principal-api-of-the-promise)
