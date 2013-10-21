@@ -257,11 +257,6 @@ Fixed a subtle race condition in method `setTimeout:`.
  
  
 
-#### Kown Issues
- 
- -  Xcode cannot run individual Unit Test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same Unit Test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, though.
- 
-
 
 ### Version 0.9.3 beta (2013-09-20)
 ### Version 0.9.4 beta (2013-09-20)
@@ -269,3 +264,37 @@ Fixed a subtle race condition in method `setTimeout:`.
 #### Bug Fixes
 
 Fixed silly typos that slipped into the sources accidentally.
+
+
+
+
+### Version 0.9.5 beta (TODO)
+
+#### Bug Fixes
+
+Class `RXPromise` now can be properly subclassed. The then_block now returns a promise of the subclass, for example:
+
+    MyPromise* promise1 = ...
+    MyPromise* promise2 = promise1.then(^id(id result){ return @"OK; }, nil);
+
+
+Likewise, inherited class factory methods now return on object of the subclass, for example:
+
+  MyPromise* promise = [MyPromise all:array];
+
+
+
+
+#### Changes
+
+ -  Improved documentation in the README.md.
+
+
+
+
+ #### Kown Issues
+ 
+ -  Due to an issue in Xcode 5, it's not possible to run *individual* unit test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same unit test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, and individual unit tests can be run from within the Test Navigation pane.
+ 
+
+

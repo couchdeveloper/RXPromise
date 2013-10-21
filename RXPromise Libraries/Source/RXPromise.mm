@@ -196,6 +196,7 @@ namespace {
 
 @interface RXPromise ()
 @property (nonatomic) id result;
+@property (nonatomic, readwrite) RXPromise* parent;
 @end
 
 @implementation RXPromise {
@@ -209,30 +210,13 @@ namespace {
 
 
 // Designated Initializer
-- (id)initWithParent:(RXPromise*)parent {
+- (instancetype)init {
     self = [super init];
     if (self) {
         RXPromise_init();
-        _parent = parent;
     }
     DLogInfo(@"create: %p", (__bridge void*)self);
     return self;
-}
-
-//// Designated Initializer
-//- (id)initRootWithHandlerQueue:(dispatch_queue_t)handler_queue{
-//    self = [super init];
-//    if (self) {
-//        RXPromise_init();
-//        _parent = nil;
-//    }
-//    DLogInfo(@"create: %p", (__bridge void*)self);
-//    return self;
-//}
-//
-
-- (id)init {
-    return [self initWithParent:nil];
 }
 
 - (void) dealloc {
@@ -514,12 +498,13 @@ namespace {
 // resolved (see "Requirements for an asynchronous result provider").
 // Returns a new promise which represents the return values of the handler
 // blocks.
-- (RXPromise*) registerWithQueue:(dispatch_queue_t)target_queue
-                       onSuccess:(promise_completionHandler_t)onSuccess
-                       onFailure:(promise_errorHandler_t)onFailure
-                   returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained))
+- (instancetype) registerWithQueue:(dispatch_queue_t)target_queue
+                         onSuccess:(promise_completionHandler_t)onSuccess
+                         onFailure:(promise_errorHandler_t)onFailure
+                     returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained))
 {
-    RXPromise* returnedPromise = returnPromise ? [[RXPromise alloc] initWithParent:self] : nil;
+    RXPromise* returnedPromise = returnPromise ? ([[[self class] alloc] init]) : nil;
+    returnedPromise.parent = self;
     __weak RXPromise* weakReturnedPromise = returnedPromise;
     __block RXPromise* blockSelf = self;
     if (target_queue == nil) {
@@ -602,8 +587,8 @@ namespace {
 
 - (then_block_t) then {
     __block RXPromise* blockSelf = self;
-    return ^RXPromise*(promise_completionHandler_t onSucess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
-        RXPromise* p = [blockSelf registerWithQueue:nil onSuccess:onSucess onFailure:onFailure returnPromise:YES];
+    return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
+        RXPromise* p = [blockSelf registerWithQueue:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
         blockSelf = nil;
         return p;
     };
@@ -612,8 +597,8 @@ namespace {
 
 - (then_on_block_t) thenOn {
     __block RXPromise* blockSelf = self;
-    return ^RXPromise*(dispatch_queue_t queue, promise_completionHandler_t onSucess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
-        RXPromise* p = [blockSelf registerWithQueue:queue onSuccess:onSucess onFailure:onFailure returnPromise:YES];
+    return ^RXPromise*(dispatch_queue_t queue, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
+        RXPromise* p = [blockSelf registerWithQueue:queue onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
         blockSelf = nil;
         return p;
     };
@@ -622,9 +607,9 @@ namespace {
 #pragma mark - Convenient Class Methods
     
     
-+ (RXPromise *)promiseWithTask:(id(^)(void))task {
++ (instancetype)promiseWithTask:(id(^)(void))task {
     NSParameterAssert(task);
-    RXPromise* promise = [[RXPromise alloc] init];
+    RXPromise* promise = [[self alloc] init];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         [promise resolveWithResult:task()];
     });
@@ -632,10 +617,10 @@ namespace {
 }
     
     
-+ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task {
++ (instancetype)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task {
     NSParameterAssert(queue);
     NSParameterAssert(task);
-    RXPromise* promise = [[RXPromise alloc] init];
+    RXPromise* promise = [[self alloc] init];
     dispatch_async(queue, ^{
         [promise resolveWithResult:task()];
     });
@@ -817,9 +802,9 @@ namespace {
 #pragma mark -
 
 
-+(RXPromise*) all:(NSArray*)promises
++(instancetype) all:(NSArray*)promises
 {
-    RXPromise* promise = [RXPromise new];
+    RXPromise* promise = [[self alloc] init];
     __block NSUInteger count = [promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
@@ -855,9 +840,9 @@ namespace {
 }
 
 
-+ (RXPromise*) any:(NSArray*)promises
++ (instancetype) any:(NSArray*)promises
 {
-    RXPromise* promise = [RXPromise new];
+    RXPromise* promise = [[self alloc] init];
     __block int count = (int)[promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
@@ -892,7 +877,7 @@ namespace {
 }
 
 
-+ (RXPromise*) sequence:(NSArray*)inputs task:(rxp_unary_task)task
++ (instancetype) sequence:(NSArray*)inputs task:(rxp_unary_task)task
 {
     NSParameterAssert(task);
     assert(dispatch_get_specific(QueueID) != s_sync_queue_id);
@@ -903,7 +888,7 @@ namespace {
     RXPromiseWrapper* currentTaskPromise = [[RXPromiseWrapper alloc] init];
     
     // Create the returned promise:
-    RXPromise* returnedPromise = [[RXPromise alloc] init];
+    RXPromise* returnedPromise = [[self alloc] init];
     // Register an error handler which cancels the current task's root:
     returnedPromise.thenOn(s_sync_queue, nil, ^id(NSError*error){
         DLogInfo(@"cancelling task promise's root: %@", root);

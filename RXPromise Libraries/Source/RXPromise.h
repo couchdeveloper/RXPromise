@@ -644,7 +644,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
  
  Designated Initializer
  */
-- (id)init;
+- (instancetype)init;
 
 
 /*!

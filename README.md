@@ -1,113 +1,120 @@
-"Promises are awesome!"
-
-------------------
-### NOTE:  There are *BREAKING CHANGES* in Version 0.9 beta:
-
-The class method 
-
-`+ (RXPromise*)all:(NSArray*)promises;`
-
-now returns a `RXPromise` whose success handler returns an array containing the _result_ of each asynchronous task (in the corresponding order).
-Before, the _results_ parameter contained the array of promises. So basically, it _was_ the same array as the array specified in parameter _promises_.
-
-
-Please read the CHANGES.md file.
-
-
--------------------
 # RXPromise
 
 An Objective-C Class which implements the Promises/A+ specification.
 
-
-## General
-
-The Promises/A+ specification defines the API and behavior of a _promise_. The specification was originally written for the Javascript language but the architecture and the design can be implemented in virtually any language.
-
-This is an example of an implementation in Objective-C.
+For install instructions, please refere to: [INSTALL](INSTALL.md)
 
 
+
+> **Important:**  There are *BREAKING CHANGES* in Version 0.9 beta. Please read the [CHANGES](CHANGES.md) file.
+
+
+
+
+### Credits
+
+This implementation strives to be as close as possible to the [Promises/A+](https://github.com/promises-aplus/promises-spec) specification which has brought to us from the Javascript community.
+Thus, much of the credits go to their work and to those smart people they based their work on!
+
+
+
+## Contents {#contents}
+
+ 1. [Overview](#overview)
+ 1. [The Principal API of the Promise](#the-principal-api-of-the-promise)
+ 1. [Asynchronous Service Provider's Responsibility](#asynchronous-service-providers-responsibility)
+ 1. [The _thenOn_ and _then_ Property](#the-thenon-and-then-property)
+ 1. [Chaining](#chaining)
+ 1. [Error Propagation](#error-propagation)
+ 1. [Controlling the Handler's Paths](#controlling-the-handlers-paths)
+ 1. [Starting Parallel Tasks](#starting-parallel-tasks)
+ 1. [Cancellation](#cancellation)
+ 1. [Synchronization Guarantees For Shared Resources](#synchronization-guarantees-for-shared-resources)
+
+
+
+-----
 ## Overview
 
+A _promise_ is a lightweight primitive to manage asynchronous patterns. Basically, a promise represents the _eventual result_ of an asynchronous function or method. A similar concept are _futures_. For a more detailed introduction you may read the wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises).
 
-A promise is a lightweight primitive to manage asynchronous patterns. Promises will be invaluable when dealing with asynchronous architectures which make the code effectively look like it were synchronous.
+This implementation follows a "non-blocking" style. That means, when utilizing RXPromise's principal methods, an implementation will resemble a purely asynchronous and thread-safe system, where no thread is ever blocked. (There are a few exceptions where certain miscellaneous methods *do* block).
 
-
-Basically, a _promise_ represents the _eventual result_ of an asynchronous function or method. The "generic" form of such a method just requires to return a promise:
-
-```objective-c
--(RXPromise*) doSomethingAsync;
-```
+More specifically, this implementation strives to be as close as possible to the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec). The Promises/A+ specification defines the API and behavior of a _promise_. The specification was originally written for the Javascript language but the architecture and the design can be implemented in virtually any language.
 
 
+Promises will be invaluable when dealing with asynchronous architectures which make the code effectively look like it were synchronous. When a synchronous function returns a value, a asynchronous function will return a promise whose value represents the eventual result of the asynchronous function, including a possible error:
 
-A promise is initially in the state _pending_. Its state will then become either _fulfilled_ or _rejected_ as the effect of _resolving_ the promise.
+Synchronous style:
 
-The promise will be created by the "asynchronous service provider" associated to the asynchronous task. It is also responsible for _resolving_ the promise. "Resolving" is either _fulfilling_ or _rejecting_ the promise along with corresponding arguments, either the final _result_ of the tasks or an _error_.
+    -(NSArray*) synchronousFetchUsersWithParams:(NSDictionary*)parameters error:(NSError**)error;
 
-Once a promise has been resolved its state cannot change anymore. Further attempts to fulfill or reject a resolved promise will have no effect.
 
+Asynchronous style:
+
+    -(RXPromise*) fetchUsersWithParams:(NSDictionary*)parameters;
+
+Assuming there is an asynchronous task which actually performs and evaluates the result of the methods, the synchronous method will block the current thread and put it into a suspended state until the result ist available and eventually returned. The asynchronous method will not block the current thread, instead it will return immediately - yet the *actual* result is not yet evailable. The _eventual result_ will be represented by the promise.
+
+The returned promise will be created by the underlaying _asynchronous task_ - an "asynchronous result provider" within the asynchronous method `fetchUsersWithParams:error:` and then returned to the client. The "asynchronous result provider" is an object whose lifetime extends up to the point at which it has finished its task and has the result available. When the result is available, or when the task failed to compute, the "asynchronous result provider" _resolves_ its promise with the result of the task or the reason of the failure.
+
+A promise is initially in the state _pending_ - that is, it is not resolved yet. Then, at some indeterminable time it will be resolved with either the result value or with a reason for the failure. After it has been resolved, its state will then be either _fulfilled_ or _rejected_.
+
+A promise can only be resolved once. Once a promise has been resolved its state cannot change anymore. Further attempts to fulfill or reject a resolved promise will have no effect.
 
 The "consumer" (the client) of the asynchronous task can setup handlers (blocks) which will be invoked when the promise has been resolved. There are two kinds of handlers: the _completion handler_ which will be invoked when the promise has been fulfilled and the _error handler_ which will be invoked when the promise has been rejected.
 
 
+#### Example
 
-## Credits 
+Suppose we want to implement an utility method `fetchUsers` which should download users using a network request method, get a representation as an `NSArray` of `Users`, and finally update a table view. Loading data from a network request typically may take undeterminable time to finish. Thus, virtually all reasonable approaches employ an asynchronous style. But lets assume we would have a synchronous convenient method `synchronousFetchUsersWithParams::error:`.  
 
-This implementation strives to be as close as possible to the Promises/A+ specification which has brought to us from the Javascript community.
-Thus, much of the credits go to their work and to those smart people they based their work on!
-<https://github.com/promises-aplus/promises-spec>
+Our utility method `fetchUser` has to be asynchronous, since it will be invoked from the main thread, and the main thread should never block. Thus, a viable implementation utilizing a synchronous convenient method `synchronousFetchUsersWithParams:error:`may look as follows:
 
-
-
-
-## How To Install
-
-The `RXPromise` library is actually just _one_ class. There are a few options how to incorporate it into you projects. 
-
-Just an important note beforehand:  RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step which is explained in detail below. If you link against the Framework, there is no extra step.  Note that RXPromise is a pure Objective-C API - and does not affect (or "infect") your Objective-C soures in any way with C++.
-
-
- - Include sources directly into your project
-
-    This is probably the quickiest way. There are only three source files to include:
-
-    Dowload the zip archive or clone the git repository in order to obtain the sources. Locate the folder `Sources` in Finder, which is located in "`Promise Libraries`", into the Navigation area of your Xcode project below or beneath your other sources. Optionally make a copy. This will create a new group in the Navigation area, which you can rename to, say "RXPromise".
-
-    RXPromise must be compiled with ARC enabled. The deployment target should be Mac OS X 10.7 and newer, respectively iOS 5.x and newer.
-
-    If you include source files directly, you need to ensure that your _executable_ binary links against the C++ standard library. How you can accomplish this is explained below.
-
-    In your sources, use the `#import "RXPromise.h"` in order to include the header.
- 
-
- - Use the static library (iOS) or the Framework (Mac OS X)
-
-    Download the zip archive or clone the git repository in order to obtain the sources. Ensure you have a Workspace for your project and open in Xcode. Also ensure you don't have the RXPromise project open in Xcode. Otherwise, close the RXPromise project. Locate the Xcode project file "`RXPromise Libraries.xcodeproj`" in Finder and drag it into the Navigation area of your project, preferable beneath your other projects. Do not make a copy. This will create a new Project reference in the Navigation area.
-
-    Then you need to link your binary against either the static library for your iOS project or against the Framework in your Mac OS X project: In the Navigation area, select your project. In the target editor area select the target that produces your executable binary and select "Build Phases" tab. In the "Link Binary With Libraries" section, click the "+" button. This opens a selection dialog, with a "Workspace" folder, where you can find "RXPromise.framework", "libRXPromise.a" (for Mac OS) and "libRXPromise.a" (for iOS). Ensure you select the correct library and click the "Add" button.
-
-    In your sources, use the `#import <RXPromise/RXPromise.h>` in order to include the header.
-
-
-    Note: Linking an executable binary against a _static library_ requires that all dependencies are finally linked in the executable binary. That means, when you use the static lib ("libRXPromise.a") you need to ensure to link your executable binary also against the C++ Standard library. How you can accomplish this is explained below:
-
-
-#### Link against the C++ Standard library
-
-One can accpomplish this, for example:
-
-  - Rename your `main.m`file to `main.mm`. This causes the build tools to automatically do the right things. You are finished.
-
-  - Alternatively, add a build setting in "Other Linker Flags" in your target build settings: select the project in the Navigation area, select your target which produces the executable. In the target editor, select "Build Settings" tab, locate the "Other Linker Flags" build setting and add `-lc++` (without back ticks).
- 
+```objective-c
+- (void) fetchUsers {
+    dispatch_async(queue, ^{
+        NSError* error;
+        NSArray* users = [self synchronousFetchUsersWithParams:params error:&error];
+        if (users) {
+            self.usersModel = users;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.tableView reloadData];
+            });
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self handleError:error];
+            });
+        }        
+    });
+}
+```
     
-  Note: when using a Framework, the dependencies are already established.  
 
- 
-
+Notice: even though the helper method `fetchUser` is indeed asynchronous, the implementation forces a thread to block until after the result is available. This thread has nothing to do than to wait until after the network request finished. Threads are usually expensive, and this solution is somewhat costly. The better solution follows:
 
 
+Now, we utilize an asynchronous helper method `fetchWithParams:` which returns a promise. The implementation of the asynchronous helper method `fetchUsers` utilizing an asynchronous network request method will look as follows:
+
+```objective-c
+- (void) fetchUsers {
+    self.usersPromise = [self fetchWithParams:params];
+    self.usersPromise.thenOn(dispatch_get_main_queue() , ^id(id users){
+        self.usersModel = users;
+        [self.tableView reloadData];
+    }, ^id(NSError* error){
+        [self handleError:error];
+    });
+}
+```
+
+From an outer view, the behavior of both implementations of `fetchUsers` seem to be identical. However, the implementation of the second one utilizing Promises is more efficient in terms of system resources. Additionaly, it looks also more concise. These differences will become more drastic, if problems become more complex.
+
+[Contents ^](#contents)
+
+
+-----
 ## The Principal API of the Promise
 
 The API has two parts: one for the "asynchronous service provider" and one for the consumer of the task's result, the "client".
@@ -117,12 +124,10 @@ The API has two parts: one for the "asynchronous service provider" and one for t
 /**
  Promise Client API
 */
+
 @interface RXPromise : NSObject
-
 @property (nonatomic, readonly) then_on_t   thenOn;
-
 @property (nonatomic, readonly) then_t      then;
-
 @end
 ```
 
@@ -153,6 +158,7 @@ The part interfacing to the service provider is also often called "Deferred":
 /**
  Promise Deferred API
 */
+
 @interface RXPromise(Deferred)
 - (id)init;
 - (void) fulfillWithValue:(id)result;
@@ -160,8 +166,9 @@ The part interfacing to the service provider is also often called "Deferred":
 @end
 ```
 
+[Contents ^](#contents)
 
-
+-----
 ## Asynchronous Service Provider's Responsibility
 
 A promise - more precisely, the _root promise_ - will be usually created by the asynchronous service provider. Initially, a promise is in the _pending_ state.
@@ -199,14 +206,14 @@ The relevant API for the asynchronous service provider are just these methods:
 ```
 
 
-Note:
+> **Note:**
 
-When the promise will be resolved, the state of the promise changes from _pending_ to either _fulfilled_ or _rejected_. No further state changes are possible there after: once a promise has been resolved, subsequent fulfill or reject messages have no effect, and the promise's _value_ - which represents either the reason for a failure or the result of the asynchronous function - will not change either.
-
-
+> When the promise will be resolved, the state of the promise changes from _pending_ to either _fulfilled_ or _rejected_. No further state changes are possible there after: once a promise has been resolved, subsequent fulfill or reject messages have no effect, and the promise's _value_ - which represents either the reason for a failure or the result of the asynchronous function - will not change either.
 
 
+[Contents ^](#contents)
 
+-----
 ## The _thenOn_ and _then_ Property
 
  A "consumer" (or client) of the result of an asynchronous function may or may not keep a reference to the promise which the function returns. In any case, the client can specify callback handlers (blocks) which will be invoked when either the promise has been fulfilled or rejected. This will be accomplished with the property `thenOn` and `then`.
@@ -275,6 +282,9 @@ The method `doSomethingAsync` will start an asynchronous task and then immediate
 The client may now define what shall happen _when_ this asynchronous method succeeds or _when_ it fails through defining the corresponding handler blocks as shown above. The handler blocks may be `NULL` indicating that no action is to be taken.
 
 
+[Contents ^](#contents)
+
+----
 ## Chaining
 
 
@@ -316,8 +326,6 @@ The code above chains four asynchronous tasks and a last one which returns an _i
 The last handler on the other hand executes on the main thread - as specified through using the `thenOn` property.
 
 
-
-
 The _root promise_, that is the first promise which has no parent promise, will be obtained through invoking the first asynchronous task via `[self async_A]`. The return value - a promise, whose parent is the root promise - will be immediately used to define the handlers via the `then` property whose completion handler just invokes the next asynchronous task `async_B`:
 
 ```objective-c
@@ -344,21 +352,25 @@ If any of the tasks failed, _endResult_'s `value` will be the return value of th
 
 Notice, that the statement will execute completely asynchronously! Yet, effectively, they will be invoked one after the other.
 
+[Contents ^](#contents)
 
-
+----
 ## Error Propagation
 
 If any of the asynchronous tasks fails, the error will be automatically propagated forward to the promise _endResult_ - even when there are no error handlers defined. Subsequent tasks will not be started since the completion handler hasn't been invoked. So, it's not necessary to define error handlers, unless you want explicitly _catch_ them and handle them where they occurred.
 
+[Contents ^](#contents)
 
+----
 ## Controlling the Handler's Paths
 
 You may want to catch errors when you want to and are able to recover from an error and proceed normally. In this case, return something different than an error object - possibly a promise from any other asynchronous task - and the flow continues with the "success path".
 
 Likewise, if you feel the result from a completion handler is bogus you can interrupt the "success path" through simply returning an `NSError` object and the flow subsequently takes the "error path".
 
+[Contents ^](#contents)
 
-
+----
 ## Starting Parallel Tasks
 
 One feature that might become already obvious for the attentive reader is that it might be possible to invoke *several* `then` blocks for a particular promise.
@@ -418,7 +430,9 @@ With this design it is possible to define even _complex trees_ of tasks in a con
 
 Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just invoke the `thenOn` or `then` block and define what shall happen anywhere in a program. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.
 
+[Contents ^](#contents)
 
+------
 ## Cancellation
 
 Occasionally, it is required to _cancel_ a _certain_ task, a _certain chain_ of tasks, or a _certain branch_ of a tree of tasks, or everything that belongs to the root promise. No matter, whether that task is already started or not yet started, or even when it is already finished - in which case it shall have no effect.
@@ -465,11 +479,9 @@ A asynchronous service provider should - if it supports cancellation at all - ad
 
 
 
+[Contents ^](#contents)
 
-
-
-
-
+----
 ## Synchronization Guarantees For Shared Resources
 
 Concurrent access to shared resources is guaranteed to be safe for accesses from within handlers which execute on the _same serial execution context_".
@@ -478,6 +490,4 @@ The execution context for handlers can be explicitly set via property `thenOn` (
 Using property `then` will use an implicit _concurrent_ execution context. Thus, handlers will execute _concurrently_ and access to shared resources is NOT guaranteed to be safe, unless the handler block implements appropriate synchronization itself!
 
 
-
-
-
+[Contents ^](#contents)

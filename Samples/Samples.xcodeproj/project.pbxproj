@@ -14,11 +14,11 @@
 		A10F1DD517ECC7B500801746 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DD017ECC79F00801746 /* RXPromise.framework */; };
 		A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A11842A017EC697100EE4FD8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A118429F17EC697100EE4FD8 /* main.m */; };
-		A11842B917ECA6A000EE4FD8 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A11842B717ECA67E00EE4FD8 /* RXTimer.m */; };
 		A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378BF17847AC00037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378BE17847AC00037A3AC /* main.m */; };
 		A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378D11784BC6A0037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378D01784BC6A0037A3AC /* main.m */; };
+		A1BC9F10180DEE56002A3487 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC9F0F180DEE56002A3487 /* RXTimer.m */; };
 		A1C0C59E17F04414001D2CDC /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C59D17F04414001D2CDC /* libRXPromise.a */; };
 		A1C0C5A017F0442B001D2CDC /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C59F17F0442B001D2CDC /* libRXPromise.a */; };
 		A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
@@ -81,8 +81,6 @@
 		A118429C17EC697000EE4FD8 /* Sample5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample5; sourceTree = BUILT_PRODUCTS_DIR; };
 		A118429F17EC697100EE4FD8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A11842A217EC697100EE4FD8 /* Sample5-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample5-Prefix.pch"; sourceTree = "<group>"; };
-		A11842B617ECA67E00EE4FD8 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RXTimer.h; path = ../../Common/RXTimer.h; sourceTree = "<group>"; };
-		A11842B717ECA67E00EE4FD8 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RXTimer.m; path = ../../Common/RXTimer.m; sourceTree = "<group>"; };
 		A1A378B817847AC00037A3AC /* Sample1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample1; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378BB17847AC00037A3AC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A1A378BE17847AC00037A3AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -90,11 +88,18 @@
 		A1A378CD1784BC6A0037A3AC /* Sample2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample2; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378D01784BC6A0037A3AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1A378D31784BC6A0037A3AC /* Sample2-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample2-Prefix.pch"; sourceTree = "<group>"; };
-		A1C0C59D17F04414001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
-		A1C0C59F17F0442B001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
+		A1BC9F0E180DEE56002A3487 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
+		A1BC9F0F180DEE56002A3487 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
+		A1C0C59D17F04414001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
+		A1C0C59F17F0442B001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
 		A1D9632217953DBC00090EDC /* Sample4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample4; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1D9632517953DBC00090EDC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1D9632817953DBC00090EDC /* Sample4-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample4-Prefix.pch"; sourceTree = "<group>"; };
+		A1F050B5180D94B400EBC276 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		A1F050B7180D94B400EBC276 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A1F050D2180D94B400EBC276 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		A1F050E6180D94DD00EBC276 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Debug-iphoneos/libRXPromise.a"; sourceTree = "<group>"; };
+		A1F050F9180DA78D00EBC276 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../../../Library/Developer/Xcode/DerivedData/Build/Products/Debug/RXPromise.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,8 +171,6 @@
 		A118429E17EC697100EE4FD8 /* Sample5 */ = {
 			isa = PBXGroup;
 			children = (
-				A11842B617ECA67E00EE4FD8 /* RXTimer.h */,
-				A11842B717ECA67E00EE4FD8 /* RXTimer.m */,
 				A118429F17EC697100EE4FD8 /* main.m */,
 				A11842A117EC697100EE4FD8 /* Supporting Files */,
 			);
@@ -185,6 +188,7 @@
 		A1A3789D17847A980037A3AC = {
 			isa = PBXGroup;
 			children = (
+				A1BC9F0D180DEE56002A3487 /* Common */,
 				A1A378BD17847AC00037A3AC /* Sample1 */,
 				A1A378CF1784BC6A0037A3AC /* Sample2 */,
 				A10A620717858A4F0019F7EA /* Sample3 */,
@@ -210,10 +214,15 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1F050F9180DA78D00EBC276 /* RXPromise.framework */,
+				A1F050E6180D94DD00EBC276 /* libRXPromise.a */,
 				A1C0C59F17F0442B001D2CDC /* libRXPromise.a */,
 				A1C0C59D17F04414001D2CDC /* libRXPromise.a */,
 				A10F1DD017ECC79F00801746 /* RXPromise.framework */,
 				A1A378BB17847AC00037A3AC /* Foundation.framework */,
+				A1F050B5180D94B400EBC276 /* CoreGraphics.framework */,
+				A1F050B7180D94B400EBC276 /* UIKit.framework */,
+				A1F050D2180D94B400EBC276 /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -250,6 +259,16 @@
 				A1A378D31784BC6A0037A3AC /* Sample2-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A1BC9F0D180DEE56002A3487 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A1BC9F0E180DEE56002A3487 /* RXTimer.h */,
+				A1BC9F0F180DEE56002A3487 /* RXTimer.m */,
+			);
+			name = Common;
+			path = ../Common;
 			sourceTree = "<group>";
 		};
 		A1D9632417953DBC00090EDC /* Sample4 */ = {
@@ -371,6 +390,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = A1A3789D17847A980037A3AC;
 			productRefGroup = A1A378B917847AC00037A3AC /* Products */;
@@ -399,8 +419,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A11842B917ECA6A000EE4FD8 /* RXTimer.m in Sources */,
 				A11842A017EC697100EE4FD8 /* main.m in Sources */,
+				A1BC9F10180DEE56002A3487 /* RXTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,7 @@
 		A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 		A1E27ED117F1D7B1006BB86D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1E27ECF17F1D7B1006BB86D /* InfoPlist.strings */; };
 		A1E27ED817F1D7E1006BB86D /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C61E17F04EFC001D2CDC /* RXPromise.framework */; };
+		A1ECBC7F1813D6BE0081F955 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -404,6 +405,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1ECBC7F1813D6BE0081F955 /* RXPromiseTest.mm in Sources */,
 				A1A7DBB817F320D80073A2DE /* RXTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
