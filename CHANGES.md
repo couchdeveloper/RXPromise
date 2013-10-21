@@ -268,7 +268,7 @@ Fixed silly typos that slipped into the sources accidentally.
 
 
 
-### Version 0.9.5 beta (TODO)
+### Version 0.9.5 beta (2013-10-21)
 
 #### Bug Fixes
 
