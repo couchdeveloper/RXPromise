@@ -298,3 +298,9 @@ Likewise, inherited class factory methods now return on object of the subclass, 
  
 
 
+### Version 0.9.6 beta (2013-11-10)
+
+#### Changes
+
+- Removed LTO optimization and added 64-bit architecturefrom iOS static library project.
+
