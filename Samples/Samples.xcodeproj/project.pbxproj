@@ -88,6 +88,7 @@
 		A1A378CD1784BC6A0037A3AC /* Sample2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample2; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378D01784BC6A0037A3AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1A378D31784BC6A0037A3AC /* Sample2-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample2-Prefix.pch"; sourceTree = "<group>"; };
+		A1A45F591821045E00CEC749 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../../../Library/Developer/Xcode/DerivedData/Promise-dgyrvqswrkfnaoathrecbvjiyjmc/Build/Products/Debug/RXPromise.framework"; sourceTree = "<group>"; };
 		A1BC9F0E180DEE56002A3487 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
 		A1BC9F0F180DEE56002A3487 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A1C0C59D17F04414001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
@@ -214,6 +215,7 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1A45F591821045E00CEC749 /* RXPromise.framework */,
 				A1F050F9180DA78D00EBC276 /* RXPromise.framework */,
 				A1F050E6180D94DD00EBC276 /* libRXPromise.a */,
 				A1C0C59F17F0442B001D2CDC /* libRXPromise.a */,
