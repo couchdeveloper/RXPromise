@@ -21,46 +21,16 @@
 #endif
 
 #import "RXPromise.h"
+#import "RXPromise+Private.h"
 #include <dispatch/dispatch.h>
 #include <cassert>
-#include <map>
 #include <cstdio>
-#include <new>
 
 // Set default logger serverity to "Error" (logs only errors)
 #if !defined (DEBUG_LOG)
 #define DEBUG_LOG 1
 #endif
 #import "utility/DLog.h"
-
-
-#if TARGET_OS_IPHONE
-// Compiling for iOS
-    #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
-        // >= iOS 6.0
-        #define RX_DISPATCH_RELEASE(__object) do {} while(0)
-        #define RX_DISPATCH_RETAIN(__object) do {} while(0)
-        #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) (__bridge void*)__object
-    #else
-        // <= iOS 5.x
-        #define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
-        #define RX_DISPATCH_RETAIN(__object) do { dispatch_retain(__object); } while(0)
-        #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) __object
-    #endif
-#elif TARGET_OS_MAC
-    // Compiling for Mac OS X
-    #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
-        // >= Mac OS X 10.8
-        #define RX_DISPATCH_RELEASE(__object) do {} while(0)
-        #define RX_DISPATCH_RETAIN(__object) do {} while(0)
-        #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) (__bridge void*)__object
-    #else
-        // <= Mac OS X 10.7.x
-        #define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
-        #define RX_DISPATCH_RETAIN(__object) do { dispatch_retain(__object); } while(0)
-        #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) __object
-    #endif
-#endif
 
 
 /**
@@ -84,112 +54,29 @@
 
 
 
-/** RXPromise_State */
-typedef enum RXPromise_StateT {
-    Pending     = 0x0,
-    Fulfilled   = 0x01,
-    Rejected    = 0x02,
-    Cancelled   = 0x06
-} RXPromise_State;
 
 
-struct RXPromise_StateAndResult {
-    RXPromise_StateT  state;
-    id                result;
-};
-
-
-@class RXPromise;
-
-
-
-@interface RXPromiseWrapper : NSObject
-@property (nonatomic) RXPromise* promise;
-@end
-
-@implementation RXPromiseWrapper
-@synthesize promise = _promise;
-@end
-
-
-
+rxpromise::shared Shared;
 
 
 namespace {
     
-    typedef std::multimap<void const*, __weak RXPromise*> assocs_t;
-    typedef RXPromise* (^rxp_unary_task)(id input);
-    
-    
-    dispatch_queue_t s_sync_queue;
-    const char* s_sync_queue_id = "RXPromise.shared_sync_queue";
-    
-    dispatch_queue_t s_default_concurrent_queue;
-    const char* s_default_concurrent_queue_id = "RXPromise.default_concurrent_queue";
-    
-    
-    assocs_t  s_assocs;
-    dispatch_once_t  onceSharedQueues;
-    
-    const char* QueueID = "RXPromise.queue_id";
-    
-    void RXPromise_init() {
-        dispatch_once(&onceSharedQueues, ^{
-            s_sync_queue = dispatch_queue_create(s_sync_queue_id, NULL);
-            assert(s_sync_queue);
-            dispatch_queue_set_specific(s_sync_queue, QueueID, (void*)(s_sync_queue_id), NULL);
-            
-            s_default_concurrent_queue = dispatch_queue_create(s_default_concurrent_queue_id, DISPATCH_QUEUE_CONCURRENT);
-            assert(s_default_concurrent_queue);
-        });
-    }
+//    void RXPromise_init() {
+//        dispatch_once(&onceSharedQueues, ^{
+//            s_sync_queue = dispatch_queue_create(s_sync_queue_id, NULL);
+//            assert(s_sync_queue);
+//            dispatch_queue_set_specific(s_sync_queue, QueueID, (void*)(s_sync_queue_id), NULL);
+//            
+//            s_default_concurrent_queue = dispatch_queue_create(s_default_concurrent_queue_id, DISPATCH_QUEUE_CONCURRENT);
+//            assert(s_default_concurrent_queue);
+//        });
+//    }
     
     NSError* makeTimeoutError() {
         return [[NSError alloc] initWithDomain:@"RXPromise" code:-1001 userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}];
     }
     
 }
-
-namespace {
-    
-    void sync_sequence(NSEnumerator* iter, RXPromise* returnedPromise, RXPromiseWrapper* taskPromise, rxp_unary_task task)
-    {
-        // Implementation notes:
-        // We have a shared resource `root` which will be multiple times set by this
-        // method and which is retrieved in the error handler of the returned promise
-        // which is registered only once.
-        
-        assert(s_sync_queue);
-        assert(task);
-        assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
-        
-        // If the returned promise has been cancelled or otherwise resolved, bail out:
-        if (returnedPromise && !returnedPromise.isPending) {
-            return;
-        }
-        id obj = [iter nextObject];
-        if (obj == nil) {
-            // Finished processing the inputs:
-            [returnedPromise fulfillWithValue:@"OK"];
-            return;
-        }
-        
-        // Execute the task and get the task promise:
-        taskPromise.promise = task(obj);
-        
-        // Register a continuation for the next object:
-        taskPromise.promise.thenOn(s_sync_queue, ^id(id result){
-            sync_sequence(iter, returnedPromise, taskPromise, task);
-            return returnedPromise;
-        }, ^id(NSError*error){
-            return error;
-        });
-        
-    }
-    
-    
-}
-
 
 
 
@@ -212,9 +99,6 @@ namespace {
 // Designated Initializer
 - (instancetype)init {
     self = [super init];
-    if (self) {
-        RXPromise_init();
-    }
     DLogInfo(@"create: %p", (__bridge void*)self);
     return self;
 }
@@ -227,11 +111,11 @@ namespace {
         RX_DISPATCH_RELEASE(_handler_queue);
     }
     void const* key = (__bridge void const*)(self);
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
-        s_assocs.erase(key);
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
+        Shared.assocs.erase(key);
     } else {
-        dispatch_barrier_sync(s_sync_queue, ^{
-            s_assocs.erase(key);
+        dispatch_barrier_sync(Shared.sync_queue, ^{
+            Shared.assocs.erase(key);
         });
     }
 }
@@ -266,12 +150,12 @@ namespace {
 
 
 - (RXPromise_StateAndResult) peakStateAndResult {
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         return {_state, _result};
     }
     else {
         __block RXPromise_StateAndResult result;
-        dispatch_sync(s_sync_queue, ^{
+        dispatch_sync(Shared.sync_queue, ^{
             result.result = _result;
             result.state = _state;
         });
@@ -281,12 +165,12 @@ namespace {
 
 
 - (RXPromise_StateAndResult) synced_peakStateAndResult {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     return {_state, _result};
 }
 
 - (id) synced_peakResult {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     assert(_state != Pending);
     return _result;
 }
@@ -296,15 +180,15 @@ namespace {
 
 - (dispatch_queue_t) handlerQueue
 {
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         dispatch_queue_t queue = [self synced_handlerQueue];
         RX_DISPATCH_RETAIN(queue);
         return queue;
     }
     else {
         __block dispatch_queue_t queue = nil;
-        assert(s_sync_queue);
-        dispatch_barrier_sync(s_sync_queue, ^{
+        assert(Shared.sync_queue);
+        dispatch_barrier_sync(Shared.sync_queue, ^{
             queue = [self synced_handlerQueue];
             RX_DISPATCH_RETAIN(queue);
         });
@@ -317,24 +201,24 @@ namespace {
 // Returns s_sync_queue if the receiver has already been resolved.
 -(dispatch_queue_t) synced_handlerQueue
 {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     if (_state == Pending) {
         if (_handler_queue == nil) {
             char buffer[64];
             snprintf(buffer, sizeof(buffer),"RXPromise.handler_queue-%p", (__bridge void*)self);
             _handler_queue = dispatch_queue_create(buffer, NULL);
-            dispatch_set_target_queue(_handler_queue, s_sync_queue);
+            dispatch_set_target_queue(_handler_queue, Shared.sync_queue);
             dispatch_suspend(_handler_queue);
         }
         assert(_handler_queue);
         return _handler_queue;
     }
-    return s_sync_queue;
+    return Shared.sync_queue;
 }
 
 
 - (void) resolveWithResult:(id)result {
-    dispatch_barrier_async(s_sync_queue, ^{
+    dispatch_barrier_async(Shared.sync_queue, ^{
         [self synced_resolveWithResult:result];
     });
 }
@@ -342,11 +226,11 @@ namespace {
 
 - (void) fulfillWithValue:(id)value {
     assert(![value isKindOfClass:[NSError class]]);
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         [self synced_fulfillWithValue:value];
     }
     else {
-        dispatch_barrier_sync(s_sync_queue, ^{
+        dispatch_barrier_sync(Shared.sync_queue, ^{
             [self synced_fulfillWithValue:value];
         });
     }
@@ -354,11 +238,11 @@ namespace {
 
 
 - (void) rejectWithReason:(id)reason {
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         [self synced_rejectWithReason:reason];
     }
     else {
-        dispatch_barrier_sync(s_sync_queue, ^{
+        dispatch_barrier_sync(Shared.sync_queue, ^{
             [self synced_rejectWithReason:reason];
         });
     }
@@ -370,7 +254,7 @@ namespace {
 }
 
 - (void) cancelWithReason:(id)reason {
-    dispatch_barrier_async(s_sync_queue, ^{  // async, in order to be less prone to dead locks
+    dispatch_barrier_async(Shared.sync_queue, ^{  // async, in order to be less prone to dead locks
         [self synced_cancelWithReason:reason];
     });
 }
@@ -384,7 +268,7 @@ namespace {
         [self rejectWithReason:makeTimeoutError()];
         return self;
     }
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, s_sync_queue);
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, Shared.sync_queue);
     dispatch_source_set_event_handler(timer, ^{
         dispatch_source_cancel(timer); // one shot timer
         [self rejectWithReason:makeTimeoutError()];
@@ -393,7 +277,7 @@ namespace {
                               DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
     dispatch_resume(timer);
 
-    [self registerWithQueue:s_sync_queue onSuccess:^id(id result) {
+    [self registerWithQueue:Shared.sync_queue onSuccess:^id(id result) {
         dispatch_source_cancel(timer);
         RX_DISPATCH_RELEASE(timer);
         return nil;
@@ -410,7 +294,7 @@ namespace {
 
 
 - (void) synced_resolveWithResult:(id)result {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     if (result == nil) {
         [self synced_fulfillWithValue:nil];
     }
@@ -421,7 +305,7 @@ namespace {
 
 
 - (void) synced_fulfillWithValue:(id)result {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     if (_state != Pending) {
         return;
     }
@@ -436,7 +320,7 @@ namespace {
 
 
 - (void) synced_rejectWithReason:(id)reason {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     if (_state != Pending) {
         return;
     }
@@ -456,7 +340,7 @@ namespace {
 
 
 - (void) synced_cancelWithReason:(id)reason {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     if (_state == Cancelled) {
         return;
     }
@@ -482,13 +366,13 @@ namespace {
         // In order to cancel the possibly already resolved children promises,
         // we need to send cancel to each promise in the children list:
         void const* key = (__bridge void const*)(self);
-        auto range = s_assocs.equal_range(key);
+        auto range = Shared.assocs.equal_range(key);
         while (range.first != range.second) {
             DLogDebug(@"%p forwarding cancel to %p", key, (__bridge void*)((*(range.first)).second));
             [(*(range.first)).second cancel];
             ++range.first;
         }
-        s_assocs.erase(key);
+        Shared.assocs.erase(key);
     }
 }
 
@@ -508,11 +392,11 @@ namespace {
     __weak RXPromise* weakReturnedPromise = returnedPromise;
     __block RXPromise* blockSelf = self;
     if (target_queue == nil) {
-        target_queue = s_default_concurrent_queue;
+        target_queue = Shared.default_concurrent_queue;
     }
     dispatch_queue_t handler_queue = [self handlerQueue];
     assert(handler_queue);
-    assert(handler_queue == s_sync_queue || handler_queue == _handler_queue);
+    assert(handler_queue == Shared.sync_queue || handler_queue == _handler_queue);
     DLogInfo(@"promise %p register handlers %p %p running on %s returning promise: %p",
              (__bridge void*)(blockSelf), (__bridge void*)(onSuccess), (__bridge void*)(onFailure),
              dispatch_queue_get_label(target_queue),
@@ -537,12 +421,12 @@ namespace {
                 else {
                     DLogInfo(@"%p add child %p", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
                     dispatch_block_t block = ^{
-                        s_assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
+                        Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
                     };
-                    if (target_queue == s_sync_queue) {
+                    if (target_queue == Shared.sync_queue) {
                         block();
                     } else {
-                        dispatch_barrier_sync(s_sync_queue, block);  // MUST be synchronous!
+                        dispatch_barrier_sync(Shared.sync_queue, block);  // MUST be synchronous!
                     }
                     //  §2.2: if parent is fulfilled, fulfill the "returned promise" with the same value
                     //  §2.3: if parent is rejected, reject the "returned promise" with the same value.
@@ -572,8 +456,8 @@ namespace {
     RX_DISPATCH_RETAIN(target_queue);
     dispatch_async(handler_queue, ^{
         // A handler fires:
-        assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
-        if (target_queue == s_sync_queue) {
+        assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
+        if (target_queue == Shared.sync_queue) {
             handlerBlock();
         }
         else {
@@ -638,11 +522,11 @@ namespace {
 
 - (id) getWithTimeout:(NSTimeInterval)timeout
 {
-    assert(dispatch_get_specific(QueueID) != s_sync_queue_id); // Must not execute on the private sync queue!
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) != rxpromise::shared::sync_queue_id); // Must not execute on the private sync queue!
     
     __block id result;
     __block dispatch_semaphore_t sem = NULL;
-    dispatch_sync(s_sync_queue, ^{
+    dispatch_sync(Shared.sync_queue, ^{
         if (_state != Pending) {
             result = _result;
         } else {
@@ -656,7 +540,7 @@ namespace {
         // result was not yet availbale: queue a handler
         dispatch_time_t t = timeout < 0 ? DISPATCH_TIME_FOREVER : dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
         if (dispatch_semaphore_wait(sem, t) == 0) { // wait until handler_queue will be resumed ...
-            dispatch_sync(s_sync_queue, ^{  // safely retrieve _result
+            dispatch_sync(Shared.sync_queue, ^{  // safely retrieve _result
                 result = _result;
             });
         }
@@ -672,7 +556,7 @@ namespace {
 
 
 - (id) get2 {
-    assert(dispatch_get_specific(QueueID) != s_sync_queue_id); // Must not execute on the private sync queue!
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) != rxpromise::shared::sync_queue_id); // Must not execute on the private sync queue!
     __block id result;
     dispatch_semaphore_t avail = dispatch_semaphore_create(0);
     dispatch_async([self handlerQueue], ^{
@@ -719,11 +603,11 @@ namespace {
 
 - (void) bind:(RXPromise*) other
 {
-    if (dispatch_get_specific(QueueID) == s_sync_queue_id) {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         [self synced_bind:other];
     }
     else {
-        dispatch_barrier_async(s_sync_queue, ^{
+        dispatch_barrier_async(Shared.sync_queue, ^{
             [self synced_bind:other];
         });
     }
@@ -741,7 +625,7 @@ namespace {
 // cancellation!
 - (void) synced_bind:(RXPromise*) other {
     assert(other != nil);
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
 
     if (_state == Cancelled) {
         [other cancelWithReason:_result];
@@ -763,13 +647,13 @@ namespace {
             break;
         default: {
             __weak RXPromise* weakSelf = self;
-            [other registerWithQueue:s_sync_queue onSuccess:^id(id result) {
-                assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+            [other registerWithQueue:Shared.sync_queue onSuccess:^id(id result) {
+                assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
                 RXPromise* strongSelf = weakSelf;
                 [strongSelf synced_fulfillWithValue:result];
                 return nil;
             } onFailure:^id(NSError *error) {
-                assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+                assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
                 RXPromise* strongSelf = weakSelf;
                 if (other.isCancelled)
                     [strongSelf synced_cancelWithReason:error];
@@ -782,8 +666,8 @@ namespace {
     }
     __weak RXPromise* weakSelf = self;
     __weak RXPromise* weakOther = other;
-    [self registerWithQueue:s_sync_queue onSuccess:nil onFailure:^id(NSError *error) {
-        assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    [self registerWithQueue:Shared.sync_queue onSuccess:nil onFailure:^id(NSError *error) {
+        assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
         RXPromise* strongSelf = weakSelf;
         if (strongSelf) {
             if (strongSelf->_state == Cancelled) {
@@ -799,119 +683,12 @@ namespace {
 
 
 
-#pragma mark -
-
-
-+(instancetype) all:(NSArray*)promises
-{
-    RXPromise* promise = [[self alloc] init];
-    __block NSUInteger count = [promises count];
-    if (count == 0) {
-        [promise rejectWithReason:@"parameter error"];
-        return promise;
-    }
-    promise_completionHandler_t onSuccess = ^id(id result) {
-        --count;
-        if (count == 0) {
-            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
-            for (RXPromise* p in promises) {
-                [results addObject:[p synced_peakResult]];
-            }
-            [promise fulfillWithValue:results];
-        }
-        return nil;
-    };
-    promise_errorHandler_t onError = ^id(NSError* error) {
-        [promise rejectWithReason:error];
-        return nil;
-    };
-
-    for (RXPromise* p in promises) {
-        p.thenOn(s_sync_queue, onSuccess, onError);
-    }
-    promise.thenOn(s_sync_queue, nil, ^id(NSError*error){
-        for (RXPromise* p in promises) {
-            [p cancelWithReason:error];
-        }
-        return nil;
-    });
-    
-    return promise;
-}
-
-
-+ (instancetype) any:(NSArray*)promises
-{
-    RXPromise* promise = [[self alloc] init];
-    __block int count = (int)[promises count];
-    if (count == 0) {
-        [promise rejectWithReason:@"parameter error"];
-        return promise;
-    }
-    promise_completionHandler_t onSuccess = ^(id result){
-        for (RXPromise* p in promises) {
-            [p cancel];
-        }
-        [promise fulfillWithValue:result];
-        return result;
-    };
-    promise_errorHandler_t onError = ^(NSError* error) {
-        --count;
-        if (count == 0) {
-            [promise rejectWithReason:@"none succeeded"];
-        }
-        return error;
-    };
-    
-    for (RXPromise* p in promises) {
-        p.thenOn(s_sync_queue, onSuccess, onError);
-    }
-    promise.thenOn(s_sync_queue, nil, ^id(NSError*error){
-        for (RXPromise* p in promises) {
-            [p cancelWithReason:error];
-        }
-        return error;
-    });
-    
-    return promise;
-}
-
-
-+ (instancetype) sequence:(NSArray*)inputs task:(rxp_unary_task)task
-{
-    NSParameterAssert(task);
-    assert(dispatch_get_specific(QueueID) != s_sync_queue_id);
-    RXPromise_init();
-    NSEnumerator* iter = [inputs objectEnumerator];
-
-    // A promise wrapper holding the current task promise:
-    RXPromiseWrapper* currentTaskPromise = [[RXPromiseWrapper alloc] init];
-    
-    // Create the returned promise:
-    RXPromise* returnedPromise = [[self alloc] init];
-    // Register an error handler which cancels the current task's root:
-    returnedPromise.thenOn(s_sync_queue, nil, ^id(NSError*error){
-        DLogInfo(@"cancelling task promise's root: %@", root);
-        [currentTaskPromise.promise.root cancelWithReason:error];
-        return error;
-    });
-    
-    dispatch_sync(s_sync_queue, ^{
-        sync_sequence(iter, returnedPromise, currentTaskPromise, task);
-    });
-    return returnedPromise;
-}
-
-
-
-
-
 
 #pragma mark -
 
 - (NSString*) description {
     __block NSString* desc;
-    dispatch_sync(s_sync_queue, ^{
+    dispatch_sync(Shared.sync_queue, ^{
         desc = [self rxp_descriptionLevel:0];
     });
     return desc;
@@ -933,7 +710,7 @@ namespace {
                               :@"pending")
                              ];
     void* key = (__bridge void*)(self);
-    auto range = s_assocs.equal_range(key);
+    auto range = Shared.assocs.equal_range(key);
     if (range.first != range.second) {
         [desc appendString:[NSString stringWithFormat:@", children: [\n"]];
         while (range.first != range.second) {
@@ -956,7 +733,7 @@ namespace {
 @implementation RXPromise (RXResolver)
 - (void) rxp_resolvePromise:(RXPromise*)promise
 {
-    assert(dispatch_get_specific(QueueID) == s_sync_queue_id);
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     [promise synced_bind:self];
 }
 @end

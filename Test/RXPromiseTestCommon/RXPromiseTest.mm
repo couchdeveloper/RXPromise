@@ -23,6 +23,7 @@
 #import <XCTest/XCTest.h>
 
 #import <RXPromise/RXPromise.h>
+#import <RXPromise/RXPromise+RXExtension.h>
 #include <libkern/OSAtomic.h>
 
 #import "RXTimer.h"
@@ -3992,7 +3993,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
                                          }];
     
     finished.then(nil, ^id(NSError*error){
-        NSLog(@"sequence failed due to: %@", error);
+        //NSLog(@"sequence failed due to: %@", error);
         return nil;
     });
     
@@ -4011,6 +4012,91 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
 }
 
+
+- (void) testRepeat
+{
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSMutableString* resultString = [[NSMutableString alloc] init];
+    const NSUInteger count = [inputs count];
+    __block NSUInteger i = 0;
+    [[RXPromise repeat:^RXPromise *{
+        if (i >= count) {
+            return nil;
+        }
+        return [RXPromise promiseWithTask:^id{
+            NSString* str = [inputs[i++] capitalizedString];
+            [resultString appendString:str];
+            return @"OK";
+        }];
+    }] runLoopWait];
+    
+    XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
+}
+
+- (void) testWhileWithCancellation {
+    
+    NSMutableString* resultString = [[NSMutableString alloc] init];
+
+    RXPromise* didCancelPromise = [RXPromise new];
+    
+    // Define a cancelable task:
+    typedef RXPromise* (^task_t)(NSString* input);
+    task_t task = ^RXPromise*(NSString* input)
+    {
+        RXPromise* taskPromise = [[RXPromise alloc] init];
+        // Define a block which gets executed when the timer fires:
+        RXTimerHandler block = ^(RXTimer* timer) {
+            NSString* result = [input capitalizedString];
+            [resultString appendString:result];
+            NSLog(@"processed with result: %@", result);
+            [taskPromise fulfillWithValue:result];
+        };
+        NSLog(@"processing input: %@", input);
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
+                                                             tolorance:0
+                                                                 queue:dispatch_get_global_queue(0, 0)
+                                                                 block:block];
+        // Catch any errors - especially "cancel" - send to the task promise, in which case we cancel the timer:
+        taskPromise.then(nil, ^id(NSError*error){
+            [timer cancel];
+            [didCancelPromise fulfillWithValue:@"OK - did cancel"];
+            return nil;
+        });
+        [timer start];
+        return taskPromise;
+    };
+    
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    const NSUInteger count = [inputs count];
+    __block NSUInteger i = 0;
+    
+    RXPromise* finished = [RXPromise repeat:^RXPromise *{
+        if (i >= count) {
+            return nil;
+        }
+        return task(inputs[i++]);
+    }];
+
+    finished.then(nil, ^id(NSError*error){
+        //NSLog(@"repeat failed due to: %@", error);
+        return nil;
+    });
+    
+    
+    [finished setTimeout:0.125];
+    [finished runLoopWait];
+    
+    [[didCancelPromise setTimeout:1.0].then(^id(id result){
+        XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
+        return result;
+    }, ^id(NSError* error){
+        XCTFail(@"unexpected timeout");
+        return error;
+    }) wait];
+    
+    XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
+    
+}
 
 
 @end

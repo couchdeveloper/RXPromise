@@ -17,6 +17,9 @@
       location = "group:CHANGES.md">
    </FileRef>
    <FileRef
+      location = "group:INSTALL.md">
+   </FileRef>
+   <FileRef
       location = "group:README.md">
    </FileRef>
 </Workspace>

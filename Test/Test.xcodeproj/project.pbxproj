@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A129D02318300AE4008E6DA1 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A129D02218300AE4008E6DA1 /* libRXPromise.a */; };
 		A173069E17F0C0F400A1AD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A173069F17F0C0F400A1AD7B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C67B17F05D3C001D2CDC /* CoreGraphics.framework */; };
 		A17306A017F0C0F400A1AD7B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
@@ -21,7 +22,6 @@
 		A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
 		A17306DD17F0C76C00A1AD7B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A17306DB17F0C76C00A1AD7B /* InfoPlist.strings */; };
-		A17306E617F0C79800A1AD7B /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C62017F04F0B001D2CDC /* libRXPromise.a */; };
 		A1A7DBB717F320D20073A2DE /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61B17F04DD7001D2CDC /* RXTimer.m */; };
 		A1A7DBB817F320D80073A2DE /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61B17F04DD7001D2CDC /* RXTimer.m */; };
 		A1A7DBB917F32E920073A2DE /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
@@ -42,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A129D02218300AE4008E6DA1 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release-iphoneos/libRXPromise.a"; sourceTree = "<group>"; };
 		A173069D17F0C0F400A1AD7B /* TestDummy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDummy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A17306A317F0C0F400A1AD7B /* TestDummy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TestDummy-Info.plist"; sourceTree = "<group>"; };
 		A17306A517F0C0F400A1AD7B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -90,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A129D02318300AE4008E6DA1 /* libRXPromise.a in Frameworks */,
 				A173069F17F0C0F400A1AD7B /* CoreGraphics.framework in Frameworks */,
 				A17306A017F0C0F400A1AD7B /* UIKit.framework in Frameworks */,
 				A173069E17F0C0F400A1AD7B /* Foundation.framework in Frameworks */,
@@ -100,7 +102,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A17306E617F0C79800A1AD7B /* libRXPromise.a in Frameworks */,
 				A17306D517F0C76C00A1AD7B /* XCTest.framework in Frameworks */,
 				A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */,
 				A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */,
@@ -190,6 +191,7 @@
 		A1C0C5EA17F04CAB001D2CDC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A129D02218300AE4008E6DA1 /* libRXPromise.a */,
 				A1C0C62017F04F0B001D2CDC /* libRXPromise.a */,
 				A1C0C61E17F04EFC001D2CDC /* RXPromise.framework */,
 				A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */,
@@ -508,6 +510,10 @@
 				INFOPLIST_FILE = "TestDummy/TestDummy-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -552,6 +558,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "TestDummy/TestDummy-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

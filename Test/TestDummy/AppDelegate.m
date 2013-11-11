@@ -7,11 +7,20 @@
 //
 
 #import "AppDelegate.h"
+#import <RXPromise/RXPromise.h>
+#import <RXPromise/RXPromise+RXExtension.h>
+
+
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    RXPromise* promise = [[RXPromise alloc] init];
+    promise = nil;
+    [RXPromise all:@[]];
+    
+    
     // Override point for customization after application launch.
     return YES;
 }

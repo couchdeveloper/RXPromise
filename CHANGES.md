@@ -304,3 +304,62 @@ Likewise, inherited class factory methods now return on object of the subclass, 
 
 - Removed LTO optimization and added 64-bit architecturefrom iOS static library project.
 
+
+
+
+### Version 0.10.0 beta (2013-11-11)
+
+
+#### Added `RXPromise+RXExtension` module
+
+
+The library no longer will be comprised by a single file.
+
+Now, the core functionality of a RXPromise remains in module `RXPromise.m` and the corresponding header file. All additional "extensions" like the class methods `+all:`, `+any:`, `+sequence:task:` and `+repeat:` have been moved into a Category "RXExtension" and into a new file: `RXPromise+RXExtension.m` along with a corresponding header file.
+
+Using the extension methods requires to import the header file `RXPromise+RXExtension.h`.
+
+
+
+#### New APIs
+
+##### Added a class method `while:`:
+
+    typedef RXPromise* (^rxp_nullary_task)();
+    
+    + (instancetype) repeat: (rxp_nullary_task)block;
+
+
+  This class method asynchronously executes the block in a loop until either the
+  tasks returns `nil` signaling the end of the while loop, or the returned promise
+  will be rejected.
+  
+  The API is available in the RXExtension category.
+
+
+##### Example
+ 
+    NSArray* urls = ...;
+    const NSUInteger count = [urls count];
+    __block NSUInteger i = 0;
+    [RXPromise repeat:^RXPromise *{
+        if (i >= count) {
+            return nil;
+        }
+        return [self fetchImageWithURL:urls[i]].then(^id(id image){
+            [self cacheImage:image withURL:[urls[i]]];
+            ++i;
+            return nil;
+        }, nil);
+    }];
+
+
+    
+    
+#### Changes
+
+ -  Improved INSTALL documentation.
+
+
+
+    

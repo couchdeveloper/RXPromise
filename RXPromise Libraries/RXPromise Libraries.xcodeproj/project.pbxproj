@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A124D1EE182F902300F35B28 /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A124D1EF182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
+		A124D1F0182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
+		A124D1F4182F942D00F35B28 /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1F2182F942D00F35B28 /* RXPromise+Private.h */; };
+		A129D01F182FB831008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; };
+		A129D020182FB83B008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; };
+		A129D0211830095C008E6DA1 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
 		A154E686175E20960041234C /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
 		A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19A61759E879008E3F63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A19C19A41759E879008E3F63 /* InfoPlist.strings */; };
@@ -27,6 +34,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				A129D01F182FB831008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */,
 				A154E686175E20960041234C /* RXPromise.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -37,6 +45,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				A129D020182FB83B008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */,
 				A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -44,6 +53,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+RXExtension.h"; sourceTree = "<group>"; };
+		A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RXPromise+RXExtension.mm"; sourceTree = "<group>"; };
+		A124D1F2182F942D00F35B28 /* RXPromise+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+Private.h"; sourceTree = "<group>"; };
 		A173066517F0C08800A1AD7B /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		A173066717F0C08800A1AD7B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A173068517F0C08800A1AD7B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -200,9 +212,12 @@
 		A19C19CE1759EA3B008E3F63 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				A19C19D11759EA3B008E3F63 /* utility */,
 				A19C19CF1759EA3B008E3F63 /* RXPromise.h */,
 				A19C19D01759EA3B008E3F63 /* RXPromise.mm */,
-				A19C19D11759EA3B008E3F63 /* utility */,
+				A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */,
+				A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */,
+				A124D1F2182F942D00F35B28 /* RXPromise+Private.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -236,7 +251,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A124D1F4182F942D00F35B28 /* RXPromise+Private.h in Headers */,
 				A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */,
+				A124D1EE182F902300F35B28 /* RXPromise+RXExtension.h in Headers */,
 				A19C19D81759EA3B008E3F63 /* DLog.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -341,6 +358,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A19C19D51759EA3B008E3F63 /* RXPromise.mm in Sources */,
+				A124D1EF182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A19C19D61759EA3B008E3F63 /* RXPromise.mm in Sources */,
+				A124D1F0182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,6 +375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A129D0211830095C008E6DA1 /* RXPromise+RXExtension.mm in Sources */,
 				A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
