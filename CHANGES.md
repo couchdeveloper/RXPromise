@@ -323,7 +323,7 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 
 #### New APIs
 
-##### Added a class method `while:`:
+##### Added a class method `repeat:`:
 
     typedef RXPromise* (^rxp_nullary_task)();
     
@@ -331,7 +331,7 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 
 
   This class method asynchronously executes the block in a loop until either the
-  tasks returns `nil` signaling the end of the while loop, or the returned promise
+  tasks returns `nil` signaling the end of the repeat loop, or the returned promise
   will be rejected.
   
   The API is available in the RXExtension category.
@@ -362,4 +362,10 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 
 
 
+
+### Version 0.10.1 beta (2013-11-21)
+
+#### Bug Fixes
+
+Fixed import directives. This caused linker issues when including the headers and sources directly into a project.
     
