@@ -15,7 +15,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <RXPromise/RXPromise.h>
+#import "RXPromise.h"
 #include <map>
 
 #if TARGET_OS_IPHONE

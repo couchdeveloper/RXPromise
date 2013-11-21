@@ -15,7 +15,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <RXPromise/RXPromise.h>
+#import "RXPromise.h"
 
 typedef RXPromise* (^rxp_unary_task)(id input);
 typedef RXPromise* (^rxp_nullary_task)();
