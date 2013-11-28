@@ -33,6 +33,7 @@
 #include <string>
 #include <array>
 #include <cstdio>
+#include <vector>
 
 #include "DLog.h"
 
@@ -3756,6 +3757,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 }
 
 
+// Since v0.10.2, A handler executed on a concurrent queue will use a barrier, which
+// effectively serializes handlers.
+
 -(void) testHandlersOfAParticularPromiseWithDedicatedConcurrentQueueMustRunConcurrently {
     
     // Handlers of a particular promise with a specified handler queue run on
@@ -3773,7 +3777,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     std::array<char, Count> expectedResults;
     for (int i = 0; i < Count; ++i) {
-        expectedResults[i] = char('A' + (Count - i - 1));  // "FEDCBA"
+        expectedResults[i] = char('A' + i);  // "ABCDEFGHIJ"
     };
     
     std::atomic_int c(0);
@@ -3795,7 +3799,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }
     
     XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    XCTAssertTrue(results == expectedResults, @"Handlers do not run in parallel");
+    XCTAssertTrue(results == expectedResults, @"Concurent queue does not use barriers");
 }
 
 
@@ -4033,7 +4037,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
 }
 
-- (void) testWhileWithCancellation {
+- (void) testRepeatWithCancellation {
     
     NSMutableString* resultString = [[NSMutableString alloc] init];
 
@@ -4097,6 +4101,59 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
     
 }
+
+
+- (void) testConcurrentHandlerQueue {
+    
+    typedef RXPromise* (^task_t)(int a);
+    
+    
+    task_t task = ^RXPromise* (int a) {
+        RXPromise* promise = [[RXPromise alloc] init];
+        double delayInSeconds = 1.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+            [promise fulfillWithValue:[NSNumber numberWithInt:a]];
+        });
+        return promise;
+    };
+    
+    const int N = 1000;
+    std::vector<int> vector;
+    for (int i = 1; i <= N; ++i) {
+        vector.push_back(i);
+    }
+    
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("concurrentQueue", DISPATCH_QUEUE_CONCURRENT);
+    __block int result = 0;
+    
+    dispatch_group_t group = dispatch_group_create();
+    
+    for (int i = 0; i < N; ++i) {
+        dispatch_group_enter(group);
+        task(vector[i]).thenOn(concurrentQueue, ^id(id a) {
+            int x = [a intValue];
+            result += x;
+            dispatch_group_leave(group);
+            return nil;
+        }, ^id(NSError*error){
+            dispatch_group_leave(group);
+            return error;
+        });
+    }
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    dispatch_group_notify(group, concurrentQueue, ^{
+        int expectedResult = (N+1)*N/2;
+        XCTAssertTrue(expectedResult == result, @"");
+        dispatch_semaphore_signal(sem);
+    });
+    
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+}
+
 
 
 @end

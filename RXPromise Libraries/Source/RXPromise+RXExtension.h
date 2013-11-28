@@ -17,15 +17,46 @@
 
 #import "RXPromise.h"
 
+/* Synopsis
+ 
+ typedef RXPromise* (^rxp_unary_task)(id input);
+ typedef RXPromise* (^rxp_nullary_task)();
+ 
+ 
+ @interface RXPromise (RXExtension)
+
+ + (RXPromise*) all:(NSArray*)promises;
+ + (RXPromise*) any:(NSArray*)promises;
+ + (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
+ + (instancetype) repeat:(rxp_nullary_task)block;
+ 
+ @end
+ 
+*/
+
+
+
+/**
+ @brief Type definition for an asynchronous block taking one input parameter and
+ returning a \c RXPromise.
+ */
 typedef RXPromise* (^rxp_unary_task)(id input);
+
+
+/**
+ @brief Type definition for an asynchronous block taking no parameter and
+ returning a \c RXPromise.
+ */
 typedef RXPromise* (^rxp_nullary_task)();
+
+
 
 
 @interface RXPromise (RXExtension)
 
-/*!
- @brief Method \a all returns a \p RXPromise object which will be resolved when all 
- promises in the array @p promises are fulfilled or when any of it will be rejected.
+/**
+ @brief Method \c all returns a \p RXPromise object which will be resolved when \a all
+ promises in the array @p promises are fulfilled or when \a any of it will be rejected.
  
  @discussion The returned promise' success handler(s) (if any) will be called when 
  all given promises have been resolved successfully. The parameter @p result of the 
@@ -67,7 +98,7 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 /*!
  @brief Method \p any returns a \c RXPromise object which will be resolved when
- any promise in the array \p promises is fulfilled or when all have been rejected.
+ \a any promise in the array \p promises is fulfilled or when \a all have been rejected.
  
  @discussion
  If any of the promises in the array will be fulfilled, all others will be send a

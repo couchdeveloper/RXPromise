@@ -59,11 +59,9 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 + (RXPromise*) promiseWithTask:(id(^)(void))task;
 + (RXPromise*) promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
  
-+ (RXPromise*) all:(NSArray*)promises;
-+ (RXPromise*) any:(NSArray*)promises;
-+ (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
- 
 @end
+ 
+ 
 
 @interface RXPromise(Deferred)
 

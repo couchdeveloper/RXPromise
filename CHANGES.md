@@ -369,3 +369,27 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 
 Fixed import directives. This caused linker issues when including the headers and sources directly into a project.
     
+
+
+### Version 0.10.2 beta (2013-11-28)
+
+#### Changes
+
+
+When the `thenOn` property is used to specify a *concurrent* dispatch queue where the handler will be executed, `RXPromise` will dispatch the handler blocks using a barrier as shown below:
+
+```objective-c
+if ([result isKindOfClass:[NSError class]) {
+   dispatch_barrier_async(queue, error_handler(result));
+}
+else {
+   dispatch_barrier_async(queue, success_handler(result));
+}
+```
+
+When using `dispatch_barrier_async` handlers will use the queue exclusively which makes concurrent write and read access from within handlers to shared resources thread-safe.
+
+
+When registering handlers with the `then` property, one should not make any assumptions about the execution context. Currently, the handlers will be executed on a private concurrent queue using `dispatch_async`. Thus, when accessing shared resources from within handlers registered with `then`, thread safety is not guaranteed.
+
+

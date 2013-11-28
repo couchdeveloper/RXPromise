@@ -457,11 +457,11 @@ namespace {
     dispatch_async(handler_queue, ^{
         // A handler fires:
         assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
-        if (target_queue == Shared.sync_queue) {
-            handlerBlock();
+        if (target_queue == Shared.default_concurrent_queue) {
+            dispatch_async(target_queue, handlerBlock);
         }
         else {
-            dispatch_async(target_queue, handlerBlock);
+            dispatch_barrier_async(target_queue, handlerBlock);
         }
     });
     RX_DISPATCH_RELEASE(handler_queue);

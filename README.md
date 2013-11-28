@@ -1,21 +1,17 @@
 # RXPromise
 
-An Objective-C Class which implements the Promises/A+ specification.
-
-For install instructions, please refere to: [INSTALL](INSTALL.md)
-
-
-
-> **Important:**  There are *BREAKING CHANGES* in Version 0.9 beta. Please read the [CHANGES](CHANGES.md) file.
-
+A thread safe implementation of the Promises/A+ specification in Objective-C with extensions.
 
 
 
 ### Credits
 
-This implementation strives to be as close as possible to the [Promises/A+](https://github.com/promises-aplus/promises-spec) specification which has brought to us from the Javascript community.
+RXPromise has been inspired by the  [Promises/A+](https://github.com/promises-aplus/promises-spec) specification which defines an open standard for robust and interoperable implementations of promises in JavaScript.
+
 Thus, much of the credits go to their work and to those smart people they based their work on!
 
+### How to Install
+For install instructions, please refer to: [INSTALL](INSTALL.md)
 
 
 ## Contents
@@ -36,38 +32,72 @@ Thus, much of the credits go to their work and to those smart people they based 
 -----
 ## Overview
 
-A _promise_ is a lightweight primitive to manage asynchronous patterns. Basically, a promise represents the _eventual result_ of an asynchronous function or method. A similar concept are _futures_. For a more detailed introduction you may read the wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises).
+A _promise_ is a lightweight object which helps to solve asynchronous programming problems. A promise represents the _eventual result_ of an asynchronous operation. Equal and similar concepts are also called _future_, _deferred_ or _delay_. A more detailed introduction can be found in the wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises).
 
-This implementation follows a "non-blocking" style. That means, when utilizing RXPromise's principal methods, an implementation will resemble a purely asynchronous and thread-safe system, where no thread is ever blocked. (There are a few exceptions where certain miscellaneous methods *do* block).
+`RXPrimise` strives to meet the requirements specified in the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) as close as possible. The specification was originally written for the JavaScript language but the architecture and the design can be implemented in virtually any language. 
 
-More specifically, this implementation strives to be as close as possible to the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec). The Promises/A+ specification defines the API and behavior of a _promise_. The specification was originally written for the Javascript language but the architecture and the design can be implemented in virtually any language.
+`RXPromise` implementation follows a "non-blocking" style. `RXPromise`'s principal methods are all *asynchronous and thread-safe*. That means, a particular implementation utilizing `RXPromise` will resemble a purely *asynchronous* and also *thread-safe* system, where no thread is ever blocked. (There are a few exceptions where certain miscellaneous methods *do* block).
+
+In addition to the requirements stated in the Promise/A++ specification the `RXPrimise` library contains a number of useful extensions. For example, it's possible to specify the execution context of the success and failure handler which helps to synchronize access to shared resources. 
+
+Additionally, `RXPromise` supports *cancellation*, which is invaluable in virtual every real application. And furthermore, there are a couple of helper methods which makes it especially easy to manage a list or a group of asynchronous operations. 
 
 
-Promises will be invaluable when dealing with asynchronous architectures which make the code effectively look like it were synchronous. When a synchronous function returns a value, a asynchronous function will return a promise whose value represents the eventual result of the asynchronous function, including a possible error:
+#### Why do we need promises?
 
-Synchronous style:
+Promises will be invaluable when dealing with *asynchronous* architectures which make the code effectively look like it were *synchronous*. 
+
+When a synchronous function returns a *value*, an asynchronous function will return a *promise* whose value represents the eventual result of the asynchronous function (possibly an error, too):
+
+**Synchronous style:**
 
     -(NSArray*) synchronousFetchUsersWithParams:(NSDictionary*)parameters error:(NSError**)error;
 
 
-Asynchronous style:
+**Asynchronous style:**
 
     -(RXPromise*) fetchUsersWithParams:(NSDictionary*)parameters;
 
-Assuming there is an asynchronous task which actually performs and evaluates the result of the methods, the synchronous method will block the current thread and put it into a suspended state until the result ist available and eventually returned. The asynchronous method will not block the current thread, instead it will return immediately - yet the *actual* result is not yet evailable. The _eventual result_ will be represented by the promise.
+Assuming there is an underlying asynchronous task which actually performs and evaluates the result of the method, the synchronous method will *block* the current thread and put it into a suspended state until the result is available. Then the thread resumes and returns the result. 
 
-The returned promise will be created by the underlaying _asynchronous task_ - an "asynchronous result provider" within the asynchronous method `fetchUsersWithParams:error:` and then returned to the client. The "asynchronous result provider" is an object whose lifetime extends up to the point at which it has finished its task and has the result available. When the result is available, or when the task failed to compute, the "asynchronous result provider" _resolves_ its promise with the result of the task or the reason of the failure.
+In contrast, the asynchronous method will not block the current thread, instead it will return *immediately* - yet the *actual* result is not yet available. The _eventual result_ will be represented by the promise.
 
-A promise is initially in the state _pending_ - that is, it is not resolved yet. Then, at some indeterminable time it will be resolved with either the result value or with a reason for the failure. After it has been resolved, its state will then be either _fulfilled_ or _rejected_.
+The result can be obtained by "registering" success respectively failure handlers:
 
-A promise can only be resolved once. Once a promise has been resolved its state cannot change anymore. Further attempts to fulfill or reject a resolved promise will have no effect.
+**Obtaining the eventual result:**
 
-The "consumer" (the client) of the asynchronous task can setup handlers (blocks) which will be invoked when the promise has been resolved. There are two kinds of handlers: the _completion handler_ which will be invoked when the promise has been fulfilled and the _error handler_ which will be invoked when the promise has been rejected.
+Registering the handlers will be achieved with the `then` respectively the `thenOn` property:
+
+`promise.then(<success_handler>, <error_handler>);`
+
+The *success handler* has a parameter `result` of type `id` which will be passed through and which is the actual result value of the asynchronous task.
+
+Naturally, the *error handler* has a parameter `error` of type `NSError*` which contains the error returned by the asynchronous task when it failed.
+
+For example:
+
+    promise.then(^(id result){
+        ...
+        return nil;
+    }, ^id(NSError* error){
+        ...
+        return nil;
+    });
+
+The signature of both handlers is described below in [The Principal API of the Promise](the_principal_api_of_the_promise).
+
+The returned promise will be created by the underlying _asynchronous task_ - an "asynchronous result provider" within the asynchronous method `fetchUsersWithParams:error:` and then immediately returned to the client. The "asynchronous result provider" is an object whose lifetime extends up to the point at which it has finished its task and has the result available. When the result is available, or when the task failed to compute, the "asynchronous result provider" _resolves_ its promise with the result of the task or the reason of the failure.
+
+A promise is initially in the state _pending_ - that is, it is not *resolved* yet. Then, at some indeterminable time it will be resolved with either the result value or with a reason for the failure. After it has been resolved, its state will then be either _fulfilled_ or _rejected_.
+
+A promise can be resolved only *once*. Once a promise has been resolved its state cannot change anymore. Further attempts to *fulfill* or *reject* a resolved promise will have no effect.
+
+The "consumer" (the client) of the asynchronous task can setup *handlers* (blocks) which will be invoked when the promise has been resolved. There are two kinds of handlers: the _completion handler_ which will be invoked when the promise has been fulfilled and the _error handler_ which will be invoked when the promise has been rejected.
 
 
 #### Example
 
-Suppose we want to implement an utility method `fetchUsers` which should download users using a network request method, get a representation as an `NSArray` of `Users`, and finally update a table view. Loading data from a network request typically may take undeterminable time to finish. Thus, virtually all reasonable approaches employ an asynchronous style. But lets assume we would have a synchronous convenient method `synchronousFetchUsersWithParams::error:`.  
+Suppose we want to implement an utility method `fetchUsers` which should download users using a network request method, get a representation as an `NSArray` of `Users`, and finally update a table view. Loading data from a network request typically may take indeterminable time to finish. Thus, virtually all reasonable approaches employ an asynchronous style. But lets assume we would have a synchronous convenient method `synchronousFetchUsersWithParams::error:`.  
 
 Our utility method `fetchUser` has to be asynchronous, since it will be invoked from the main thread, and the main thread should never block. Thus, a viable implementation utilizing a synchronous convenient method `synchronousFetchUsersWithParams:error:`may look as follows:
 
@@ -178,7 +208,7 @@ When the asynchronous function eventually succeeds or fails the asynchronous ser
 That means, in order to resolve the promise when the task succeeded the asynchronous service provider must send the promise a _fulfillWithValue:_ message whose parameter represents the result value of the asynchronous function. Otherwise, if the asynchronous function fails, the asynchronous service provider must send the promise a _rejectWithReason:_ message whose parameter represents the reason for the failure, possibly an `NSError` object.
 
 
-An example how an asynchronous method could be implement which uses a subclass of a `NSOperation` as the underlaying asynchronous service provider is illustrated below:
+An example how an asynchronous method could be implement which uses a subclass of a `NSOperation` as the underlying asynchronous service provider is illustrated below:
 
 ```objective-c
 - (RXPromise*) doSomethingAsync
@@ -285,8 +315,9 @@ The client may now define what shall happen _when_ this asynchronous method succ
 [Contents ^](#contents)
 
 ----
-## Chaining
+## Chaining  
 
+(also *Continuation*)
 
 The awesome feature of this `thenOn` and `then` property is that it is a block which itself returns a promise. That way, it becomes possible to _chain_ several asynchronous tasks together, like in words, it performs this:
 
@@ -357,7 +388,28 @@ Notice, that the statement will execute completely asynchronously! Yet, effectiv
 ----
 ## Error Propagation
 
-If any of the asynchronous tasks fails, the error will be automatically propagated forward to the promise _endResult_ - even when there are no error handlers defined. Subsequent tasks will not be started since the completion handler hasn't been invoked. So, it's not necessary to define error handlers, unless you want explicitly _catch_ them and handle them where they occurred.
+In a *Continuation*, if any of the asynchronous tasks fails, the error will be automatically *propagated forward* to the promise _endResult_ - even when there are no error handlers defined. Subsequent tasks will not be started since the completion handler hasn't been invoked. So, it's not necessary to define error handlers, unless you want explicitly _catch_ them and handle them where they occurred.
+
+For example:
+
+```objective-c
+    [self async_A]
+    .then(^id(id result) {
+         return [self async_B:result];
+    }, nil)
+    .then(^id(id result) {
+        return [self async_C:result];
+    }, nil)
+    .then(^id(id result) {
+        // ... do something with result
+        return nil;
+    }, ^id(NSError* error) {
+        // handle error
+        return nil;
+    });
+```
+
+In the above continuation, none of the error handlers is defined, except for the last promise (note: `then`returns a promise). If either `async_A`, `async_B` *or* `async_D` the error will be propagated forward and handled by the next child promise which implements the error handler.
 
 [Contents ^](#contents)
 
@@ -365,6 +417,30 @@ If any of the asynchronous tasks fails, the error will be automatically propagat
 ## Controlling the Handler's Paths
 
 You may want to catch errors when you want to and are able to recover from an error and proceed normally. In this case, return something different than an error object - possibly a promise from any other asynchronous task - and the flow continues with the "success path".
+
+Example:
+
+```objective-c
+    [self async_A]
+    .then(^id(id result) {
+         return [self async_B:result];
+    }, ^(NSError* error){
+        // ignore that error
+        return @"Continue";
+    })
+    .then(^id(id result) {
+        return [self async_C:result];
+    }, nil)
+    .then(^id(id result) {
+        // ... do something with result
+        return nil;
+    }, ^id(NSError* error) {
+        // handle error
+        return nil;
+    });
+```
+
+In the sample above, if `async_A`fails, it will be *caught* in the next error handler which ignores the error and returns a string constant: `@"Continue"`. Since this is not an `NSError` object, the Continuation proceeds with invoking `async_C` which gets passed a result parameter `@Continue"`.
 
 Likewise, if you feel the result from a completion handler is bogus you can interrupt the "success path" through simply returning an `NSError` object and the flow subsequently takes the "error path".
 
@@ -484,10 +560,49 @@ A asynchronous service provider should - if it supports cancellation at all - ad
 ----
 ## Synchronization Guarantees For Shared Resources
 
-Concurrent access to shared resources is guaranteed to be safe for accesses from within handlers which execute on the _same serial execution context_".
-The execution context for handlers can be explicitly set via property `thenOn` (which shall be a serial dispatch queue in this case).
+All methods of `RXPromise` are fully thread-safe. There are no restrictions *when* and *where* an instance or class method will be executed.
 
-Using property `then` will use an implicit _concurrent_ execution context. Thus, handlers will execute _concurrently_ and access to shared resources is NOT guaranteed to be safe, unless the handler block implements appropriate synchronization itself!
+However, one needs to take care about when accessing shared resources in the handler blocks:
 
+When using the `then` property in order to register the success and error handler block, the execution context where the handler will be eventually executed is *private*. That means, the thread where the block gets executed is implementation defined. In fact,
+`RXPromise` will use a private _concurrent_ execution context. 
+
+From this it follows, that if the the `then` propety is used for registering handlers, handlers will execute _concurrently_ and concurrent access to shared resources from within handlers is not automatically guaranteed to be thread-safe.
+
+
+### Making acccesses to shared resources thread-safe
+
+Concurrent access to shared resources can be made easily thread-safe from within handlers when the execution context (a dispatch queue) will be *explicitly* specified through the `thenOn` property:
+
+    [self doSomethingAsync].thenOn(dispatch_queue, success_block, error_block);
+
+The dispatch queue `dispatch_queue` specifies where the handler block will be executed. The queue *can* be a *serial* or a *concurrent* dispatch queue. When it is a serial queue, the handler block will automatically ensure thread-safety when *all* accesses to this shared resource will be exeuted using that queue. This *MUST* also include all accesses which are not performed from within promise handlers.
+
+
+**Note:** 
+
+> `RXPromise` assumes *write* access to shared resources in its handlers.
+
+Using a *concurrent* dispatch queue requires more attention. `RXPromise` makes the assumption that a *write* access will be performed within a handler to a hypothetical shared resource. Now, when the queue is *concurrent* this requires a *barrier* in order to guarantee thread-safety. Thus, `RXPromise` will invoke the handler using function `dispatch_barrier_async`. 
+
+When a handler is about to be invoked which has been registered with the `thenOn` property which explicitly specifies a dispatch queue, `RXPromise` effectively executes the following:
+
+```objective-c
+if ([result isKindOfClass:[NSError class]) {
+   dispatch_barrier_async(queue, error_handler(result));
+}
+else {
+   dispatch_barrier_async(queue, success_handler(result));
+}
+```
+
+**Note:** 
+
+> `dispatch_barrier_async` guarantees that write accesses to shared resources are thread-safe.
+
+
+While `dispatch_barrier_async` guarantees thread-safety for a *concurrent* queue, it has a minor penalty when the handler would only perform *read* accesses to a shared resource. If the specified queue is a serial queue, `dispatch_barrier_async` is effectively the same as `dispatch_async`.
+
+  
 
 [Contents ^](#contents)
