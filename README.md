@@ -570,7 +570,7 @@ When using the `then` property in order to register the success and error handle
 From this it follows, that if the the `then` propety is used for registering handlers, handlers will execute _concurrently_ and concurrent access to shared resources from within handlers is not automatically guaranteed to be thread-safe.
 
 
-### Making acccesses to shared resources thread-safe
+#### Making access to shared resources thread-safe
 
 Concurrent access to shared resources can be made easily thread-safe from within handlers when the execution context (a dispatch queue) will be *explicitly* specified through the `thenOn` property:
 
