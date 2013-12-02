@@ -536,6 +536,42 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
  */
 @interface RXPromise(Deferred)
 
+
+/*!
+ @brief  Factory method which returns a new promise whose state is fulfilled or 
+ rejected depending on parameter \p result.
+ 
+ @discussion If result is kind of \c NSError, the promise will be in the \a rejected
+ state. Otherwise it will be in the \a fulfilled state. Parameter \p result MUST
+ NOT be a \c RXPromise object.
+ 
+ @param result The value which resolves the promise. This can be any object except a 
+ \c RXPromise object, or \c nil.
+ */
++ (instancetype) promiseWithResult:(id)result;
+
+
+/*!
+ @brief  Factory method which returns a new promise whose state is pending.
+ 
+ @discussion Resolvers may wish to detect if there is still a "subscriber" listening for
+ the eventual result without relying on the fact that the subscriber will cancel
+ the promise if it whishes to abandon the interest in the result. Those resolvers 
+ would keep a week reference as opposed to a strong reference to their associated
+ promise in order to resolve it. Thus a resolver can detect if there is no subscriber
+ interested in the result anymore when its promise gets deallocated. Those resolvers
+ use the block in order to get notified when this happens. Usually, the block
+ would perform a cancellation of resolver's asynchronous task.
+
+ @param deallocHandler a block which will be called when the promise will be
+ deallocated.
+ 
+ */
++ (instancetype) promiseWithDeallocHandler:(void(^)())deallocHandler;
+
+
+
+
 /*!
  @brief Returns a new promise whose state is pending.
  

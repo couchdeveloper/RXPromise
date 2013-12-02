@@ -96,12 +96,6 @@ namespace {
 @synthesize parent = _parent;
 
 
-// Designated Initializer
-- (instancetype)init {
-    self = [super init];
-    DLogInfo(@"create: %p", (__bridge void*)self);
-    return self;
-}
 
 - (void) dealloc {
     DLogInfo(@"dealloc: %p", (__bridge void*)self);
@@ -216,37 +210,6 @@ namespace {
     return Shared.sync_queue;
 }
 
-
-- (void) resolveWithResult:(id)result {
-    dispatch_barrier_async(Shared.sync_queue, ^{
-        [self synced_resolveWithResult:result];
-    });
-}
-
-
-- (void) fulfillWithValue:(id)value {
-    assert(![value isKindOfClass:[NSError class]]);
-    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
-        [self synced_fulfillWithValue:value];
-    }
-    else {
-        dispatch_barrier_sync(Shared.sync_queue, ^{
-            [self synced_fulfillWithValue:value];
-        });
-    }
-}
-
-
-- (void) rejectWithReason:(id)reason {
-    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
-        [self synced_rejectWithReason:reason];
-    }
-    else {
-        dispatch_barrier_sync(Shared.sync_queue, ^{
-            [self synced_rejectWithReason:reason];
-        });
-    }
-}
 
 
 - (void) cancel {
@@ -510,7 +473,7 @@ namespace {
     });
     return promise;
 }
-    
+
 
 
 #pragma mark -
@@ -762,3 +725,106 @@ namespace {
 @end
 
 
+
+
+#pragma mark - RXPromiseD
+
+
+@interface RXPromiseD : RXPromise
+- (instancetype) initWithDeallocHandler:(void(^)())deallocHandler;
+@end
+
+@implementation RXPromiseD {
+    dispatch_block_t _deallocHandler;
+}
+
+
+- (instancetype) initWithDeallocHandler:(void(^)())deallocHandler
+{
+    self = [super init];
+    if (self) {
+        _deallocHandler = [deallocHandler copy];
+    }
+    return self;
+}
+
+- (void) dealloc {
+    if (_deallocHandler) {
+        _deallocHandler();
+    }
+}
+
+@end
+
+
+
+
+#pragma mark - Deferred
+
+
+@implementation RXPromise (Deferred)
+
++ (instancetype) promiseWithResult:(id)result {
+    RXPromise* promise = [[self alloc] initWithResult:result];
+    return promise;
+}
+
++ (RXPromise*) promiseWithDeallocHandler:(void(^)())deallocHandler {
+    RXPromise* promise = [[RXPromiseD alloc] initWithDeallocHandler:deallocHandler];
+    return promise;
+}
+
+
+// Designated Initializer
+- (instancetype)init {
+    self = [super init];
+    DLogInfo(@"create: %p", (__bridge void*)self);
+    return self;
+}
+
+- (instancetype)initWithResult:(id)result {
+    NSParameterAssert(![result isKindOfClass:[RXPromise class]]);
+    id me = [super init];
+    if (me) {
+        _result = result;
+        _state = [result isKindOfClass:[NSError class]] ? Rejected : Fulfilled;
+    }
+    return me;
+}
+
+- (void) resolveWithResult:(id)result {
+    dispatch_barrier_async(Shared.sync_queue, ^{
+        [self synced_resolveWithResult:result];
+    });
+}
+
+
+- (void) fulfillWithValue:(id)value {
+    assert(![value isKindOfClass:[NSError class]]);
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
+        [self synced_fulfillWithValue:value];
+    }
+    else {
+        dispatch_barrier_sync(Shared.sync_queue, ^{
+            [self synced_fulfillWithValue:value];
+        });
+    }
+}
+
+
+- (void) rejectWithReason:(id)reason {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
+        [self synced_rejectWithReason:reason];
+    }
+    else {
+        dispatch_barrier_sync(Shared.sync_queue, ^{
+            [self synced_rejectWithReason:reason];
+        });
+    }
+}
+
+
+
+
+
+@end

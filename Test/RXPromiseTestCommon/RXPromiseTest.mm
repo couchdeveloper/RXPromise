@@ -435,6 +435,98 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }
 }
 
+-(void)testInitiallyResolvedPromiseShouldBeInFulfilledState {
+    @autoreleasepool {
+        
+        RXPromise* promise1 =  [RXPromise promiseWithResult:nil];
+        XCTAssertTrue(promise1.isPending == NO, @"promise.isPending == NO");
+        XCTAssertTrue(promise1.isCancelled == NO, @"promise.isCancelled == NO");
+        XCTAssertTrue(promise1.isFulfilled == YES, @"promise.isFulfilled == YES");
+        XCTAssertTrue(promise1.isRejected == NO, @"promise.isRejected == NO");
+        
+        RXPromise* promise2 =  [RXPromise promiseWithResult:@"OK"];
+        XCTAssertTrue(promise2.isPending == NO, @"promise.isPending == NO");
+        XCTAssertTrue(promise2.isCancelled == NO, @"promise.isCancelled == NO");
+        XCTAssertTrue(promise2.isFulfilled == YES, @"promise.isFulfilled == YES");
+        XCTAssertTrue(promise2.isRejected == NO, @"promise.isRejected == NO");
+    }
+}
+
+-(void)testInitiallyResolvedPromiseShouldBeInRejectedState {
+    @autoreleasepool {
+        NSError* error = [[NSError alloc] init];
+        RXPromise* promise1 = [RXPromise promiseWithResult:error];
+        XCTAssertTrue(promise1.isPending == NO, @"promise.isPending == NO");
+        XCTAssertTrue(promise1.isCancelled == NO, @"promise.isCancelled == NO");
+        XCTAssertTrue(promise1.isFulfilled == NO, @"promise.isFulfilled == NO");
+        XCTAssertTrue(promise1.isRejected == YES, @"promise.isRejected == YES");
+        
+    }
+}
+
+
+- (void)testPromiseWithDeallocHandler {
+
+    typedef RXPromise* (^task_t)(void);
+    
+    // Create an asynchronous task which will just keep a weak reference to its
+    // associated task. This task well never finish, unless there are no
+    // subscribers - or a timeout occurred.
+    // Returns a root promise which is not retained by the asychronous task.
+    
+    dispatch_semaphore_t finishedSem = dispatch_semaphore_create(0);
+    
+    task_t block = ^RXPromise*() {
+        dispatch_semaphore_t subscriberSem = dispatch_semaphore_create(0);
+        RXPromise* promise = [RXPromise promiseWithDeallocHandler:^{
+            dispatch_semaphore_signal(subscriberSem);
+        }];
+        XCTAssertNotNil(promise, @"");
+        __weak RXPromise* weakPromise = promise;
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+            double delayInSeconds = 3.0;
+            dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+            if (dispatch_semaphore_wait(subscriberSem, timeout) == 0) {
+                // Expected: task has no subscribers
+            }
+            else {
+                XCTFail(@"async task timeout");
+            }
+            RXPromise* strongPromise = weakPromise;
+            XCTAssertNil(strongPromise, @"");
+            if (strongPromise) {
+                [strongPromise rejectWithReason:@"should have no subscribers"];
+            }
+            dispatch_semaphore_signal(finishedSem);
+        });
+        
+        return promise;
+    };
+    
+    // Keep a subscriber for 0.1 seconds:
+    @autoreleasepool {
+        [block() setTimeout:0.1]
+        .then(^id(id result) {
+            return nil;
+        }, ^id(NSError* error) {
+            return nil;
+        });
+    }
+    
+    // When we reach here, the async task should terminate since there are no
+    // subscribers anymore.
+    
+    double delayInSeconds = 3.0;
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    if (dispatch_semaphore_wait(finishedSem, timeout) == 0) {
+        // Expected: after 0.1 sec, no subscribers exist and the async task should terminate
+    }
+    else {
+        XCTFail(@"Unexpected: timeout");
+    }
+}
+
 
 
 #pragma mark - Once
