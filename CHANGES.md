@@ -393,3 +393,20 @@ When using `dispatch_barrier_async` handlers will use the queue exclusively whic
 When registering handlers with the `then` property, one should not make any assumptions about the execution context. Currently, the handlers will be executed on a private concurrent queue using `dispatch_async`. Thus, when accessing shared resources from within handlers registered with `then`, thread safety is not guaranteed.
 
 
+
+### Version 0.10.3 beta (2014-02-27)
+
+### Bug Fixes
+
+Fixed the implementations of the second designated initializer `initWithResult:`
+
+#### Changes
+
+
+Added Sample6 which demonstrates how an asynchronous task can be cancelled when there are no more "obesers" to the promise anymore.
+
+Added Sample7 showing how to use class method `repeat`.
+
+
+
+

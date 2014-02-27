@@ -545,21 +545,27 @@ namespace {
     // event source, the run lopp may quickly return with the effect that the
     // while loop will "busy wait".
     
-    NSThread* thread = [NSThread currentThread];
+    static CFRunLoopSourceContext context;
+
+    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+    CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(NULL, 0, &context);
+    CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
+    CFRelease(runLoopSource);
+    
     self.then(^id(id result) {
-        [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
+        CFRunLoopStop(runLoop);
         return nil;
     }, ^id(NSError* error) {
-        [@"" performSelector:@selector(self) onThread:thread withObject:nil waitUntilDone:NO];
+        CFRunLoopStop(runLoop);
         return nil;
     });
-    NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
     while (1) {
         if (!self.isPending) {
             break;
         }
-        [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        CFRunLoopRun();
     }
+    CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
 }
 
 
@@ -775,21 +781,22 @@ namespace {
 }
 
 
-// Designated Initializer
+// 1. Designated Initializer
 - (instancetype)init {
     self = [super init];
     DLogInfo(@"create: %p", (__bridge void*)self);
     return self;
 }
 
+// 2. Designated Initializer
 - (instancetype)initWithResult:(id)result {
     NSParameterAssert(![result isKindOfClass:[RXPromise class]]);
-    id me = [super init];
-    if (me) {
+    self = [super init];
+    if (self) {
         _result = result;
         _state = [result isKindOfClass:[NSError class]] ? Rejected : Fulfilled;
     }
-    return me;
+    return self;
 }
 
 - (void) resolveWithResult:(id)result {

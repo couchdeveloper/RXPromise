@@ -76,7 +76,7 @@ namespace rxpromise {
         static constexpr char const* sync_queue_id = "RXPromise.shared_sync_queue";
         
         dispatch_queue_t default_concurrent_queue;
-        char const* default_concurrent_queue_id = "RXPromise.default_concurrent_queue";
+        static constexpr char const* default_concurrent_queue_id = "RXPromise.default_concurrent_queue";
         
         static constexpr char const* QueueID = "RXPromise.queue_id";
         

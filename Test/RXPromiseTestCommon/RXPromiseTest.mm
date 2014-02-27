@@ -465,68 +465,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 }
 
 
-- (void)testPromiseWithDeallocHandler {
-
-    typedef RXPromise* (^task_t)(void);
-    
-    // Create an asynchronous task which will just keep a weak reference to its
-    // associated task. This task well never finish, unless there are no
-    // subscribers - or a timeout occurred.
-    // Returns a root promise which is not retained by the asychronous task.
-    
-    dispatch_semaphore_t finishedSem = dispatch_semaphore_create(0);
-    
-    task_t block = ^RXPromise*() {
-        dispatch_semaphore_t subscriberSem = dispatch_semaphore_create(0);
-        RXPromise* promise = [RXPromise promiseWithDeallocHandler:^{
-            dispatch_semaphore_signal(subscriberSem);
-        }];
-        XCTAssertNotNil(promise, @"");
-        __weak RXPromise* weakPromise = promise;
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            
-            double delayInSeconds = 3.0;
-            dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-            if (dispatch_semaphore_wait(subscriberSem, timeout) == 0) {
-                // Expected: task has no subscribers
-            }
-            else {
-                XCTFail(@"async task timeout");
-            }
-            RXPromise* strongPromise = weakPromise;
-            XCTAssertNil(strongPromise, @"");
-            if (strongPromise) {
-                [strongPromise rejectWithReason:@"should have no subscribers"];
-            }
-            dispatch_semaphore_signal(finishedSem);
-        });
-        
-        return promise;
-    };
-    
-    // Keep a subscriber for 0.1 seconds:
-    @autoreleasepool {
-        [block() setTimeout:0.1]
-        .then(^id(id result) {
-            return nil;
-        }, ^id(NSError* error) {
-            return nil;
-        });
-    }
-    
-    // When we reach here, the async task should terminate since there are no
-    // subscribers anymore.
-    
-    double delayInSeconds = 3.0;
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    if (dispatch_semaphore_wait(finishedSem, timeout) == 0) {
-        // Expected: after 0.1 sec, no subscribers exist and the async task should terminate
-    }
-    else {
-        XCTFail(@"Unexpected: timeout");
-    }
-}
-
 
 
 #pragma mark - Once
@@ -784,6 +722,68 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
     XCTAssertTrue([@"ABCDE" isEqualToString:s], @"");
+}
+
+- (void)testPromiseWithDeallocHandler {
+    
+    typedef RXPromise* (^task_t)(void);
+    
+    // Create an asynchronous task which will just keep a weak reference to its
+    // associated task. This task well never finish, unless there are no
+    // subscribers - or a timeout occurred.
+    // Returns a root promise which is not retained by the asychronous task.
+    
+    dispatch_semaphore_t finishedSem = dispatch_semaphore_create(0);
+    
+    task_t block = ^RXPromise*() {
+        dispatch_semaphore_t subscriberSem = dispatch_semaphore_create(0);
+        RXPromise* promise = [RXPromise promiseWithDeallocHandler:^{
+            dispatch_semaphore_signal(subscriberSem);
+        }];
+        XCTAssertNotNil(promise, @"");
+        __weak RXPromise* weakPromise = promise;
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+            double delayInSeconds = 3.0;
+            dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+            if (dispatch_semaphore_wait(subscriberSem, timeout) == 0) {
+                // Expected: task has no subscribers
+            }
+            else {
+                XCTFail(@"async task timeout");
+            }
+            RXPromise* strongPromise = weakPromise;
+            XCTAssertNil(strongPromise, @"");
+            if (strongPromise) {
+                [strongPromise rejectWithReason:@"should have no subscribers"];
+            }
+            dispatch_semaphore_signal(finishedSem);
+        });
+        
+        return promise;
+    };
+    
+    // Keep a subscriber for 0.1 seconds:
+    @autoreleasepool {
+        [block() setTimeout:0.1]
+        .then(^id(id result) {
+            return nil;
+        }, ^id(NSError* error) {
+            return nil;
+        });
+    }
+    
+    // When we reach here, the async task should terminate since there are no
+    // subscribers anymore.
+    
+    double delayInSeconds = 3.0;
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    if (dispatch_semaphore_wait(finishedSem, timeout) == 0) {
+        // Expected: after 0.1 sec, no subscribers exist and the async task should terminate
+    }
+    else {
+        XCTFail(@"Unexpected: timeout");
+    }
 }
 
 
@@ -3946,6 +3946,61 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }) wait];
 }
 
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+
+
+- (void) testPromisePerformance
+{
+    NSAssert([NSThread currentThread] == [NSThread mainThread], @"this test must run on the main thread");
+    
+    mach_timebase_info_data_t timebase_info;
+    mach_timebase_info(&timebase_info);
+    double clock2ns = ((double)timebase_info.numer / (double)timebase_info.denom);
+    
+    
+    RXPromise* promise = [RXPromise new];
+    dispatch_queue_t syncQueue = dispatch_queue_create("test.sync_queue", DISPATCH_QUEUE_CONCURRENT);
+    
+    __block uint64_t t1;
+    
+    
+    double delayInSeconds = 0.5;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, syncQueue, ^(void) {
+        [promise fulfillWithValue:@"OK"];
+        t1 = mach_absolute_time();
+    });
+    
+    [promise setTimeout:5];
+    [promise runLoopWait];
+
+    NSMutableArray* promises = [[NSMutableArray alloc] init];
+    
+    for (int i = 0; i < 100; ++i) {
+        RXPromise* p = promise.thenOn(syncQueue, ^id(id result) {
+            uint64_t t2 = mach_absolute_time();
+            double d = (t2-t1)*clock2ns*1e-3; // µs
+            return [NSNumber numberWithDouble:d];
+        }, ^id(NSError* error) {
+            XCTFail(@"Error handler not expeted");
+            return error;
+        });
+        [promises addObject:p];
+        
+    }
+    
+    [[RXPromise all:promises].thenOn(dispatch_get_main_queue(), ^id(id result) {
+        uint64_t t = mach_absolute_time();
+        double te = (t-t1)*clock2ns*1e-3; // µs
+        NSLog(@"elapsed time: %.3f µs,\nresults: %@", te, result);
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"Error %@", error);
+        return error;
+    }) runLoopWait];
+}
+
 
 
 #pragma mark - Convenient Class Methods
@@ -4129,10 +4184,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
 }
 
-- (void) testRepeatWithCancellation {
-    
+- (void) testRepeatWithCancellation
+{
     NSMutableString* resultString = [[NSMutableString alloc] init];
-
     RXPromise* didCancelPromise = [RXPromise new];
     
     // Define a cancelable task:

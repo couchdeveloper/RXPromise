@@ -319,7 +319,7 @@
 		A19C198D1759E846008E3F63 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise Libraries" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -540,7 +540,6 @@
 			baseConfigurationReference = A19C19DD1759EA5D008E3F63 /* ios.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -569,7 +568,6 @@
 			baseConfigurationReference = A19C19DF1759EA5D008E3F63 /* ios.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
