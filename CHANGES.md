@@ -398,7 +398,7 @@ When registering handlers with the `then` property, one should not make any assu
 
 ### Bug Fixes
 
-Fixed the implementations of the second designated initializer `initWithResult:`
+Fixed the implementation of the second designated initializer `initWithResult:`
 
 #### Changes
 
