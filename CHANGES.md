@@ -394,7 +394,13 @@ When registering handlers with the `then` property, one should not make any assu
 
 
 
-### Version 0.10.3 beta (2014-02-27)
+### Version 0.10.3 beta (2013-11-28)
+
+Fixed typos in README.
+
+
+
+### Version 0.10.4 beta (2014-02-28)
 
 ### Bug Fixes
 
