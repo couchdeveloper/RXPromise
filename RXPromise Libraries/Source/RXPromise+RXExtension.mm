@@ -29,7 +29,7 @@
 
 
 @interface RXPromiseWrapper : NSObject
-@property (nonatomic) RXPromise* promise;
+@property (nonatomic, strong) RXPromise* promise;
 @end
 
 @implementation RXPromiseWrapper

@@ -15,9 +15,7 @@
 		A129D020182FB83B008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; };
 		A129D0211830095C008E6DA1 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
 		A154E686175E20960041234C /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
-		A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19A61759E879008E3F63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A19C19A41759E879008E3F63 /* InfoPlist.strings */; };
-		A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199B1759E879008E3F63 /* Cocoa.framework */; };
 		A19C19C31759E8CA008E3F63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19C21759E8CA008E3F63 /* Foundation.framework */; };
 		A19C19D31759EA3B008E3F63 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A19C19D51759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
@@ -25,6 +23,8 @@
 		A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
 		A19C19D81759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
 		A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
+		A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
+		A1FB3A9518C0E7DA00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -89,7 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C199C1759E879008E3F63 /* Cocoa.framework in Frameworks */,
+				A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,7 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A19C19B31759E894008E3F63 /* Cocoa.framework in Frameworks */,
+				A1FB3A9518C0E7DA00905F85 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

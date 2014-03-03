@@ -128,7 +128,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
     });
  
  
-### Simultaneous Invokations:
+### Simultaneous Invocations:
    
  
  Perform authentication for a user, if that succeeded, simultaneously load profile

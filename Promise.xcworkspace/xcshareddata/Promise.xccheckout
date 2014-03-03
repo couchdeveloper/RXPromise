@@ -5,19 +5,19 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>C18A6A2F-1629-4B7A-997B-74C2756BCAE6</string>
+	<string>C968D0B7-9F8E-411D-A969-A175D314995C</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Promise</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>59BFC20A-C3E5-4072-953B-E3FAC9CAAEDF</key>
+		<key>C6D05B39-31EA-4BF9-B515-A8A875F0C3F3</key>
 		<string>https://github.com/couchdeveloper/RXPromise.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Promise.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>59BFC20A-C3E5-4072-953B-E3FAC9CAAEDF</key>
+		<key>C6D05B39-31EA-4BF9-B515-A8A875F0C3F3</key>
 		<string>..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
@@ -25,16 +25,16 @@
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>59BFC20A-C3E5-4072-953B-E3FAC9CAAEDF</string>
+	<string>C6D05B39-31EA-4BF9-B515-A8A875F0C3F3</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>59BFC20A-C3E5-4072-953B-E3FAC9CAAEDF</string>
+			<string>C6D05B39-31EA-4BF9-B515-A8A875F0C3F3</string>
 			<key>IDESourceControlWCCName</key>
-			<string>Promise</string>
+			<string>RXPromise</string>
 		</dict>
 	</array>
 </dict>

@@ -1,6 +1,39 @@
 ## Installation
+Installation of the RXPromise library into your Xcode project is basically quite easy. The `RXPromise` library is actually just _one_ class and consists of just a few files.
 
-The `RXPromise` library is actually just _one_ class and consists of just a few files.
+There are three options to incorporate class `RXPromise` into you project:
+
+ 1. Utilize CocoaPods
+ 2. Include the sources directly into your project
+ 3. Link your project against the static library (iOS) or the Framework (Mac OS X)
+
+**Note:**
+> `RXPromise` version number system adheres to the rules of [Semantic Versioning](http://semver.org).
+
+
+####Using CocoaPods
+
+The easiest way to install `RXPromise` library into you Xcode project is to utilize [CocoaPods](http://cocoapods.org). How you prepare your Xcode project for using PODs is explained here in detail: [Using CocoaPods](http://guides.cocoapods.org/using/using-cocoapods.html).
+
+
+Usually, it's good practice to specify a particular _major_ and a minimum _minor_ release number which defines the minimum set of APIs which is required for your application, and furthermore let CocoaPods automatically choose the most recent version which contains all the APIs and the most recent bug fixes. You can achieve this with adding the following to your Podfile:
+
+`pod 'RXPromise', '~> 1.1'`
+
+This will automatically select the most recent version whose major version number equals **1** and which contains the set of APIs defined in version **1.1** and also has the most recent patch level, e.g.:  **1.3.1**.    
+
+Older code which had worked with versions **1.0.0** should still be running.
+
+If you are more picky about the probability that newer versions, say **1.3.x** will possibly not expose the _same_ behavior as **1.2.x**, you might want to use
+
+`pod 'RXPromise', '~> 1.2.0'`
+
+This imports `RXPromise` library whose major version number equals **1** and the minor version number equals **2** and with the most recent patch level which contains only bug fixes. Say, for version **1.2.x** the most recent patch level equals **6**, the above statement `'~> 1.2.0'` will import version **1.2.6**.  
+
+However, if there are newer versions which add more features in a backwards compatible way, say **1.3.1** and possibly also contain bug fixes not fixed in versions **1.2.x**, those will not be considered. 
+    
+
+####Adding RXPromise Xcode project to your project
 
 There are two public header files: 
 
@@ -12,10 +45,6 @@ Additionally, there is a private header file `RXPromise+Private.h` and two imple
 Furthermore, there's a logging utility `DLog.h` which is just a header file. It's located in sub folder `utility`.
 
 
-There are two options to incorporate class `RXPromise` into you project:
-
- 1. Include the sources directly into your project
- 2. Link your project against the static library (iOS) or the Framework (Mac OS X)
 
 Just an important note beforehand:  
 
@@ -86,3 +115,7 @@ Linking against the Standard C++ Library can be accomplished for example:
   - Rename your `main.m`file to `main.mm`. This causes the build tools to automatically link against the correct standard C++ library. You are finished.
 
   - Alternatively, locate the build setting "**Other Linker Flags**" in your target build settings of the executable binary and *add* the setting: `-lc++`.
+
+
+
+> Written with [StackEdit](https://stackedit.io/).
