@@ -34,11 +34,11 @@ For install instructions, please refer to: [INSTALL](INSTALL.md)
 
 A _promise_ is a lightweight object which helps to solve asynchronous programming problems. A promise represents the _eventual result_ of an asynchronous operation. Equal and similar concepts are also called _future_, _deferred_ or _delay_. A more detailed introduction can be found in the wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises).
 
-`RXPrimise` strives to meet the requirements specified in the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) as close as possible. The specification was originally written for the JavaScript language but the architecture and the design can be implemented in virtually any language. 
+`RXPromise` strives to meet the requirements specified in the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) as close as possible. The specification was originally written for the JavaScript language but the architecture and the design can be implemented in virtually any language.
 
 `RXPromise` implementation follows a "non-blocking" style. `RXPromise`'s principal methods are all *asynchronous and thread-safe*. That means, a particular implementation utilizing `RXPromise` will resemble a purely *asynchronous* and also *thread-safe* system, where no thread is ever blocked. (There are a few exceptions where certain miscellaneous methods *do* block).
 
-In addition to the requirements stated in the Promise/A++ specification the `RXPrimise` library contains a number of useful extensions. For example, it's possible to specify the execution context of the success and failure handler which helps to synchronize access to shared resources. 
+In addition to the requirements stated in the Promise/A++ specification the `RXPromise` library contains a number of useful extensions. For example, it's possible to specify the execution context of the success and failure handler which helps to synchronize access to shared resources.
 
 Additionally, `RXPromise` supports *cancellation*, which is invaluable in virtual every real application. And furthermore, there are a couple of helper methods which makes it especially easy to manage a list or a group of asynchronous operations. 
 
@@ -139,7 +139,7 @@ Now, we utilize an asynchronous helper method `fetchWithParams:` which returns a
 }
 ```
 
-From an outer view, the behavior of both implementations of `fetchUsers` seem to be identical. However, the implementation of the second one utilizing Promises is more efficient in terms of system resources. Additionaly, it looks also more concise. These differences will become more drastic, if problems become more complex.
+From an outer view, the behavior of both implementations of `fetchUsers` seem to be identical. However, the implementation of the second one utilizing Promises is more efficient in terms of system resources. Additionally, it looks also more concise. These differences will become more drastic, if problems become more complex.
 
 [Contents ^](#contents)
 
@@ -567,7 +567,7 @@ However, one needs to take care about when accessing shared resources in the han
 When using the `then` property in order to register the success and error handler block, the execution context where the handler will be eventually executed is *private*. That means, the thread where the block gets executed is implementation defined. In fact,
 `RXPromise` will use a private _concurrent_ execution context. 
 
-From this it follows, that if the the `then` propety is used for registering handlers, handlers will execute _concurrently_ and concurrent access to shared resources from within handlers is not automatically guaranteed to be thread-safe.
+From this it follows, that if the the `then` property is used for registering handlers, handlers will execute _concurrently_ and concurrent access to shared resources from within handlers is not automatically guaranteed to be thread-safe.
 
 
 #### Making access to shared resources thread-safe
@@ -576,7 +576,7 @@ Concurrent access to shared resources can be made easily thread-safe from within
 
     [self doSomethingAsync].thenOn(dispatch_queue, success_block, error_block);
 
-The dispatch queue `dispatch_queue` specifies where the handler block will be executed. The queue *can* be a *serial* or a *concurrent* dispatch queue. When it is a serial queue, the handler block will automatically ensure thread-safety when *all* accesses to this shared resource will be exeuted using that queue. This *MUST* also include all accesses which are not performed from within promise handlers.
+The dispatch queue `dispatch_queue` specifies where the handler block will be executed. The queue *can* be a *serial* or a *concurrent* dispatch queue. When it is a serial queue, the handler block will automatically ensure thread-safety when *all* accesses to this shared resource will be executed using that queue. This *MUST* also include all accesses which are not performed from within promise handlers.
 
 
 **Note:** 

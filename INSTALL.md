@@ -1,6 +1,6 @@
 ## Installation
 
-Installation of the RXPromise library into your Xcode project is basically quite easy. The `RXPromise` library is consists of just _one_ class and just a few files.
+Installation of the RXPromise library into your Xcode project is basically quite easy. The `RXPromise` library consists of just _one_ class and just a few files.
 
 Important note beforehand:  
 
@@ -20,7 +20,7 @@ There are three ways to incorporate `RXPromise` library into you project:
 > `RXPromise` version number system adheres to the rules of [Semantic Versioning](http://semver.org).
 
 **Note:**
--> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.10.7**.
+> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.10.5**.
 
 
 #### Using CocoaPods
