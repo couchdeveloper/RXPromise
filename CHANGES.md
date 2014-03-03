@@ -409,10 +409,16 @@ Fixed the implementation of the second designated initializer `initWithResult:`
 #### Changes
 
 
-Added Sample6 which demonstrates how an asynchronous task can be cancelled when there are no more "obesers" to the promise anymore.
+Added Sample6 which demonstrates how an asynchronous task can be cancelled when there are no more "obeservers" to the promise anymore.
 
 Added Sample7 showing how to use class method `repeat`.
 
 
+
+### Version 0.10.5 beta (2014-03-03)
+
+#### Supporting CocoaPods
+
+Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 
