@@ -1,10 +1,10 @@
 ## Installation
 
-Installation of the RXPromise library into your Xcode project is basically quite easy. The `RXPromise` library consists of just _one_ class and just a few files.
+Installation of the RXPromise library into a Xcode project is basically quite easy. The `RXPromise` library consists of just _one_ class and just a few files.
 
 Important note beforehand:  
 
-> RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step in your target build settings which is explained in detail below. If you link against the Framework or if you use CocoaPods, there is no extra step.  
+> RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step in your target build settings which is explained in detail below. If your project links against the RXPromise Framework or when you use CocoaPods, there is no extra step.
 
 > Note that RXPromise is a *pure* Objective-C API. Even though it depends itself on the standard C++ library it does not affect (or "infect") *your* Objective-C sources in any way with C++.
 
@@ -25,13 +25,13 @@ There are three ways to incorporate `RXPromise` library into you project:
 
 #### Using CocoaPods
 
-The easiest way to install `RXPromise` library into you Xcode project is to utilize [CocoaPods](http://cocoapods.org). How you prepare your Xcode project for using PODs is explained here in detail: [Using CocoaPods](http://guides.cocoapods.org/using/using-cocoapods.html).
+The easiest way to install `RXPromise` library for use in a client Xcode project is to utilize [CocoaPods](http://cocoapods.org). How to create a Podfile, where to place it and how to specify POD depenencies is explained here in detail: [Using CocoaPods](http://guides.cocoapods.org/using/using-cocoapods.html).
 
-Usually, it's good practice to specify a particular _major_ and a minimum _minor_ release number which defines the minimum set of APIs which is required for your application, and furthermore let CocoaPods automatically choose the most recent version which contains all the APIs and the most recent bug fixes. Assuming, your project requires the RXPromise APIs which have been defined in version **1.1.0**, you can achieve this using the following syntax:
+Usually, it's good practice to specify a particular _major_ and a minimum _minor_ release number of the POD's verion. Basically, this defines the minimum set of APIs which is required for your application. Furthermore let CocoaPods automatically choose the most recent version of this POD which contains all the APIs and the most recent bug fixes. Assuming, your project requires the RXPromise APIs which have been defined in version **1.1.0**, you can achieve this using the following syntax:
 
 `pod 'RXPromise', '~> 1.1'`
 
-This will automatically select the most recent version which is API backwards compatible to version **1.1.0**, that is, whose major version number equals **1**. This version contains the set of APIs defined in version **1.1.0**  and possibly new ones, and also has the most recent patch level. Older code which uses the **1.0.0** API should still running without issues.
+This will automatically select the most recent version which is API backwards compatible to version **1.1.0**, that is, whose major version number equals **1**. This version contains the set of APIs defined in version **1.1.0**  and possibly new ones, and also has the most recent patch level. Client code which has been developed using the **1.1.0** API should still compile and run without issues.
 
 > You can read more about the syntax of the versioning scheme and dependency declaration in [The Podfile](http://guides.cocoapods.org/using/the-podfile.html). It might be helpful as well to read [Declaring dependencies](http://guides.rubygems.org/patterns/#declaring_dependencies) in the Ruby Gems documentation.
 
