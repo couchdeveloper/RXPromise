@@ -75,13 +75,6 @@
 		A19C19CF1759EA3B008E3F63 /* RXPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
 		A19C19D01759EA3B008E3F63 /* RXPromise.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise.mm; sourceTree = "<group>"; };
 		A19C19D21759EA3B008E3F63 /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
-		A19C19DA1759EA5D008E3F63 /* ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ios.xcconfig; sourceTree = "<group>"; };
-		A19C19DB1759EA5D008E3F63 /* macosx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macosx.xcconfig; sourceTree = "<group>"; };
-		A19C19DC1759EA5D008E3F63 /* project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = project.xcconfig; sourceTree = "<group>"; };
-		A19C19DD1759EA5D008E3F63 /* ios.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ios.debug.xcconfig; sourceTree = "<group>"; };
-		A19C19DE1759EA5D008E3F63 /* macosx.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macosx.debug.xcconfig; sourceTree = "<group>"; };
-		A19C19DF1759EA5D008E3F63 /* ios.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ios.release.xcconfig; sourceTree = "<group>"; };
-		A19C19E01759EA5D008E3F63 /* macosx.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macosx.release.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,7 +108,6 @@
 		A19C198C1759E846008E3F63 = {
 			isa = PBXGroup;
 			children = (
-				A19C19E11759EA63008E3F63 /* Xcode.Config */,
 				A19C19CE1759EA3B008E3F63 /* Source */,
 				A19C19A11759E879008E3F63 /* RXPromise Framework */,
 				A19C19B41759E894008E3F63 /* RXPromise Static */,
@@ -228,20 +220,6 @@
 				A19C19D21759EA3B008E3F63 /* DLog.h */,
 			);
 			path = utility;
-			sourceTree = "<group>";
-		};
-		A19C19E11759EA63008E3F63 /* Xcode.Config */ = {
-			isa = PBXGroup;
-			children = (
-				A19C19DC1759EA5D008E3F63 /* project.xcconfig */,
-				A19C19DA1759EA5D008E3F63 /* ios.xcconfig */,
-				A19C19DD1759EA5D008E3F63 /* ios.debug.xcconfig */,
-				A19C19DF1759EA5D008E3F63 /* ios.release.xcconfig */,
-				A19C19DB1759EA5D008E3F63 /* macosx.xcconfig */,
-				A19C19DE1759EA5D008E3F63 /* macosx.debug.xcconfig */,
-				A19C19E01759EA5D008E3F63 /* macosx.release.xcconfig */,
-			);
-			name = Xcode.Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
