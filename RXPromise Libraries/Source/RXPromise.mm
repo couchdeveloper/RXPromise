@@ -348,7 +348,7 @@ namespace {
 - (instancetype) registerWithQueue:(dispatch_queue_t)target_queue
                          onSuccess:(promise_completionHandler_t)onSuccess
                          onFailure:(promise_errorHandler_t)onFailure
-                     returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained))
+                     returnPromise:(BOOL)returnPromise 
 {
     RXPromise* returnedPromise = returnPromise ? ([[[self class] alloc] init]) : nil;
     returnedPromise.parent = self;
@@ -434,7 +434,7 @@ namespace {
 
 - (then_block_t) then {
     __block RXPromise* blockSelf = self;
-    return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
+    return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
         RXPromise* p = [blockSelf registerWithQueue:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
         blockSelf = nil;
         return p;
@@ -444,7 +444,7 @@ namespace {
 
 - (then_on_block_t) thenOn {
     __block RXPromise* blockSelf = self;
-    return ^RXPromise*(dispatch_queue_t queue, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) __attribute((ns_returns_retained)) {
+    return ^RXPromise*(dispatch_queue_t queue, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
         RXPromise* p = [blockSelf registerWithQueue:queue onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
         blockSelf = nil;
         return p;
@@ -791,6 +791,7 @@ namespace {
 // 2. Designated Initializer
 - (instancetype)initWithResult:(id)result {
     NSParameterAssert(![result isKindOfClass:[RXPromise class]]);
+    DLogInfo(@"create: %p", (__bridge void*)self);
     self = [super init];
     if (self) {
         _result = result;

@@ -3199,7 +3199,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
                               [s0 appendString:result];
                               return nil;
                           },nil).parent,
-                          async_fail(1, @"B")
+                          async_fail(100, @"B")
                           .then(^id(id result) {
                               [s0 appendString:result];
                               return nil;
@@ -3213,14 +3213,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error){
-        XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+        XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"error: %@", error);
         return error;
     });
     
     double delayInSeconds = 0.2;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        [all cancel];
+        [[all root] cancel];
     });
     
     [all wait];

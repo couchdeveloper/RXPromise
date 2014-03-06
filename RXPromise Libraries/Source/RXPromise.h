@@ -220,7 +220,7 @@ typedef id (^promise_errorHandler_t)(NSError* error);
  
  @par The handler executes on a \e concurrent unspecified execution context.
  */
-typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t) __attribute((ns_returns_retained));
+typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t); /*__attribute__((ns_returns_autoreleased))*/
 
 /*!
  @brief Type definition of the "then_on block". The "then_on block" is the return 
@@ -237,7 +237,7 @@ typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHan
  */
 typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
                                       promise_completionHandler_t,
-                                      promise_errorHandler_t) __attribute((ns_returns_retained));
+                                      promise_errorHandler_t);  /*__attribute__((ns_returns_autoreleased))*/
 
 
 /*!

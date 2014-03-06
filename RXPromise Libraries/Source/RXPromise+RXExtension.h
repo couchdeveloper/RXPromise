@@ -176,4 +176,36 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 
 
+#pragma mark - iOS Specific
+
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+
+/**
+ Executes the asynchronous task associated to the receiver as an iOS Background Task.
+ 
+ @discussion The receiver requests background execution time from the system which
+ delays suspension of the app up until the receiver will be resolved or cancelled.
+ 
+ Since Apps are given only a limited amount of time to finish background tasks, 
+ this time may expire before the task finishes. In this case the receiver's root
+ will be cancelled which in turn propagates the cancel event to all children of
+ the reciever, including the receiver.
+ 
+ Tasks may want to handle the cancellation in order to execute additional code which
+ orderly closes the task. This should not take too long, since by the time the cancel
+ handler is called, the app is already very close to its time limit.
+ 
+ @warning Handlers registered on child promises may not be executed when the app 
+ is in background.
+ 
+ @param taskName The name to display in the debugger when viewing the background task.
+ If you specify \c nil for this parameter, this method generates a name based on the
+ name of the calling function or method.
+
+ */
+- (void) makeBackgroundTaskWithName:(NSString*)taskName;
+
+    
+#endif
+
 @end

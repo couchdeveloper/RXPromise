@@ -18,9 +18,12 @@
 #import "RXPromise+RXExtension.h"
 #import "RXPromise.h"
 #import "RXPromise+Private.h"
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+    #import <UIKit/UIKit.h>
+#endif
 #include <cassert>
 
-// Set default logger serverity to "Error" (logs only errors)
+// Set default logger severity to "Error" (logs only errors)
 #if !defined (DEBUG_LOG)
 #define DEBUG_LOG 1
 #endif
@@ -224,5 +227,27 @@ namespace {
 
 
 
+
+#pragma mark - iOS Specific
+
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+
+- (void) makeBackgroundTaskWithName:(NSString*)taskName {
+    
+    UIBackgroundTaskIdentifier backgroundTaskIdentifier =
+    [[UIApplication sharedApplication] beginBackgroundTaskWithName:taskName
+                                                 expirationHandler:^{
+                                                     [[self root] cancelWithReason:@"Background execution time expired"];
+                                                 }];
+    self.thenOn(dispatch_get_main_queue(), ^id(id result) {
+        [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskIdentifier];
+        return nil;
+    }, ^id(NSError* error) {
+        [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskIdentifier];
+        return nil;
+    });
+}
+
+#endif
 
 @end
