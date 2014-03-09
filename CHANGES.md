@@ -422,3 +422,63 @@ Added Sample7 showing how to use class method `repeat`.
 Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 
+
+### Version 0.11.0 beta (2014-03-07)
+
+#### API Changes
+
+ - Added an instance method `makeBackgroundTaskWithName`.
+
+        /**
+         Executes the asynchronous task associated to the receiver as an 
+         iOS Background Task.
+         
+         @discussion The receiver requests background execution time from 
+         the system which delays suspension of the app up until the receiver 
+         will be resolved or cancelled.
+         
+         Since Apps are given only a limited amount of time to finish
+         background tasks, this time may expire before the task finishes. 
+         In this case the receiver's root will be cancelled which in turn
+         propagates the cancel event to all children of the reciever, 
+         including the receiver.
+    
+         Tasks may want to handle the cancellation in order to execute 
+         additional code which orderly closes the task. This should not take 
+         too long, since by the time the cancel handler is called, the app is
+         already very close to its time limit.
+         
+         @warning Handlers registered on child promises may not be executed 
+         when the app is in background.
+         
+         @param taskName The name to display in the debugger when viewing the
+         background task.
+         
+         If you specify \c nil for this parameter, this method generates a
+         name based on the name of the calling function or method.
+        */
+        - (void) makeBackgroundTaskWithName:(NSString*)taskName;
+
+    
+    
+#### Unit Tests
+
+- Fixed an issue with one unit test having promises whose handlers may still execute
+after the test finished and which modified the stack. This caused a crash in the subsequent test.
+
+
+#### Implementation
+
+- Method `registerWithQueue:onSuccess:onFailure:returnPromise:` has been rewritten. 
+Observable behavior is still the same, though.
+
+- Changed code and added attributes to function/method declarations which now 
+should help the compiler during ARC optimization to avoid putting objects into the 
+autorelease pool.
+
+ There is still one occurence where the ARC optimizer cannot prevent this: when an 
+ object is created and returned in handlers, these objects will be put into the 
+ autoreleaspool. This does not happen when the source code is direcly included in 
+ the client project.
+
+

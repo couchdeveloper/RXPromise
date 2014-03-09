@@ -17,6 +17,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     RXPromise* promise = [[RXPromise alloc] init];
+    [promise self];
     promise = nil;
     [RXPromise all:@[]];
     

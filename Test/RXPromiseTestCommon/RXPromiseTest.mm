@@ -3127,6 +3127,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         XCTAssertTrue([tasks[0] isFulfilled], @"");
         XCTAssertTrue([tasks[1] isRejected], @"");
+        [tasks[2] get];
         XCTAssertTrue([tasks[2] isCancelled], @"");
         return error;
     }) wait];
@@ -3363,6 +3364,8 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // task and it's handler finished.
     NSLog(@"firstTaskHandlerPromise = %@", firstTaskHandlerPromiseValue);
     XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
+    
+    [[RXPromise all:promises] wait];
 }
 
 -(void) testAnyGetSecond {
@@ -3453,6 +3456,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // wait until the first task and its handler has been finished:
     [first wait];
+    sync_queue = nil;
     
     // Wait until the last handler has been invoked:
     // It's a bit tricky to wait for a number of handlers to have all finished
@@ -3460,6 +3464,15 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     usleep(4*1000);
     
     XCTAssertTrue( std::memcmp(buffer, "aBcde", sizeof(buffer)) == 0, @"");
+    [[RXPromise all:promises] wait];
+    
+    // Wait until the last handler has been invoked:
+    // It's a bit tricky to wait for a number of handlers to have all finished
+    // when we do not have the promises. Note, that in the Unit Test handlers write
+    // into the stack! This is be fatal if the next test starts and the handlers
+    // havn't finished.
+    // We just sleep for a while:
+    usleep(100*1000);
 }
 
 
@@ -3517,13 +3530,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     [promise fulfillWithValue:@"OK"];
     RXPromise* p1 = promise.then(nil, nil);
     [p1 wait];
-    XCTAssertTrue(p1.isFulfilled, @"");
+    XCTAssertTrue(p1.isFulfilled == YES, @"");
     
     promise = [RXPromise new];
     [promise rejectWithReason:@"ERROR"];
     RXPromise* p2 = promise.then(nil, nil);
     [p2 wait];
-    XCTAssertTrue(p2.isRejected, @"");
+    XCTAssertTrue(p2.isRejected, @"%d", p2.isRejected);
 }
 
 
@@ -3849,49 +3862,37 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 }
 
 
-// Since v0.10.2, A handler executed on a concurrent queue will use a barrier, which
-// effectively serializes handlers.
 
--(void) testHandlersOfAParticularPromiseWithDedicatedConcurrentQueueMustRunConcurrently {
+-(void) testHandlersOfAParticularPromiseWithACustomConcurrentQueueMustRunInSerial {
     
-    // Handlers of a particular promise with a specified handler queue run on
-    // the queue with their respective property:
-    //
-    // b) A concurrent handler queue SHALL execute the handlers in parallel.
+    // Since v0.10.2, A handler executed on a concurrent queue must use a barrier,
+    // which effectively serializes handlers.
     
     const char* QueueID = "com.test.queue.id";
     dispatch_queue_t concurrent_queue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_queue_set_specific(concurrent_queue, QueueID, (__bridge void*)concurrent_queue, NULL);
-    
     const int Count = 10;
-    std::array<char, Count> results;
-    std::fill(results.begin(), results.end(), 'X');
-    
-    std::array<char, Count> expectedResults;
-    for (int i = 0; i < Count; ++i) {
-        expectedResults[i] = char('A' + i);  // "ABCDEFGHIJ"
-    };
-    
-    std::atomic_int c(0);
-    std::atomic_int* pc = &c;
+    __block int activeCounter = 0;
+    __block int counter = 0;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    __block char* data = results.data();
     
     RXPromise* root = async(0.01, @"OK");
     for (int i = 0; i < Count; ++i) {
         root.thenOn(concurrent_queue, ^id(id result) {
             XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrent_queue), @"Handler does not execute on dedicated queue");
-            usleep((Count+1)*10000 - i*10000);
-            *data++ = char('A'+i);
-            if (++(*pc) == Count) {
+            ++activeCounter;
+            ++counter;
+            usleep(10*1000);
+            XCTAssertTrue(activeCounter == 1, @"");
+            if (counter == (Count-1)) {
                 dispatch_semaphore_signal(sem);
             }
+            --activeCounter;
             return nil;
         }, nil);
     }
     
-    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)), @"");
-    XCTAssertTrue(results == expectedResults, @"Concurent queue does not use barriers");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10000*NSEC_PER_SEC)), @"");
 }
 
 
@@ -4100,19 +4101,17 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 
 - (void) testSequenceWithCancellation {
-
     typedef RXPromise* (^block_t)(NSString* input);
     
-    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h", @"i", @"j"];
+    // Expected result if not cancelled: @"ABCDEFGHIJ";
+    
     NSMutableString* resultString = [[NSMutableString alloc] init];
     RXPromise* didCancelPromise = [RXPromise new];
-
-    
     // Define a cancelable task:
     block_t task = ^(NSString* input)
     {
         RXPromise* taskPromise = [[RXPromise alloc] init];
-
         // Define a block which gets executed when the timer fires:
         RXTimerHandler block = ^(RXTimer* timer) {
             NSString* result = [input capitalizedString];
@@ -4120,38 +4119,30 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             NSLog(@"processed with result: %@", result);
             [taskPromise fulfillWithValue:result];
         };
-
         NSLog(@"processing input: %@", input);
         RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
                                                              tolorance:0
                                                                  queue:dispatch_get_global_queue(0, 0)
                                                                  block:block];
-
         // Catch any errors send to the task promise, in which case we cancel the timer:
         taskPromise.then(nil, ^id(NSError*error){
             [timer cancel];
             [didCancelPromise fulfillWithValue:@"OK - did cancel"];
             return nil;
         });
-        
         [timer start];
         return taskPromise;
     };
-    
     RXPromise* finished = [RXPromise sequence:inputs
                                          task:^RXPromise*(id input) {
                                              return task(input);
                                          }];
-    
     finished.then(nil, ^id(NSError*error){
         //NSLog(@"sequence failed due to: %@", error);
         return nil;
     });
-    
-    
-    [finished setTimeout:0.125];
+    [finished setTimeout:0.125]; // expected finish after 10*0.05 (if not cancelled)
     [finished runLoopWait];
-    
     [[didCancelPromise setTimeout:1.0].then(^id(id result){
         XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
         return result;
@@ -4159,7 +4150,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTFail(@"unexpected timeout");
         return error;
     }) wait];
-    
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
 }
 
@@ -4187,8 +4177,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 - (void) testRepeatWithCancellation
 {
     NSMutableString* resultString = [[NSMutableString alloc] init];
+    
     RXPromise* didCancelPromise = [RXPromise new];
     
+    double taskDuration = 0.2;
     // Define a cancelable task:
     typedef RXPromise* (^task_t)(NSString* input);
     task_t task = ^RXPromise*(NSString* input)
@@ -4202,11 +4194,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             [taskPromise fulfillWithValue:result];
         };
         NSLog(@"processing input: %@", input);
-        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:taskDuration
                                                              tolorance:0
                                                                  queue:dispatch_get_global_queue(0, 0)
                                                                  block:block];
-        // Catch any errors - especially "cancel" - send to the task promise, in which case we cancel the timer:
+        // Catch any errors - especially "cancel" - sent to the task promise,
+        // in which case we cancel the timer:
         taskPromise.then(nil, ^id(NSError*error){
             [timer cancel];
             [didCancelPromise fulfillWithValue:@"OK - did cancel"];
@@ -4216,7 +4209,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         return taskPromise;
     };
     
-    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h", @"i"];
     const NSUInteger count = [inputs count];
     __block NSUInteger i = 0;
     
@@ -4232,11 +4225,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         return nil;
     });
     
-    
-    [finished setTimeout:0.125];
+    [finished setTimeout:(taskDuration*2 + 0.1*taskDuration)]; // this cancels the repeat after two iterations
     [finished runLoopWait];
     
-    [[didCancelPromise setTimeout:1.0].then(^id(id result){
+    [[didCancelPromise setTimeout:taskDuration*[inputs count]].then(^id(id result){
         XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
         return result;
     }, ^id(NSError* error){
@@ -4245,7 +4237,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     }) wait];
     
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
-    
 }
 
 

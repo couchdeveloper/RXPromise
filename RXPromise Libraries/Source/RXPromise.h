@@ -30,10 +30,11 @@
  
 @class RXPromise;
 
-typedef id (^promise_promise_completionHandler_t)(id result);
+typedef id (^promise_completionHandler_t)(id result);
 typedef id (^promise_errorHandler_t)(NSError* error);
  
 typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t);
+ 
 typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandler_t, promise_errorHandler_t);
 
 
@@ -52,9 +53,13 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
  
 - (void) cancel;
+- (void) cancelWithReason:(id)reason;
 - (void) bind:(RXPromise*) other;
 - (id) get;
+- (id) getWithTimeout:(NSTimeInterval)timeout;
 - (void) wait;
+- (void) runLoopWait;
+- (RXPromise*) setTimeout:(NSTimeInterval)timeout;
 
 + (RXPromise*) promiseWithTask:(id(^)(void))task;
 + (RXPromise*) promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
@@ -65,11 +70,14 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
 @interface RXPromise(Deferred)
 
++ (instancetype) promiseWithResult:(id)result;
++ (instancetype) promiseWithDeallocHandler:(void(^)())deallocHandler;
+
 - (id)init;
+ 
 - (void) fulfillWithValue:(id)result;
 - (void) rejectWithReason:(id)error;
-- (void) cancelWithReason:(id)reason;
-- (void) setProgress:(id)progress;
+- (void) resolveWithResult:(id)result;
 
 @end
  
@@ -179,7 +187,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  @return An object or \c nil which resolves the "returned promise".
  
  */
-typedef id (^promise_completionHandler_t)(id result);
+typedef id (^promise_completionHandler_t)(id result) /*NS_RETURNS_RETAINED*/;
 
 /*!
  @brief Type definition for the error handler block.
@@ -203,7 +211,7 @@ typedef id (^promise_completionHandler_t)(id result);
  @return An object or \c nil which resolves the "returned promise".
  
  */
-typedef id (^promise_errorHandler_t)(NSError* error);
+typedef id (^promise_errorHandler_t)(NSError* error) /*NS_RETURNS_RETAINED*/;
 
 /*!
  @brief Type definition of the "then block". The "then block" is the return value
@@ -220,7 +228,7 @@ typedef id (^promise_errorHandler_t)(NSError* error);
  
  @par The handler executes on a \e concurrent unspecified execution context.
  */
-typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t); /*__attribute__((ns_returns_autoreleased))*/
+typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t);
 
 /*!
  @brief Type definition of the "then_on block". The "then_on block" is the return 
@@ -237,7 +245,7 @@ typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHan
  */
 typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
                                       promise_completionHandler_t,
-                                      promise_errorHandler_t);  /*__attribute__((ns_returns_autoreleased))*/
+                                      promise_errorHandler_t);
 
 
 /*!
@@ -271,50 +279,6 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
 @interface RXPromise  : NSObject
     
     
-/*!
- A convenient class method which returns a promise whose associated task is 
- defined with block \p task.
- 
- The block is asynchronously dispatched on a private queue. The task's return 
- value will eventually resolve the returned promise.
- 
- @param task The associated task to execute as a block. The return value of the 
- block will resolve the returned promise. The return value SHALL be a \c NSError
- object in order to indicate a failure. _task_ MUST NOT be \c nil.
-
- @par Example: @code
- self.fetchUserPromise =
- [RXPromise promiseWithBlock:^id(void) {
-     id result = [self doSomethingElaborate];
-     return result;
- }];
- */
-+ (RXPromise *)promiseWithTask:(id(^)(void))task;
-    
-    
-/*!
- A convenient class method which returns a promise whose associated task is 
- defined with block \p task.
- 
- The block is asynchronously dispatched on the specified queue. The task's return
- value will eventually resolve the returned promise.
- 
- @param queue The dispatch queue where the task will be executed.
-
- @param task The associated task to execute as a block. The return value of the
- block will resolve the returned promise. The return value SHALL be a \c NSError
- object in order to indicate a failure. _task_ MUST NOT be \c nil.
- 
- @par Example: @code
- self.fetchUserPromise = [RXPromise promiseWithQueue:dispatch_get_main_queue() task:^id(void) {
-     id result = [self doSomethingElaborate];
-     return result;
- }];
- 
- */
-+ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
- 
-
 
 /*!
  @brief Property \p then returns a block whose signature is
@@ -552,6 +516,51 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
 
 
 /*!
+ A convenient class method which returns a promise whose associated task is 
+ defined with block \p task.
+ 
+ The block is asynchronously dispatched on a private queue. The task's return 
+ value will eventually resolve the returned promise.
+ 
+ @param task The associated task to execute as a block. The return value of the 
+ block will resolve the returned promise. The return value SHALL be a \c NSError
+ object in order to indicate a failure. _task_ MUST NOT be \c nil.
+
+ @par Example: @code
+ self.fetchUserPromise =
+ [RXPromise promiseWithBlock:^id(void) {
+     id result = [self doSomethingElaborate];
+     return result;
+ }];
+ */
++ (RXPromise *)promiseWithTask:(id(^)(void))task;
+    
+    
+/*!
+ A convenient class method which returns a promise whose associated task is 
+ defined with block \p task.
+ 
+ The block is asynchronously dispatched on the specified queue. The task's return
+ value will eventually resolve the returned promise.
+ 
+ @param queue The dispatch queue where the task will be executed.
+
+ @param task The associated task to execute as a block. The return value of the
+ block will resolve the returned promise. The return value SHALL be a \c NSError
+ object in order to indicate a failure. _task_ MUST NOT be \c nil.
+ 
+ @par Example: @code
+ self.fetchUserPromise = [RXPromise promiseWithQueue:dispatch_get_main_queue() task:^id(void) {
+     id result = [self doSomethingElaborate];
+     return result;
+ }];
+ 
+ */
++ (RXPromise *)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;
+ 
+
+
+/*!
  @brief  Factory method which returns a new promise whose state is pending.
  
  @discussion Resolvers may wish to detect if there is still a "subscriber" listening for
@@ -615,15 +624,6 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
 - (void) resolveWithResult:(id)result;
 
 
-
-///*!
-// internal
-// */
-//
-//- (RXPromise*) registerWithQueue:(dispatch_queue_t)target_queue
-//                       onSuccess:(promise_completionHandler_t)onSuccess
-//                       onFailure:(promise_errorHandler_t)onFailure
-//                   returnPromise:(BOOL)returnPromise    __attribute((ns_returns_retained));
 
 @end
 

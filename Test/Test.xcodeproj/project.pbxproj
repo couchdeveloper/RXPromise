@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A129D02318300AE4008E6DA1 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A129D02218300AE4008E6DA1 /* libRXPromise.a */; };
+		A131904E18CA0D3E00E73E6E /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A131904D18CA0D3E00E73E6E /* RXPromise.framework */; };
 		A173069E17F0C0F400A1AD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A173069F17F0C0F400A1AD7B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C67B17F05D3C001D2CDC /* CoreGraphics.framework */; };
 		A17306A017F0C0F400A1AD7B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
@@ -18,7 +19,6 @@
 		A17306B217F0C0F400A1AD7B /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A17306B017F0C0F400A1AD7B /* Main_iPad.storyboard */; };
 		A17306B517F0C0F400A1AD7B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A17306B417F0C0F400A1AD7B /* ViewController.m */; };
 		A17306B717F0C0F400A1AD7B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A17306B617F0C0F400A1AD7B /* Images.xcassets */; };
-		A17306D517F0C76C00A1AD7B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 		A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
 		A17306DD17F0C76C00A1AD7B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A17306DB17F0C76C00A1AD7B /* InfoPlist.strings */; };
@@ -27,8 +27,8 @@
 		A1A7DBB917F32E920073A2DE /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
 		A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 		A1E27ED117F1D7B1006BB86D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1E27ECF17F1D7B1006BB86D /* InfoPlist.strings */; };
-		A1E27ED817F1D7E1006BB86D /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C61E17F04EFC001D2CDC /* RXPromise.framework */; };
 		A1ECBC7F1813D6BE0081F955 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
+		A1FEBE0318CB55BB005754A5 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +43,8 @@
 
 /* Begin PBXFileReference section */
 		A129D02218300AE4008E6DA1 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release-iphoneos/libRXPromise.a"; sourceTree = "<group>"; };
+		A131904D18CA0D3E00E73E6E /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../DerivedData/Promise/Build/Products/Debug/RXPromise.framework; sourceTree = "<group>"; };
+		A13A59DD18CB504A000E6506 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release-iphoneos/libRXPromise.a"; sourceTree = "<group>"; };
 		A173069D17F0C0F400A1AD7B /* TestDummy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDummy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A17306A317F0C0F400A1AD7B /* TestDummy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TestDummy-Info.plist"; sourceTree = "<group>"; };
 		A17306A517F0C0F400A1AD7B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -59,6 +61,10 @@
 		A17306DA17F0C76C00A1AD7B /* RXPromise-iOS-Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromise-iOS-Test-Info.plist"; sourceTree = "<group>"; };
 		A17306DC17F0C76C00A1AD7B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A17306E017F0C76C00A1AD7B /* RXPromise-iOS-Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise-iOS-Test-Prefix.pch"; sourceTree = "<group>"; };
+		A19172F418CB549400B3CFDD /* Test2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test2-Info.plist"; sourceTree = "<group>"; };
+		A19172F618CB549400B3CFDD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A19172F818CB549400B3CFDD /* Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Test2.m; sourceTree = "<group>"; };
+		A19172FA18CB549400B3CFDD /* Test2-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Test2-Prefix.pch"; sourceTree = "<group>"; };
 		A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A1C0C60117F04CBC001D2CDC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -102,7 +108,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A17306D517F0C76C00A1AD7B /* XCTest.framework in Frameworks */,
+				A1FEBE0318CB55BB005754A5 /* XCTest.framework in Frameworks */,
 				A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */,
 				A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */,
 			);
@@ -112,8 +118,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1E27ED817F1D7E1006BB86D /* RXPromise.framework in Frameworks */,
 				A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */,
+				A131904E18CA0D3E00E73E6E /* RXPromise.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,6 +170,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A19172F218CB549300B3CFDD /* Test2 */ = {
+			isa = PBXGroup;
+			children = (
+				A19172F818CB549400B3CFDD /* Test2.m */,
+				A19172F318CB549400B3CFDD /* Supporting Files */,
+			);
+			path = Test2;
+			sourceTree = "<group>";
+		};
+		A19172F318CB549400B3CFDD /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A19172F418CB549400B3CFDD /* Test2-Info.plist */,
+				A19172F518CB549400B3CFDD /* InfoPlist.strings */,
+				A19172FA18CB549400B3CFDD /* Test2-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		A1C0C5DD17F04C71001D2CDC = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +198,7 @@
 				A17306A117F0C0F400A1AD7B /* TestDummy */,
 				A1E27ECC17F1D7B1006BB86D /* RXPromise-OSX-Test */,
 				A17306D817F0C76C00A1AD7B /* RXPromise-iOS-Test */,
+				A19172F218CB549300B3CFDD /* Test2 */,
 				A1C0C5EA17F04CAB001D2CDC /* Frameworks */,
 				A1C0C5E917F04CAA001D2CDC /* Products */,
 			);
@@ -191,6 +217,8 @@
 		A1C0C5EA17F04CAB001D2CDC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A13A59DD18CB504A000E6506 /* libRXPromise.a */,
+				A131904D18CA0D3E00E73E6E /* RXPromise.framework */,
 				A129D02218300AE4008E6DA1 /* libRXPromise.a */,
 				A1C0C62017F04F0B001D2CDC /* libRXPromise.a */,
 				A1C0C61E17F04EFC001D2CDC /* RXPromise.framework */,
@@ -455,6 +483,14 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
+		A19172F518CB549400B3CFDD /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A19172F618CB549400B3CFDD /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		A1E27ECF17F1D7B1006BB86D /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -470,6 +506,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -486,10 +523,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -524,6 +558,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -541,10 +576,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TestDummy/TestDummy-Prefix.pch";
@@ -573,6 +605,7 @@
 			baseConfigurationReference = A1C0C63717F05050001D2CDC /* ios.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TestDummy.app/TestDummy";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -609,11 +642,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-iOS-Test/RXPromise-iOS-Test-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -627,6 +656,7 @@
 			baseConfigurationReference = A1C0C63817F05050001D2CDC /* ios.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TestDummy.app/TestDummy";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -657,11 +687,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-iOS-Test/RXPromise-iOS-Test-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -701,11 +727,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -720,7 +742,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-OSX-Test/RXPromise-OSX-Test-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
@@ -745,11 +766,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -761,7 +778,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-OSX-Test/RXPromise-OSX-Test-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
