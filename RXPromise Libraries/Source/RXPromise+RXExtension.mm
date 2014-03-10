@@ -142,22 +142,15 @@ namespace {
         [promise rejectWithReason:error];
         return nil;
     };
-    
     for (RXPromise* p in promises) {
         p.thenOn(Shared.sync_queue, onSuccess, onError);
     }
-    promise.thenOn(Shared.sync_queue, nil, ^id(NSError*error){
-        for (RXPromise* p in promises) {
-            [p cancelWithReason:error];
-        }
-        return nil;
-    });
     
     return promise;
 }
 
 
-+ (instancetype) any:(NSArray*)promises
++ (instancetype) any_deprecated:(NSArray*)promises
 {
     RXPromise* promise = [[self alloc] init];
     __block int count = (int)[promises count];
@@ -192,6 +185,41 @@ namespace {
     
     return promise;
 }
+
++ (instancetype) any:(NSArray*)promises
+{
+    RXPromise* promise = [[self alloc] init];
+    __block int count = (int)[promises count];
+    if (count == 0) {
+        [promise rejectWithReason:@"parameter error"];
+        return promise;
+    }
+    promise_completionHandler_t onSuccess = ^(id result){
+        [promise fulfillWithValue:result];
+        return result;
+    };
+    promise_errorHandler_t onError = ^(NSError* error) {
+        --count;
+        if (count == 0) {
+            [promise rejectWithReason:@"none succeeded"];
+        }
+        return error;
+    };
+    
+    for (RXPromise* p in promises) {
+        p.thenOn(Shared.sync_queue, onSuccess, onError);
+    }
+    
+    return promise;
+}
+
+
++ (void) cancelAll:(NSArray*)promises {
+    for (RXPromise* p in promises) {
+        [p cancel];
+    }    
+}
+
 
 
 + (instancetype) sequence:(NSArray*)inputs task:(rxp_unary_task)task

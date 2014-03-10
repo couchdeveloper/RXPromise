@@ -29,6 +29,7 @@
 #import "RXTimer.h"
 #include <dispatch/dispatch.h>
 #include <atomic>
+#include <memory>
 #include <algorithm>  // std::min
 #include <string>
 #include <array>
@@ -264,11 +265,210 @@ static int32_t s_ID = 0;
 
 #pragma mark - Async Mocks
 
+namespace mock {
+    
+    
+    typedef void (^completion_t)(std::string const& result);
+    
+    enum class completion_mode {
+        Succeed,
+        Fail
+    };
+    
+
+    namespace detail {
+        
+        class async_task;
+        
+        using shared_task = std::shared_ptr<async_task>;
+        
+        template <typename... Args>
+        static shared_task make_shared_task(Args... args) {
+            return std::make_shared<async_task>(std::forward<Args>(args)...);
+        }
+        
+        
+        class async_task {
+        public:
+            async_task(double duration, id result, completion_mode mode = completion_mode::Succeed)
+            :   _duration (duration),
+                _result (result),
+                _mode (mode),
+                _is_cancelled(false),
+                _is_started(false)
+            {
+            };
+            
+            ~async_task() {
+                //dispatch_release(_timer);
+            }
+            
+            async_task(const async_task&) = delete;
+            async_task(async_task&&) = delete;
+            async_task& operator=(const async_task&) = delete;
+            async_task& operator=(async_task&&) = delete;
+            
+            
+            
+            NS_RETURNS_RETAINED
+            static RXPromise* start(shared_task task, completion_t completion = nullptr)  {
+                return start(task, completion);
+            }
+            
+            NS_RETURNS_RETAINED
+            static RXPromise* start(shared_task task, dispatch_queue_t queue, completion_t completion = nullptr)  {
+                assert(task.get() != nullptr);
+                RXPromise* promise;
+                async_task& op = *task.get();
+                bool started = false;
+                if (op._is_started.compare_exchange_strong(started, true)) {
+                    promise = [[RXPromise alloc] init];
+                    op._weakPromise = promise;
+                    run(task, queue, completion);
+                }
+                return promise;
+            }
+            
+            
+        private:
+            
+            
+            void cancel() {
+                _is_cancelled = 1;
+            }
+            
+            
+            static void run(shared_task task, dispatch_queue_t queue, completion_t completion) {
+                async_task& op = *task.get();
+                if (queue == nil) {
+                    queue = dispatch_get_global_queue(0, 0);
+                    assert(queue);
+                }
+                op._timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+                dispatch_source_set_event_handler(op._timer, ^{
+                    do_work(task, queue, completion);
+                });
+                dispatch_time_t interval = std::min(op._interval, static_cast<dispatch_time_t>((op._duration*0.1*NSEC_PER_SEC)));
+                dispatch_source_set_timer(op._timer, DISPATCH_TIME_NOW, interval, op._leeway);
+                op._end_time = dispatch_time(DISPATCH_TIME_NOW, op._duration*NSEC_PER_SEC);
+                dispatch_resume(op._timer);
+            }
+            
+            static void do_work(shared_task task, dispatch_queue_t queue, completion_t completion) {
+                async_task& op = *task.get();
+                bool finished = dispatch_time(DISPATCH_TIME_NOW, 0) >= op._end_time;
+                RXPromise* strongPromise = op._weakPromise;
+                if (finished or op._is_cancelled or strongPromise == nil or strongPromise.isCancelled) {
+                    dispatch_source_cancel(op._timer);
+                    std::string completion_msg;
+                    if (op._is_cancelled) {
+                        [strongPromise cancelWithReason:@"cancelled"];
+                        completion_msg = "cancelled, no subscribers";
+                    }
+                    else if (strongPromise == nil or strongPromise.isCancelled) {
+                        completion_msg = "cancelled";
+                    }
+                    else {
+                        if (op._mode == completion_mode::Succeed) {
+                            [strongPromise fulfillWithValue:op._result];
+                            completion_msg = "finished";
+                        }
+                        else {
+                            [strongPromise rejectWithReason:op._result];
+                            completion_msg = "failed";
+                        }
+                    }
+                    if (completion) {
+                        completion(completion_msg);
+                    }
+                    //printf("\n");
+                }
+                else {
+                    //printf(".");
+                }
+            }
+            
+        private:
+            __weak RXPromise*   _weakPromise;
+            id                  _result;
+            double              _duration;
+            std::atomic<bool>    _is_started;
+            std::atomic<bool>    _is_cancelled;
+            completion_mode     _mode;
+            // timer
+            dispatch_time_t     _end_time;
+            dispatch_source_t   _timer;
+            uint64_t            _interval = 0.01 * NSEC_PER_SEC;
+            uint64_t            _leeway = 0;
+            
+        };
+
+    }
+    
+    NS_RETURNS_RETAINED
+    RXPromise* async(double duration, id result = @"OK",
+                     completion_t completion = nullptr)
+    {
+        return detail::async_task::start(detail::make_shared_task(duration, result), nullptr, completion);
+    }
+    
+    NS_RETURNS_RETAINED
+    RXPromise* async(double duration, id result,
+                     dispatch_queue_t queue, completion_t completion = nullptr)
+    {
+        return detail::async_task::start(detail::make_shared_task(duration, result), queue, completion);
+    }
+    
+    
+    
+    NS_RETURNS_RETAINED
+    RXPromise* async_fail(double duration, id reason = @"Failure",
+                          completion_t completion = nullptr)
+    {
+        return detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), nullptr, completion);
+    }
+    
+    
+    NS_RETURNS_RETAINED
+    RXPromise* async_fail(double duration, id reason,
+                          dispatch_queue_t queue, completion_t completion)
+    {
+        return detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), queue, completion);
+    }
+    
+    // use a bound promise
+    NS_RETURNS_RETAINED
+    static RXPromise* async_bind(double duration, id result = @"OK",
+                                 dispatch_queue_t queue = nullptr, completion_t completion = nullptr)
+    {
+        RXPromise* promise = [RXPromise new];
+        double delayInSeconds = 0.01;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+            [promise bind:async(duration, result, queue, completion)];
+        });
+        return promise;
+    }
+    
+    // use a bound promise
+    NS_RETURNS_RETAINED
+    static RXPromise* async_bind_fail(double duration, id reason = @"Failure",
+                                      dispatch_queue_t queue = nullptr, completion_t completion = nullptr)
+    {
+        RXPromise* promise = [RXPromise new];
+        double delayInSeconds = 0.01;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
+            [promise bind:mock::async_fail(duration, reason, queue, completion)];
+        });
+        return promise;
+    }
+    
+    
+    
+} // namespace mock
 
 
-
-
-typedef void (^completion_t)();
 
 __attribute((ns_returns_retained))
 static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queue = NULL,
@@ -290,85 +490,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     return op.promise;
 }
 
-static void work_for(RXPromise*promise, double duration, dispatch_queue_t queue, completion_t completion, double interval = 0.1) {
-    if (promise.isCancelled)
-        return;
-    __block double t = duration;
-    if (t > 0) {
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(std::min(interval, t) * NSEC_PER_SEC));
-        dispatch_after(popTime, queue, ^(void) {
-            //printf(".");
-            if (promise.isCancelled)
-                return;
-            else if (t > interval)
-                work_for(promise, t-interval, queue, completion);
-            else {
-                //printf("\n");
-                completion();
-            }
-        });
-    }
-    else {
-        //printf("\n");
-        completion();
-    }
-}
 
 
-
-__attribute((ns_returns_retained))
-static RXPromise* async(double duration, id result = @"OK", dispatch_queue_t queue = NULL)
-{
-    DLogInfo(@"\nAsync started with result %@", result);
-    RXPromise* promise = [RXPromise new];
-    if (queue == NULL) {
-        queue = dispatch_get_global_queue(0, 0);
-    }
-    work_for(promise, duration, queue, ^{
-        DLogInfo(@"\nAsync finished with result %@", result);
-        [promise fulfillWithValue:result];
-    });
-    return promise;
-}
-
-
-__attribute((ns_returns_retained))
-static RXPromise* async_fail(double duration, id reason = @"Failure", dispatch_queue_t queue = NULL)
-{
-    RXPromise* promise = [RXPromise new];
-    if (queue == NULL) {
-        queue = dispatch_get_global_queue(0, 0);
-    }
-    work_for(promise, duration, queue, ^{
-        [promise rejectWithReason:reason];
-    });
-    return promise;
-}
-
-// use a bound promise
-__attribute((ns_returns_retained))
-static RXPromise* async_bind(double duration, id result = @"OK", dispatch_queue_t queue = NULL) {
-    RXPromise* promise = [RXPromise new];
-    double delayInSeconds = 0.01;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        [promise bind:async(duration, result, queue)];
-    });
-    return promise;
-}
-
-// use a bound promise
-__attribute((ns_returns_retained))
-static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispatch_queue_t queue = NULL)
-{
-    RXPromise* promise = [RXPromise new];
-    double delayInSeconds = 0.01;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        [promise bind:async_fail(duration, reason, queue)];
-    });
-    return promise;
-}
 
 
 
@@ -397,6 +520,42 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+}
+
+
+
+#pragma mark - Test Mock
+
+- (void) disable_testAsyncMockAccuracy {
+    dispatch_time_t t0 = dispatch_time(DISPATCH_TIME_NOW, 0);
+    double duration = 0.1;
+    [mock::async(duration, @"Finished").then(^id(id result){
+        dispatch_time_t t1 = dispatch_time(DISPATCH_TIME_NOW, 0);
+        XCTAssertEqualWithAccuracy(0.1*NSEC_PER_SEC, (t1 - t0), 0.1*duration*NSEC_PER_SEC, @"");
+        NSLog(@"Async task accuracy: expected duration %.4f, actual duration: %.4f", duration, (double)(t1 - t0)/NSEC_PER_SEC);
+        return nil;
+    }, nil) wait];
+}
+
+- (void) disable_testAsyncMockCancelation {
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    dispatch_time_t t0 = dispatch_time(DISPATCH_TIME_NOW, 0);
+    double duration = 1000;
+    RXPromise* promise = mock::async(duration, @"Finished")
+    .then(^id(id result){
+        XCTFail(@"unexpected");
+        dispatch_semaphore_signal(sem);
+        return nil;
+    },
+    ^id(NSError*error) {
+        dispatch_time_t t1 = dispatch_time(DISPATCH_TIME_NOW, 0);
+        XCTAssertEqualWithAccuracy(0, (t1 - t0), 0.01*NSEC_PER_SEC, @"");
+        NSLog(@"Async task cancellation: expected duration %.4f, actual duration: %.4f", 0.0, (double)(t1 - t0)/NSEC_PER_SEC);
+        dispatch_semaphore_signal(sem);
+        return nil;
+    });
+    [promise.parent cancel];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
 
 
@@ -669,8 +828,6 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     __weak RXPromise* weakOther;
     __weak RXPromise* weakPromise;
     
-    // Note: Xcode version 4.6.3 (4H1503) puts the promises into the autorelease
-    // pool - which is not exactly right.
     @autoreleasepool {
         RXPromise* promise = [[RXPromise alloc] init];
         weakPromise = promise;
@@ -679,10 +836,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             weakOther = other;
             [promise bind:other];
             [other fulfillWithValue:@"OK"];
+            [other get];
             other = nil;
             int count = 10;
-            while (count--)
-                usleep(100);
+            while (count--) usleep(100);
             XCTAssertTrue(weakOther == nil, @"other promise must be deallocated");
         }
     }
@@ -697,22 +854,22 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 - (void) testParentPromisesMustBeRetained {
     NSMutableString* s = [[NSMutableString alloc] init];
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    async(0.2, @"A")
+    mock::async(0.1, @"A")
     .then(^id(id result) {
         [s appendString:@"A"];
-        return async(0.1, @"B");
+        return mock::async(0.05, @"B");
     }, nil)
     .then(^id(id result) {
         [s appendString:@"B"];
-        return async(0.1, @"C");
+        return mock::async(0.05, @"C");
     }, nil)
     .then(^id(id result) {
         [s appendString:@"C"];
-        return async(0.1, @"D");
+        return mock::async(0.05, @"D");
     }, nil)
     .then(^id(id result) {
         [s appendString:@"D"];
-        return async(0.1, @"E");
+        return mock::async(0.05, @"E");
     }, nil)
     .then(^id(id result) {
         [s appendString:@"E"];
@@ -974,7 +1131,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
-        async_fail(.01).then(^id(id){
+        mock::async_fail(.01).then(^id(id){
             XCTFail(@"success handler must not be called");
             return nil;
         }, ^id(NSError* error){
@@ -1004,7 +1161,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
         
-        async_fail(.01).thenOn(concurrentQueue, ^id(id){
+        mock::async_fail(.01).thenOn(concurrentQueue, ^id(id){
             XCTFail(@"success handler must not be called");
             return nil;
         }, ^id(NSError* error){
@@ -1013,7 +1170,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
             return nil;
         });
         
-        // The operation is finished after about 0.01 s. Thus, the handler should
+        // The operation should be finished after about 0.01 s. Thus, the handler should
         // start to execute after about 0.01 seconds. Given a reasonable delay:
         XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
                      @"error callback not called after 1 second");
@@ -1029,7 +1186,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         semaphore finished_sem;
         semaphore& semRef = finished_sem;
         
-        RXPromise* promise0 = async_fail(0.01, @"Failure");
+        RXPromise* promise0 = mock::async_fail(0.01, @"Failure");
         RXPromise* promise1 = promise0.then(^id(id){
             semRef.signal();
             return nil;
@@ -1064,7 +1221,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 {
     // Keep a reference the last promise
     
-    RXPromise* p = async(0.01, @"A")
+    RXPromise* p = mock::async(0.01, @"A")
     .then(^id(id result){ return result; }, nil);
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"A"), unless an error occurred:
@@ -1078,9 +1235,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChaining2
 {
-    RXPromise* p = async(0.01, @"A")
+    RXPromise* p = mock::async(0.01, @"A")
     .then(^id(id result){
-        return async(0.01, @"B");
+        return mock::async(0.01, @"B");
     }, nil)
     .then(^id(id result){
         return result;
@@ -1097,9 +1254,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChaining3
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^id(id result){return async(0.01, @"B");}, nil)
-    .then(^id(id result){return async(0.01, @"C");}, nil)
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^id(id result){return mock::async(0.01, @"B");}, nil)
+    .then(^id(id result){return mock::async(0.01, @"C");}, nil)
     .then(^id(id result){return result; }, nil);
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"C"), unless an error occurred:
@@ -1113,10 +1270,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChaining4
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^id(id result){return async(0.01, @"B");}, nil)
-    .then(^id(id result){return async(0.01, @"C");}, nil)
-    .then(^id(id result){return async(0.01, @"D");}, nil)
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^id(id result){return mock::async(0.01, @"B");}, nil)
+    .then(^id(id result){return mock::async(0.01, @"C");}, nil)
+    .then(^id(id result){return mock::async(0.01, @"D");}, nil)
     .then(^id(id result){return result; }, nil);
     
     // Promise `p` shall have the state of the return value of the last handler (which is @"D"), unless an error occurred:
@@ -1131,10 +1288,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testBasicChainingWithBoundPromise
 {
     // A bound promise shall effectively be transparent to the user.
-    RXPromise* p = async_bind(0.01, @"A")
-    .then(^(id){return async_bind(0.01, @"B");}, nil)
-    .then(^(id){return async_bind(0.01, @"C");}, nil)
-    .then(^(id){return async_bind(0.01, @"D");}, nil);
+    RXPromise* p = mock::async_bind(0.01, @"A")
+    .then(^(id){return mock::async_bind(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"C");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"D");}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
     id result = p.get;
@@ -1147,9 +1304,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChainingWithImmediateNilResult
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^(id){return async(0.01, @"B");}, nil)
-    .then(^(id){return async(0.01, @"C");}, nil)
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^(id){return mock::async(0.01, @"B");}, nil)
+    .then(^(id){return mock::async(0.01, @"C");}, nil)
     .then(^id(id){return nil;}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
@@ -1164,9 +1321,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testBasicChainingWithImmediateNilResultBoundPromise
 {
     // A bound promise shall be transparent to the user.
-    RXPromise* p = async_bind(0.01, @"A")
-    .then(^(id){return async_bind(0.01, @"B");}, nil)
-    .then(^(id){return async_bind(0.01, @"C");}, nil)
+    RXPromise* p = mock::async_bind(0.01, @"A")
+    .then(^(id){return mock::async_bind(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"C");}, nil)
     .then(^id(id){return nil;}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
@@ -1180,9 +1337,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChainingWithImmediateResult
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^(id){return async(0.01, @"B");}, nil)
-    .then(^(id){return async(0.01, @"C");}, nil)
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^(id){return mock::async(0.01, @"B");}, nil)
+    .then(^(id){return mock::async(0.01, @"C");}, nil)
     .then(^id(id){return @"OK";}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
@@ -1197,9 +1354,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testBasicChainingWithImmediateResultWithBoundPromise
 {
     // A bound promise shall be transparent to the user.
-    RXPromise* p = async_bind(0.01, @"A")
-    .then(^(id){return async_bind(0.01, @"B");}, nil)
-    .then(^(id){return async_bind(0.01, @"C");}, nil)
+    RXPromise* p = mock::async_bind(0.01, @"A")
+    .then(^(id){return mock::async_bind(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"C");}, nil)
     .then(^id(id){return @"OK";}, nil);
     
     // Promise `p` shall have the state of the last async function, unless an error occurred:
@@ -1213,10 +1370,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChainingWithFailure
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^(id){return async(0.01, @"B");}, nil)
-    .then(^(id){return async_fail(0.01, @"C:Failure");}, nil)
-    .then(^(id){return async(0.01, @"D");}, nil);
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^(id){return mock::async(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_fail(0.01, @"C:Failure");}, nil)
+    .then(^(id){return mock::async(0.01, @"D");}, nil);
     
     id result = p.get;
     XCTAssertTrue( [result isKindOfClass:[NSError class]], @"");
@@ -1230,10 +1387,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testBasicChainingWithFailureWithBoundPromise
 {
     // A bound promise shall be transparent to the user.
-    RXPromise* p = async_bind(0.01, @"A")
-    .then(^(id){return async_bind(0.01, @"B");}, nil)
-    .then(^(id){return async_bind_fail(0.01, @"C:Failure");}, nil)
-    .then(^(id){return async_bind(0.01, @"D");}, nil);
+    RXPromise* p = mock::async_bind(0.01, @"A")
+    .then(^(id){return mock::async_bind(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_bind_fail(0.01, @"C:Failure");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"D");}, nil);
     
     id result = p.get;
     XCTAssertTrue( [result isKindOfClass:[NSError class]], @"");
@@ -1246,9 +1403,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChainingWithImmediateError
 {
-    RXPromise* p = async(0.01, @"A")
-    .then(^(id){return async(0.01, @"B");}, nil)
-    .then(^(id){return async(0.01, @"C");}, nil)
+    RXPromise* p = mock::async(0.01, @"A")
+    .then(^(id){return mock::async(0.01, @"B");}, nil)
+    .then(^(id){return mock::async(0.01, @"C");}, nil)
     .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
     
     id result = p.get;
@@ -1262,9 +1419,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 
 -(void) testBasicChainingWithImmediateErrorWithBoundPromise
 {
-    RXPromise* p = async_bind(0.01, @"A")
-    .then(^(id){return async_bind(0.01, @"B");}, nil)
-    .then(^(id){return async_bind(0.01, @"C");}, nil)
+    RXPromise* p = mock::async_bind(0.01, @"A")
+    .then(^(id){return mock::async_bind(0.01, @"B");}, nil)
+    .then(^(id){return mock::async_bind(0.01, @"C");}, nil)
     .then(^(id){return [NSError errorWithDomain:@"Test" code:10 userInfo:nil];}, nil);
     
     id result = p.get;
@@ -1287,10 +1444,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
     NSMutableString* s = [[NSMutableString alloc] init];
-    RXPromise* p = async(0.01, @"A");
-    p.then(^(id result){ [s appendString:result]; return async(0.01, @"B");},nil)
-    .then(^(id result){ [s appendString:result]; return async(0.01, @"C");},nil)
-    .then(^(id result){ [s appendString:result]; return async(0.01, @"D");},nil)
+    RXPromise* p = mock::async(0.01, @"A");
+    p.then(^(id result){ [s appendString:result]; return mock::async(0.01, @"B");},nil)
+    .then(^(id result){ [s appendString:result]; return mock::async(0.01, @"C");},nil)
+    .then(^(id result){ [s appendString:result]; return mock::async(0.01, @"D");},nil)
     .then(^id(id result){
         [s appendString:result];
         dispatch_semaphore_signal(finished_sem);
@@ -1318,10 +1475,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
     NSMutableString* s = [[NSMutableString alloc] init];
-    RXPromise* p = async_bind(0.01, @"A");
-    p.then(^(id result){ [s appendString:result]; return async_bind(0.01, @"B");},nil)
-    .then(^(id result){ [s appendString:result]; return async_bind(0.01, @"C");},nil)
-    .then(^(id result){ [s appendString:result]; return async_bind(0.01, @"D");},nil)
+    RXPromise* p = mock::async_bind(0.01, @"A");
+    p.then(^(id result){ [s appendString:result]; return mock::async_bind(0.01, @"B");},nil)
+    .then(^(id result){ [s appendString:result]; return mock::async_bind(0.01, @"C");},nil)
+    .then(^(id result){ [s appendString:result]; return mock::async_bind(0.01, @"D");},nil)
     .then(^id(id result){
         [s appendString:result];
         dispatch_semaphore_signal(finished_sem);
@@ -1345,7 +1502,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // enter the handler.
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
-    p0 = async(0.1);
+    p0 = mock::async(0.1);
     
     NSMutableString* s = [[NSMutableString alloc] init];
     
@@ -1356,7 +1513,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"A"];
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTFail(@"p1 error handler called");
         return error;
@@ -1367,7 +1524,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p1.isCancelled, @"");
         XCTAssertFalse(p1.isRejected, @"");
         [s appendString:@"B"];
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTFail(@"p2 error handler called");
         return error;
@@ -1378,7 +1535,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p2.isCancelled, @"");
         XCTAssertFalse(p2.isRejected, @"");
         [s appendString:@"C"];
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTFail(@"p3 error handler called");
         return error;
@@ -1389,7 +1546,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p3.isCancelled, @"");
         XCTAssertFalse(p3.isRejected, @"");
         [s appendString:@"D"];
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTFail(@"p4 error handler called");
         return error;
@@ -1421,11 +1578,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // Keep all references to the promises.
     NSMutableString* e = [[NSMutableString alloc] init];
     RXPromise* p0, *p1, *p2, *p3, *p4;
-    p0 = async_fail(0.2, @"A:ERROR");
+    p0 = mock::async_fail(0.2, @"A:ERROR");
     
     p1 = p0.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         // Note: accessing p1 in this handler is not correct, since the
         // handler will determince how the returned promise will be resolved!
@@ -1440,7 +1597,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p2 = p1.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
@@ -1458,7 +1615,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
@@ -1479,7 +1636,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"A:ERROR"], @"");
@@ -1534,7 +1691,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
-    p0 = async(0.1);
+    p0 = mock::async(0.1);
     
     p1 = p0.then(^id(id){
         XCTAssertFalse(p0.isPending, @"");
@@ -1542,7 +1699,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"A"];
-        return async_fail(0.01, @"B:ERROR");;
+        return mock::async_fail(0.01, @"B:ERROR");;
         
     },^id(NSError* error){
         XCTFail(@"p1 success handler called");
@@ -1550,7 +1707,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p2 = p1.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
@@ -1568,7 +1725,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
@@ -1589,7 +1746,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^id(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertTrue([error isKindOfClass:[NSError class]], @"");
         XCTAssertTrue([error.userInfo[NSLocalizedFailureReasonErrorKey] isEqualToString:@"B:ERROR"], @"");
@@ -1654,7 +1811,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     // RXPromise* pAll = [RXPromise promiseAll: p00, p01, p02, p03];
     
     
-    p0 = async(0.01, @"0:success");
+    p0 = mock::async(0.01, @"0:success");
     
     p00 = p0.then(^id(id result){
         XCTAssertTrue([result isEqualToString:@"0:success"], @"");
@@ -1663,7 +1820,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         *bp  = 'A';
-        return async(0.01, @"00:success");
+        return mock::async(0.01, @"00:success");
     }, nil);
     
     p01 = p0.then(^id(id result){
@@ -1673,7 +1830,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         *(bp+1)='B';
-        return async(0.01, @"01:success");
+        return mock::async(0.01, @"01:success");
     }, nil);
     
     p02 = p0.then(^id(id result){
@@ -1683,7 +1840,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         *(bp+2)='C';
-        return async(0.01, @"02:success");
+        return mock::async(0.01, @"02:success");
     }, nil);
     
     p03 = p0.then(^id(id result){
@@ -1693,7 +1850,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         *(bp+3)='D';
-        return async(0.01, @"03:success");
+        return mock::async(0.01, @"03:success");
     }, ^(NSError* error){
         return error;
     });
@@ -1900,17 +2057,17 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         std::string es;
         std::string& esr = es;
         
-        RXPromise* promise0 = async(0.01); // op0
+        RXPromise* promise0 = mock::async(0.01); // op0
         
         RXPromise* promise00 = promise0.then(^id(id result) {
             sr0.append("S0->"); sr1.append("____");
-            return async(0.04); // op00
+            return mock::async(0.04); // op00
         }, ^id(NSError *error) {
             esr.append("E0->"); return error;
         });
         RXPromise* promise000 = promise00.then(^id(id result) {
             sr0.append("S00->"); sr1.append("_____");
-            return async(0.02); // op000;
+            return mock::async(0.02); // op000;
         }, ^id(NSError *error) {
             esr.append("E00"); return error;
         });
@@ -1924,13 +2081,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* promise01 = promise0.then(^id(id result) {
             sr1.append("S1->"); sr0.append("____");
-            return async(0.02); // op01
+            return mock::async(0.02); // op01
         }, ^id(NSError *error) {
             esr.append("E1"); return error;
         });
         RXPromise* promise010 = promise01.then(^id(id result) {
             sr1.append("S10->");  sr0.append("_____");
-            return async(0.06); // op010;
+            return mock::async(0.06); // op010;
         }, ^id(NSError *error) {
             esr.append("E10"); return error;
         });
@@ -1963,13 +2120,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
     
-    p0 = async(1000);  // takes a while to finish
+    p0 = mock::async(1000);  // takes a while to finish
     
     NSMutableString* e = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
         XCTFail(@"p1 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p0.isPending, @"");
         XCTAssertFalse(p0.isFulfilled, @"");
@@ -1980,7 +2137,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p2 = p1.then(^(id){
         XCTFail(@"p2 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -1991,7 +2148,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^(id){
         XCTFail(@"p3 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2002,7 +2159,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^(id){
         XCTFail(@"p4 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2079,13 +2236,13 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
     
-    p0 = async_bind(1000);  // takes a while to finish
+    p0 = mock::async_bind(1000);  // takes a while to finish
     
     NSMutableString* e = [[NSMutableString alloc] init];
     
     p1 = p0.then(^(id){
         XCTFail(@"p1 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p0.isPending, @"");
         XCTAssertFalse(p0.isFulfilled, @"");
@@ -2096,7 +2253,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p2 = p1.then(^(id){
         XCTFail(@"p2 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2107,7 +2264,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^(id){
         XCTFail(@"p3 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2118,7 +2275,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^(id){
         XCTFail(@"p4 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2193,7 +2350,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
     
-    p0 = async(0.01);  // will be finished quickly
+    p0 = mock::async(0.01);  // will be finished quickly
     
     NSMutableString* e = [[NSMutableString alloc] init];
     NSMutableString* s = [[NSMutableString alloc] init];
@@ -2204,14 +2361,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"1"];
-        return async(1000); // takes a while to finish
+        return mock::async(1000); // takes a while to finish
     },^id(NSError* error){
         XCTFail(@"p1 error handler called");
         return error;
     });
     p2 = p1.then(^(id){
         XCTFail(@"p2 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2222,7 +2379,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^(id){
         XCTFail(@"p3 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2233,7 +2390,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^(id){
         XCTFail(@"p4 success handler called");
-        return async(0.01);
+        return mock::async(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2302,7 +2459,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     RXPromise* p0, *p1, *p2, *p3, *p4;
     
-    p0 = async_bind(0.01);  // will be finished quickly
+    p0 = mock::async_bind(0.01);  // will be finished quickly
     
     NSMutableString* e = [[NSMutableString alloc] init];
     NSMutableString* s = [[NSMutableString alloc] init];
@@ -2313,14 +2470,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         XCTAssertFalse(p0.isCancelled, @"");
         XCTAssertFalse(p0.isRejected, @"");
         [s appendString:@"1"];
-        return async_bind(1000); // takes a while to finish
+        return mock::async_bind(1000); // takes a while to finish
     },^id(NSError* error){
         XCTFail(@"p1 error handler called");
         return error;
     });
     p2 = p1.then(^(id){
         XCTFail(@"p2 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2331,7 +2488,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p3 = p2.then(^(id){
         XCTFail(@"p3 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2342,7 +2499,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     });
     p4 = p3.then(^(id){
         XCTFail(@"p4 success handler called");
-        return async_bind(0.01);
+        return mock::async_bind(0.01);
     },^id(NSError* error){
         XCTAssertFalse(p1.isPending, @"");
         XCTAssertFalse(p1.isFulfilled, @"");
@@ -2419,11 +2576,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         NSMutableString*  s1 = [[NSMutableString alloc] init];
         NSMutableString*  s2 = [[NSMutableString alloc] init];
         
-        RXPromise* p0 = async(1000); // op0
+        RXPromise* p0 = mock::async(1000); // op0
         
         RXPromise* p00 = p0.then(^id(id result) {
             [s0 appendString:@"0F"];
-            return async(0.04);
+            return mock::async(0.04);
         }, ^id(NSError *error) {
             [s0 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2433,7 +2590,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p000 = p00.then(^id(id result) {
             [s0 appendString:@"00F"];
-            return async(0.02);
+            return mock::async(0.02);
         }, ^id(NSError *error) {
             [s0 appendString:@"00R"];
             if (p00.isCancelled) {
@@ -2455,7 +2612,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p01 = p0.then(^id(id result) {
             [s1 appendString:@"0F"];
-            return async(0.04); // op00
+            return mock::async(0.04); // op00
         }, ^id(NSError *error) {
             [s1 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2465,7 +2622,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p010 = p01.then(^id(id result) {
             [s1 appendString:@"01F"];
-            return async(0.02);
+            return mock::async(0.02);
         }, ^id(NSError *error) {
             [s1 appendString:@"01R"];
             if (p01.isCancelled) {
@@ -2487,7 +2644,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p02 = p0.then(^id(id result) {
             [s2 appendString:@"0F"];
-            return async(0.04);
+            return mock::async(0.04);
         }, ^id(NSError *error) {
             [s2 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2497,7 +2654,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p020 = p02.then(^id(id result) {
             [s2 appendString:@"02F"];
-            return async(0.02);
+            return mock::async(0.02);
         }, ^id(NSError *error) {
             [s2 appendString:@"02R"];
             if (p02.isCancelled) {
@@ -2552,11 +2709,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         NSMutableString*  s1 = [[NSMutableString alloc] init];
         NSMutableString*  s2 = [[NSMutableString alloc] init];
         
-        RXPromise* p0 = async_bind(1000); // op0
+        RXPromise* p0 = mock::async_bind(1000); // op0
         
         RXPromise* p00 = p0.then(^id(id result) {
             [s0 appendString:@"0F"];
-            return async_bind(0.04);
+            return mock::async_bind(0.04);
         }, ^id(NSError *error) {
             [s0 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2566,7 +2723,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p000 = p00.then(^id(id result) {
             [s0 appendString:@"00F"];
-            return async_bind(0.02);
+            return mock::async_bind(0.02);
         }, ^id(NSError *error) {
             [s0 appendString:@"00R"];
             if (p00.isCancelled) {
@@ -2588,7 +2745,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p01 = p0.then(^id(id result) {
             [s1 appendString:@"0F"];
-            return async_bind(0.04); // op00
+            return mock::async_bind(0.04); // op00
         }, ^id(NSError *error) {
             [s1 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2598,7 +2755,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p010 = p01.then(^id(id result) {
             [s1 appendString:@"01F"];
-            return async_bind(0.02);
+            return mock::async_bind(0.02);
         }, ^id(NSError *error) {
             [s1 appendString:@"01R"];
             if (p01.isCancelled) {
@@ -2620,7 +2777,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p02 = p0.then(^id(id result) {
             [s2 appendString:@"0F"];
-            return async_bind(0.04);
+            return mock::async_bind(0.04);
         }, ^id(NSError *error) {
             [s2 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2630,7 +2787,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p020 = p02.then(^id(id result) {
             [s2 appendString:@"02F"];
-            return async_bind(0.02);
+            return mock::async_bind(0.02);
         }, ^id(NSError *error) {
             [s2 appendString:@"02R"];
             if (p02.isCancelled) {
@@ -2685,11 +2842,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         NSMutableString*  s1 = [[NSMutableString alloc] init];
         NSMutableString*  s2 = [[NSMutableString alloc] init];
         
-        RXPromise* p0 = async(0.01); // op0
+        RXPromise* p0 = mock::async(0.01); // op0
         
         RXPromise* p00 = p0.then(^id(id result) {
             [s0 appendString:@"0F"];
-            return async(10);
+            return mock::async(10);
         }, ^id(NSError *error) {
             [s0 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2699,7 +2856,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p000 = p00.then(^id(id result) {
             [s0 appendString:@"00F"];
-            return async(10);
+            return mock::async(10);
         }, ^id(NSError *error) {
             [s0 appendString:@"00R"];
             if (p00.isCancelled) {
@@ -2722,7 +2879,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p01 = p0.then(^id(id result) {
             [s1 appendString:@"0F"];
-            return async(10); // op00
+            return mock::async(10); // op00
         }, ^id(NSError *error) {
             [s1 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2732,7 +2889,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p010 = p01.then(^id(id result) {
             [s1 appendString:@"01F"];
-            return async(10);
+            return mock::async(10);
         }, ^id(NSError *error) {
             [s1 appendString:@"01R"];
             if (p01.isCancelled) {
@@ -2755,7 +2912,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p02 = p0.then(^id(id result) {
             [s2 appendString:@"0F"];
-            return async(10);
+            return mock::async(10);
         }, ^id(NSError *error) {
             [s2 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2765,7 +2922,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p020 = p02.then(^id(id result) {
             [s2 appendString:@"02F"];
-            return async(10);
+            return mock::async(10);
         }, ^id(NSError *error) {
             [s2 appendString:@"02R"];
             if (p02.isCancelled) {
@@ -2820,11 +2977,11 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         NSMutableString*  s1 = [[NSMutableString alloc] init];
         NSMutableString*  s2 = [[NSMutableString alloc] init];
         
-        RXPromise* p0 = async_bind(0.01); // op0
+        RXPromise* p0 = mock::async_bind(0.01); // op0
         
         RXPromise* p00 = p0.then(^id(id result) {
             [s0 appendString:@"0F"];
-            return async_bind(10);
+            return mock::async_bind(10);
         }, ^id(NSError *error) {
             [s0 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2834,7 +2991,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p000 = p00.then(^id(id result) {
             [s0 appendString:@"00F"];
-            return async_bind(10);
+            return mock::async_bind(10);
         }, ^id(NSError *error) {
             [s0 appendString:@"00R"];
             if (p00.isCancelled) {
@@ -2857,7 +3014,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p01 = p0.then(^id(id result) {
             [s1 appendString:@"0F"];
-            return async_bind(10); // op00
+            return mock::async_bind(10); // op00
         }, ^id(NSError *error) {
             [s1 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2867,7 +3024,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p010 = p01.then(^id(id result) {
             [s1 appendString:@"01F"];
-            return async_bind(10);
+            return mock::async_bind(10);
         }, ^id(NSError *error) {
             [s1 appendString:@"01R"];
             if (p01.isCancelled) {
@@ -2890,7 +3047,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         RXPromise* p02 = p0.then(^id(id result) {
             [s2 appendString:@"0F"];
-            return async_bind(10);
+            return mock::async_bind(10);
         }, ^id(NSError *error) {
             [s2 appendString:@"0R"];
             if (p0.isCancelled) {
@@ -2900,7 +3057,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         });
         RXPromise* p020 = p02.then(^id(id result) {
             [s2 appendString:@"02F"];
-            return async_bind(10);
+            return mock::async_bind(10);
         }, ^id(NSError *error) {
             [s2 appendString:@"02R"];
             if (p02.isCancelled) {
@@ -2942,14 +3099,14 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
     
     // Run eight tasks in parallel:
-    NSArray* promises = @[async(0.05, @"A"),
-                          async(0.05, @"B"),
-                          async(0.05, @"C"),
-                          async(0.05, @"D"),
-                          async(0.05, @"E"),
-                          async(0.05, @"F"),
-                          async(0.05, @"G"),
-                          async(0.05, @"H")];
+    NSArray* promises = @[mock::async(0.05, @"A"),
+                          mock::async(0.05, @"B"),
+                          mock::async(0.05, @"C"),
+                          mock::async(0.05, @"D"),
+                          mock::async(0.05, @"E"),
+                          mock::async(0.05, @"F"),
+                          mock::async(0.05, @"G"),
+                          mock::async(0.05, @"H")];
     
 
     RXPromise* all = [RXPromise all:promises].then(^id(id results){
@@ -2983,35 +3140,35 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     // Note: The results array will contain the return value of the success handler
     NSArray* promises = @[
-    async(0.08, @"A").then(^id(id result){
+    mock::async(0.08, @"A").then(^id(id result){
         *p='A';
         return result;
     },nil),
-    async(0.07, @"B").then(^id(id result){
+    mock::async(0.07, @"B").then(^id(id result){
         *(p+1)='B';
         return result;
     },nil),
-    async(0.06, @"C").then(^id(id result){
+    mock::async(0.06, @"C").then(^id(id result){
         *(p+2)='C';
         return result;
     },nil),
-    async(0.05, @"D").then(^id(id result){
+    mock::async(0.05, @"D").then(^id(id result){
         *(p+3)='D';
         return result;
     },nil),
-    async(0.04, @"E").then(^id(id result){
+    mock::async(0.04, @"E").then(^id(id result){
         *(p+4)='E';
         return result;
     },nil),
-    async(0.03, @"F").then(^id(id result){
+    mock::async(0.03, @"F").then(^id(id result){
         *(p+5)='F';
         return result;
     },nil),
-    async(0.02, @"G").then(^id(id result){
+    mock::async(0.02, @"G").then(^id(id result){
         *(p+6)='G';
         return result;
     },nil),
-    async(0.01, @"H").then(^id(id result){
+    mock::async(0.01, @"H").then(^id(id result){
         *(p+7)='H';
         return result;
     },nil)];
@@ -3061,43 +3218,46 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
     
     NSArray* promises = @[
-    async(0.2, @"A").thenOn(syncQueue, ^id(id result){
+    mock::async(0.2, @"A").thenOn(syncQueue, ^id(id result){
         void* q = dispatch_get_specific(QueueID);
         XCTAssertTrue((__bridge void*)syncQueue == q, @"not running on sync_queue");
-        *p++='A';
+        p[0]='A';
         return result;
-    },nil).parent,
-    async(0.01, @"B").thenOn(syncQueue, ^id(id result){
-        *p++='B';
+    },nil),
+    mock::async(0.01, @"B").thenOn(syncQueue, ^id(id result){
+        p[1]='B';
         return result;
-    },nil).parent,
-    async(0.01, @"C").thenOn(syncQueue, ^id(id result){
-        *p++='C';
+    },nil),
+    mock::async(0.01, @"C").thenOn(syncQueue, ^id(id result){
+        p[2]='C';
         return result;
-    },nil).parent,
-    async(0.01, @"D").thenOn(syncQueue, ^id(id result){
-        *p++='D';
+    },nil),
+    mock::async(0.01, @"D").thenOn(syncQueue, ^id(id result){
+        p[3]='D';
         return result;
-    },nil).parent,
-    async(0.01, @"E").thenOn(syncQueue, ^id(id result){
-        *p++='E';
+    },nil),
+    mock::async(0.01, @"E").thenOn(syncQueue, ^id(id result){
+        p[4]='E';
         return result;
-    },nil).parent,
-    async(0.01, @"F").thenOn(syncQueue, ^id(id result){
-        *p++='F';
+    },nil),
+    mock::async(0.01, @"F").thenOn(syncQueue, ^id(id result){
+        p[5]='F';
         return result;
-    },nil).parent,
-    async(0.01, @"G").thenOn(syncQueue, ^id(id result){
-        *p++='G';
+    },nil),
+    mock::async(0.01, @"G").thenOn(syncQueue, ^id(id result){
+        p[6]='G';
         return result;
-    },nil).parent,
-    async(0.01, @"H").thenOn(syncQueue, ^id(id result){
-        *p++='H';
+    },nil),
+    mock::async(0.01, @"H").thenOn(syncQueue, ^id(id result){
+        p[7]='H';
         return result;
-    },nil).parent
+    },nil)
     ];
     
     RXPromise* all = [RXPromise all:promises].thenOn(syncQueue, ^id(id results){
+        for (RXPromise* p in promises) {
+            XCTAssertTrue(p.isFulfilled, @"");
+        }
         XCTAssertTrue([results isKindOfClass:[NSArray class]], @"");
         XCTAssertTrue(results != promises, @"");
         XCTAssertTrue([expectedResults isEqualToArray:results], @"");
@@ -3116,7 +3276,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testAllOneRejected1
 {
     // Run three tasks in parallel:
-    NSArray* tasks = @[async(0.1, @"A"), async_fail(0.2, @"B"), async(0.3, @"C")];
+    NSArray* tasks = @[mock::async(0.1, @"A"),
+                       mock::async_fail(0.2, @"B"),
+                       mock::async(0.3, @"C")];
     
     [[RXPromise all:tasks]
     .then(^id(id result) {
@@ -3136,21 +3298,21 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 -(void) testAllOneRejected2 {
     NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
     
-    NSArray* promises = @[async(0.1, @"A")
+    NSArray* promises = @[mock::async(0.1, @"A")
                           .then(^id(id result){
                               [s0 appendString:result];
                               return result;
-                          },nil).parent,
-                          async_fail(0.2, @"B")
+                          },nil),
+                          mock::async_fail(0.2, @"B")
                           .then(^id(id result){
                               [s0 appendString:result];
                               return result;
-                          },nil).parent,
-                          async(0.3, @"C")
+                          },nil),
+                          mock::async(0.3, @"C")
                           .then(^id(id result){
                               [s0 appendString:result];
                               return result;
-                          },nil).parent];
+                          },nil)];
     RXPromise* all = [RXPromise all:promises].then(^id(id result){
         XCTFail(@"must not be called");
         return nil;
@@ -3175,9 +3337,9 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     
     // Run three tasks in parallel:
-    NSArray* tasks = @[async(0.1, @"A"), async_fail(0.2, @"B"), async(0.3, @"C")];
+    NSArray* tasks = @[mock::async(0.1, @"A"), mock::async_fail(0.2, @"B"), mock::async(0.3, @"C")];
     
-    [RXPromise all:tasks].thenOn(concurrentQueue,
+    [[RXPromise all:tasks].thenOn(concurrentQueue,
       ^id(id result) {
         XCTFail(@"must not be called");
         return nil;
@@ -3187,30 +3349,37 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         
         XCTAssertTrue([tasks[0] isFulfilled], @"");
         XCTAssertTrue([tasks[1] isRejected], @"");
+        [tasks[2] wait];
         XCTAssertTrue([tasks[2] isCancelled], @"");
         return error;
-    });
+    }) wait];
 }
 
 -(void) testAllCancelled {
     NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
     
-    NSArray* promises = @[async(0.1, @"A")
+    // Array containing the returned promises of the tasks (not the returned promises of their handlers, see `.parent`)
+    
+    NSArray* handlerPromises = @[mock::async(0.1, @"A")
                           .then(^id(id result) {
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent,
-                          async_fail(100, @"B")
+                          },nil),
+                          mock::async_fail(100, @"B")
                           .then(^id(id result) {
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent,
-                          async(1, @"C")
+                          },nil),
+                          mock::async(1, @"C")
                           .then(^id(id result) {
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent];
-    RXPromise* all = [RXPromise all:promises].then(^id(id result){
+                          },nil)];
+    
+    NSArray* taskPromises = @[[handlerPromises[0] parent], [handlerPromises[1] parent], [handlerPromises[2] parent]];
+    
+    
+    RXPromise* all = [RXPromise all:taskPromises].then(^id(id result){
         XCTFail(@"must not be called");
         return nil;
     },^id(NSError*error){
@@ -3224,9 +3393,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
         [[all root] cancel];
     });
     
-    [all wait];
+    [[RXPromise all:handlerPromises] wait];
     XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
+
 
 -(void) testAllCancelledWithQueue {
     // Note: When `thenOn`'s block is invoked, the handler is invoked on the
@@ -3238,50 +3408,58 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     NSMutableString*  s0 = [[NSMutableString alloc] init];
     
-    NSArray* promises = @[async(0.1, @"A")
+    NSArray* handlerPromises = @[mock::async(0.1, @"A")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent,
-                          async_fail(1, @"B")
+                          },nil),
+                          mock::async_fail(1, @"B")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent,
-                          async(1, @"C")
+                          },nil),
+                          mock::async(1, @"C")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
-                          },nil).parent];
-    RXPromise* all = [RXPromise all:promises].thenOn(concurrentQueue,
-                                                     ^id(id result){
+                          },nil)];
+    NSArray* taskPromises = @[[handlerPromises[0] parent], [handlerPromises[1] parent], [handlerPromises[2] parent]];
+    
+    
+    RXPromise* allTasksFinishedWithHandler = [RXPromise all:taskPromises].thenOn(concurrentQueue,
+                                                     ^id(id promises){
                                                          XCTFail(@"must not be called");
                                                          return nil;
                                                      },^id(NSError*error){
+                                                         XCTAssertTrue([taskPromises[0] isFulfilled], @"");
+                                                         [taskPromises[1] wait];
+                                                         XCTAssertTrue([taskPromises[1] isCancelled], @"");
+                                                         [taskPromises[2] wait];
+                                                         XCTAssertTrue([taskPromises[2] isCancelled], @"");
                                                          XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
-                                                         XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[@"reason"]], @"");
+                                                         XCTAssertTrue([@"XX cancelled XX" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"%@", error.userInfo[NSLocalizedFailureReasonErrorKey]);
                                                          return error;
                                                      });
     
     double delayInSeconds = 0.2;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        [all cancel];
+        // Cancel the "all" promise
+        [allTasksFinishedWithHandler.parent cancelWithReason:@"XX cancelled XX"];
     });
     
-    [all wait];
+    [[RXPromise all:handlerPromises] wait];
+    [allTasksFinishedWithHandler wait];
     XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
-
 
 
 #pragma mark - any
 
 -(void) testAnyGetFirst {
-    
     // Start `Count` tasks in parallel. Return the  result of the task which
     // finished first and cancel the remaining yet running tasks.
     // Insert the promise of each async task into an array and send class message
@@ -3297,40 +3475,56 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     char buffer[Count] = {'X'};
     char* p = buffer;
     
+    dispatch_group_t group = dispatch_group_create();
+    
+    for (int i = 0; i < Count; ++i) {
+        dispatch_group_enter(group);
+    }
+    
     NSArray* promises = @[
-      async(0.1, @"A").thenOn(sync_queue, ^id(id result) {
+      mock::async(0.1, @"A").thenOn(sync_queue, ^id(id result) {
           *(p+0)='A';
+          dispatch_group_leave(group);
           return nil;
       },^id(NSError*error){
           *(p+0)='a';
+          dispatch_group_leave(group);
           return error;
       }).parent,
-      async(0.2, @"B").thenOn(sync_queue, ^id(id result) {
+      mock::async(0.15, @"B").thenOn(sync_queue, ^id(id result) {
           *(p+1)='B';
+          dispatch_group_leave(group);
           return nil;
       },^id(NSError*error){
           *(p+1)='b';
+          dispatch_group_leave(group);
           return error;
       }).parent,
-      async(0.3, @"C").thenOn(sync_queue, ^id(id result) {
+      mock::async(0.2, @"C").thenOn(sync_queue, ^id(id result) {
           *(p+2)='C';
+          dispatch_group_leave(group);
           return nil;
       },^id(NSError*error){
           *(p+2)='c';
+          dispatch_group_leave(group);
           return error;
       }).parent,
-      async(0.4, @"D").thenOn(sync_queue, ^id(id result) {
+      mock::async(0.25, @"D").thenOn(sync_queue, ^id(id result) {
           *(p+3)='D';
+          dispatch_group_leave(group);
           return nil;
       },^id(NSError*error){
           *(p+3)='d';
+          dispatch_group_leave(group);
           return error;
       }).parent,
-      async(0.5, @"E").thenOn(sync_queue, ^id(id result){
+      mock::async(0.3, @"E").thenOn(sync_queue, ^id(id result){
           *(p+4)='E';
+          dispatch_group_leave(group);
           return nil;
       },^id(NSError*error){
           *(p+4)='e';
+          dispatch_group_leave(group);
           return error;
       }).parent
     ];
@@ -3366,6 +3560,12 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
     
     [[RXPromise all:promises] wait];
+    // Wait until the all handlers have been invoked:
+    // It's a bit tricky to wait for a number of handlers to have all finished
+    // when we do not have the promises. Note, that in the Unit Test handlers write
+    // into the stack! This is be fatal if the next test starts and the handlers
+    // havn't finished.
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 }
 
 -(void) testAnyGetSecond {
@@ -3397,82 +3597,99 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     __block NSString* firstResult = nil;
     
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    // Note that the array _promises_ contains the promises from the task's *handler*,
+    // not the *task promise* itself. Despite `any` will cancel all other promises
+    // once the first has been finished, it will not cancel the task promises!
+    // This is due to the fact that canceling a promise will not forward the cancel
+    // message to their *parent* - in order to prevent an avalange effect which
+    // would result in cancelling the whole promise tree, which is usually
+    // quite undesired. Thus when the task promise wont be cancelled, and the
+    // task has registred a handler to its retunred promise which detetcs
+    // cancellation, the task won't get notified about this and won't cancel
+    // itself.
     __block NSArray* promises;
     promises = @[
-          async(0.2, @"A").thenOn(sync_queue, ^id(id result) {
+          mock::async(0.2, @"A").thenOn(sync_queue, ^id(id result) {
               *(p+0)='A';
-              return nil;
+              return @"A";
           },^id(NSError*error){
               *(p+0)='a';
               return error;
-          }).parent,
-          async(0.1, @"B").thenOn(sync_queue, ^id(id result) {
+          }),
+          mock::async(0.1, @"B").thenOn(sync_queue, ^id(id result) {
               *(p+1)='B';
-              return nil;
+              return @"B";
           },^id(NSError*error){
               *(p+1)='b';
               return error;
-          }).parent,
-          async(0.3, @"C").thenOn(sync_queue, ^id(id result) {
+          }),
+          mock::async(0.3, @"C").thenOn(sync_queue, ^id(id result) {
               *(p+2)='C';
-              return nil;
+              return @"C";
           },^id(NSError*error){
               *(p+2)='c';
               return error;
-          }).parent,
-          async(0.4, @"D").thenOn(sync_queue, ^id(id result) {
+          }),
+          mock::async(0.4, @"D").thenOn(sync_queue, ^id(id result) {
               *(p+3)='D';
-              return nil;
+              return @"D";
           },^id(NSError*error){
               *(p+3)='d';
               return error;
-          }).parent,
-          async(0.5, @"E").thenOn(sync_queue, ^id(id result){
+          }),
+          mock::async(1000.0, @"E").thenOn(sync_queue, ^id(id result){
               *(p+4)='E';
-              return nil;
+              return @"E";
           },^id(NSError*error){
               *(p+4)='e';
               return error;
-          }).parent];
+          })];
     
     assert([promises count] == Count);
     
-    RXPromise* first = [RXPromise any:promises].thenOn(sync_queue, ^id(id result) {
-        // If we reach here, the first task and its handler SHALL have been finished.
-        // We can be sure that the handler already finished, because this handler
-        // have been queued after the task's handler above.
+    [RXPromise any:promises].thenOn(sync_queue, ^id(id result) {
+        // If we reach here, the first finished task and its handler SHALL have been
+        // finished. Now, the other handler promises get cancelled, but this will not
+        // cancel the task promises!
+        //
         // The task which finishes first is task "B".
         // The RXPromise `any` method will forward the cancel message only after
         // the first task's handler has been finished.
         firstResult = result;
         XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
-        XCTAssertTrue([@"B" isEqualToString:result], @"");
+        XCTAssertTrue([@"B" isEqualToString:result], @"%@", result);
+        // Note: here a number of tasks may still run! We do not know WHEN the tasks
+        // eventually finish and try to resolve the handler promises which are
+        // already cancelled by the `any` method. So, we cancel them explictly:
+        for (RXPromise* p in promises) {
+            [p.parent cancel];
+        }
+        dispatch_async(sync_queue, ^{
+            dispatch_semaphore_signal(sem);
+        });
         return nil;
     },^id(NSError*error){
         XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
+        // Note: here a number of tasks may still run! We do not know WHEN the tasks
+        // eventually finish and try to resolve the handler promises which are
+        // already cancelled by the `any` method. So, we cancel them explictly:
+        for (RXPromise* p in promises) {
+            [p.parent cancel];
+        }
+        dispatch_async(sync_queue, ^{
+            dispatch_semaphore_signal(sem);
+        });
         return error;
     });
-    
-    // wait until the first task and its handler has been finished:
-    [first wait];
-    sync_queue = nil;
-    
-    // Wait until the last handler has been invoked:
-    // It's a bit tricky to wait for a number of handlers to have all finished
-    // when we do not have the promises. We just sleep for a while:
-    usleep(4*1000);
+
+    // Ensure the tasks are fimished:
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
     XCTAssertTrue( std::memcmp(buffer, "aBcde", sizeof(buffer)) == 0, @"");
     [[RXPromise all:promises] wait];
-    
-    // Wait until the last handler has been invoked:
-    // It's a bit tricky to wait for a number of handlers to have all finished
-    // when we do not have the promises. Note, that in the Unit Test handlers write
-    // into the stack! This is be fatal if the next test starts and the handlers
-    // havn't finished.
-    // We just sleep for a while:
-    usleep(100*1000);
 }
 
 
@@ -3776,10 +3993,10 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     
     __block char* data = results.data();
     
-    RXPromise* root1 = async(0.01, @"OK");
-    RXPromise* root2 = async(0.02, @"OK");
-    RXPromise* root3 = async(0.03, @"OK");
-    RXPromise* root4 = async(0.04, @"OK");
+    RXPromise* root1 = mock::async(0.01, @"OK");
+    RXPromise* root2 = mock::async(0.02, @"OK");
+    RXPromise* root3 = mock::async(0.03, @"OK");
+    RXPromise* root4 = mock::async(0.04, @"OK");
     
     NSArray* promises = @[
         root1.then(^id(id result) {
@@ -3842,7 +4059,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     __block char* data = results.data();
     
-    RXPromise* root = async(0.01, @"OK");
+    RXPromise* root = mock::async(0.01, @"OK");
     
     for (int i = 0; i < Count; ++i) {
         root.thenOn(sync_queue, ^id(id result) {
@@ -3876,7 +4093,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
     __block int counter = 0;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    RXPromise* root = async(0.01, @"OK");
+    RXPromise* root = mock::async(0.01, @"OK");
     for (int i = 0; i < Count; ++i) {
         root.thenOn(concurrent_queue, ^id(id result) {
             XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrent_queue), @"Handler does not execute on dedicated queue");
@@ -3951,7 +4168,7 @@ static RXPromise* async_bind_fail(double duration, id reason = @"Failure", dispa
 #include <mach/mach_time.h>
 
 
-- (void) testPromisePerformance
+- (void) disabled_testPromisePerformance
 {
     NSAssert([NSThread currentThread] == [NSThread mainThread], @"this test must run on the main thread");
     

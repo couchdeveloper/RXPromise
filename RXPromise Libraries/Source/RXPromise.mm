@@ -319,7 +319,7 @@ namespace {
             dispatch_resume(_handler_queue);
         }
     }
-    if (_state != Cancelled) {
+    else {
         // We cancelled the promise at a time as it already was resolved.
         // That means, the _handler_queue is gone and we cannot forward the
         // cancellation event to any child ("returnedPromise") anymore.

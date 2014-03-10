@@ -92,12 +92,12 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  The handlers use an "execution context" which they are executed on. The execution
  context is either explicit or implicit.
  
- If the \p then propertie's block will be used to define the success and error
+ If the \p then propertie's block will be used to define the completion and error
  handler, the handlers will implictily run on an _unspecified_ and _concurrent_
  execution context. That is, once the promise is resolved the corresponding 
  handler MAY execute on any thread and concurrently to any other handler.
  
- If the \p thenOn propertie's block will be used to define success and error handler,
+ If the \p thenOn propertie's block will be used to define completion and error handler,
  the execution context will be explicitly defined through the first parameter 
  _queue_ of the block, which is either a serial or concurrent _dispatch queue_.
  Once the promise is resolved, the handler is guaranteed to execute on the specified
@@ -108,7 +108,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  and _serial_ execution context.
  
  The "execution context" for a dispatch queue is the target queue of that queue.
- The target queue is responsible for processing the success or error block.
+ The target queue is responsible for processing the completion or error block.
  
  
  It's safe to specify the same execution context where the \p then or \p thenOn 
@@ -217,7 +217,7 @@ typedef id (^promise_errorHandler_t)(NSError* error) /*NS_RETURNS_RETAINED*/;
  @brief Type definition of the "then block". The "then block" is the return value
  of the property \p then.
  
- @discussion  The "then block" has two parameters, the success handler block and 
+ @discussion  The "then block" has two parameters, the completion handler block and
  the error handler block. The handlers may be \c nil. 
  
  @par The "then block" returns a promise, the "returned promise". When the parent
@@ -235,7 +235,7 @@ typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHan
  value of the property \p thenOn. 
  
  @discussion The "then_on block" has three parameters, the execution context, the
- success handler block and the error handler block. The handlers may be \c nil.
+ completion handler block and the error handler block. The handlers may be \c nil.
  
  @par The "then block" returns a promise, the "returned promise". When the parent 
  promise will be resolved the corresponding handler (if not \c nil) will be invoked 
@@ -318,7 +318,7 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
  @endcode
  
  When the block is called it will register the completion handler \p onSuccess and
- the error handler \p onError. When the receiver will be fulfilled the success handler
+ the error handler \p onError. When the receiver will be fulfilled the completion handler
  will be executed on the specified queue \p queue. When the receiver will be rejected
  the error handler will be called on the specified queue \p queue.
  
