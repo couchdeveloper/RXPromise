@@ -400,7 +400,6 @@ namespace mock {
             dispatch_source_t   _timer;
             uint64_t            _interval = 0.01 * NSEC_PER_SEC;
             uint64_t            _leeway = 0;
-            
         };
 
     }
@@ -409,14 +408,18 @@ namespace mock {
     RXPromise* async(double duration, id result = @"OK",
                      completion_t completion = nullptr)
     {
-        return detail::async_task::start(detail::make_shared_task(duration, result), nullptr, completion);
+        RXPromise* returnedPromise = detail::async_task::start(detail::make_shared_task(duration, result), nullptr, completion);
+        assert(returnedPromise);
+        return returnedPromise;
     }
     
     NS_RETURNS_RETAINED
     RXPromise* async(double duration, id result,
                      dispatch_queue_t queue, completion_t completion = nullptr)
     {
-        return detail::async_task::start(detail::make_shared_task(duration, result), queue, completion);
+        RXPromise* returnedPromise = detail::async_task::start(detail::make_shared_task(duration, result), queue, completion);
+        assert(returnedPromise);
+        return returnedPromise;
     }
     
     
@@ -425,7 +428,9 @@ namespace mock {
     RXPromise* async_fail(double duration, id reason = @"Failure",
                           completion_t completion = nullptr)
     {
-        return detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), nullptr, completion);
+        RXPromise* returnedPromise = detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), nullptr, completion);
+        assert(returnedPromise);
+        return returnedPromise;
     }
     
     
@@ -433,7 +438,9 @@ namespace mock {
     RXPromise* async_fail(double duration, id reason,
                           dispatch_queue_t queue, completion_t completion)
     {
-        return detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), queue, completion);
+        RXPromise* returnedPromise = detail::async_task::start(detail::make_shared_task(duration, reason, completion_mode::Fail), queue, completion);
+        assert(returnedPromise);
+        return returnedPromise;
     }
     
     // use a bound promise
