@@ -423,9 +423,46 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 
 
-### Version 0.11.0 beta (2014-03-07)
+### Version 0.11.0 beta (2014-03-11)
 
-#### API Changes
+#### Bug Fixes
+
+ - Fixed a glaring bug in the class methods `all` and `any` which may have caused
+  crashes.
+
+### Breaking API Changes
+
+- The behavior of the class methods `all:` and `any` has been changed.
+
+ Now, the methods don't cancel any other promise in the given array if any has 
+ been resolved or if the returned promise has been cancelled.
+ 
+ This is more consistent with the rule that a promise if cancelled shall not forward the cancellation to its parents. The promises in the given  array can be viewed as the "parents" of the returned promise. Now, cancelling the returned promise won't touch the promises in the given array.
+ 
+ Furthermore, not forwarding the cancel message or cancelling all ather promises if one has been resolved enables to use promises within the array which are part of any other promise tree, without affecting this other tree.
+ 
+ Now, it is suggested to take any required action in the *handlers* of the returned promise. 
+ 
+ For example, cancel all other promises when one has been resolved:
+ 
+        NSArray* promises = @[async(@"a"), @async(@"b")];
+        [RXPromise all:promises]
+        .then(^id(id result){
+            for (RXPromise* p in promises) {
+                [p cancel];
+            }
+            return nil;
+        }, ^id(NSError*error){
+            for (RXPromise* p in promises) {
+                [p cancel];
+            }
+            return error;
+        });
+
+
+
+
+#### API Additions
 
  - Added an instance method `makeBackgroundTaskWithName`.
 
@@ -463,7 +500,7 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
     
 #### Unit Tests
 
-- Fixed an issue with one unit test having promises whose handlers may still execute
+- Fixed issues with unit tests having promises whose handlers may still execute
 after the test finished and which modified the stack. This caused a crash in the subsequent test.
 
 
