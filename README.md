@@ -6,7 +6,7 @@ A thread safe implementation of the Promises/A+ specification in Objective-C wit
 
 ## **Important Note:**
  > There are breaking changes since version 0.11.0 beta.
- > Please read the [CHANGES](CHANGES.md) document.
+ > Please read the [CHANGELOG](CHANGELOG.md) document.
 
 ### Credits
 
