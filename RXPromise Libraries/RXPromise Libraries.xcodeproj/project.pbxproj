@@ -429,7 +429,6 @@
 					"/Users/agrosam/Applications/Xcode51-Beta5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 				);
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
@@ -474,7 +473,6 @@
 					"/Users/agrosam/Applications/Xcode51-Beta5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 				);
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
@@ -514,7 +512,6 @@
 					"$(inherited)",
 					"/Users/agrosam/Applications/Xcode51-Beta5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 				);
-				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
@@ -553,7 +550,6 @@
 					"$(inherited)",
 					"/Users/agrosam/Applications/Xcode51-Beta5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 				);
-				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;

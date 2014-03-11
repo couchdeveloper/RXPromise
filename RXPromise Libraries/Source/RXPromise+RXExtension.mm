@@ -28,7 +28,7 @@
 #define DEBUG_LOG 1
 #endif
 #import "utility/DLog.h"
-
+#import <objc/runtime.h>
 
 
 @interface RXPromiseWrapper : NSObject
@@ -38,9 +38,6 @@
 @implementation RXPromiseWrapper
 @synthesize promise = _promise;
 @end
-
-
-
 
 
 namespace {
@@ -121,16 +118,22 @@ namespace {
 
 +(instancetype) all:(NSArray*)promises
 {
+    static void const* const s_counter_key = &s_counter_key;
     RXPromise* promise = [[self alloc] init];
-    __block NSUInteger count = [promises count];
+    int count = (int)[promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
+    objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:count], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     promise_completionHandler_t onSuccess = ^id(id result) {
-        --count;
-        if (count == 0) {
-            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
+        int counter = [objc_getAssociatedObject(promise, s_counter_key) intValue];
+        if (--counter > 0) {
+            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        else {
+            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:count];
             for (RXPromise* p in promises) {
                 [results addObject:[p synced_peakResult]];
             }
@@ -139,6 +142,12 @@ namespace {
         return nil;
     };
     promise_errorHandler_t onError = ^id(NSError* error) {
+        int counter = [objc_getAssociatedObject(promise, s_counter_key) intValue];
+        if (--counter > 0) {
+            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        } else {
+            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
         [promise rejectWithReason:error];
         return nil;
     };
@@ -159,13 +168,22 @@ namespace {
 
 + (instancetype) any:(NSArray*)promises
 {
+    static void const* const s_counter_key = &s_counter_key;
     RXPromise* promise = [[self alloc] init];
-    __block int count = (int)[promises count];
+    int count = (int)[promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
+    objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:count], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     promise_completionHandler_t onSuccess = ^(id result){
+        int counter = [objc_getAssociatedObject(promise, s_counter_key) intValue];
+        if (--counter > 0) {
+            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        else {
+            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
         for (RXPromise* p in promises) {
             [p cancel];
         }
@@ -173,13 +191,16 @@ namespace {
         return result;
     };
     promise_errorHandler_t onError = ^(NSError* error) {
-        --count;
-        if (count == 0) {
+        int counter = [objc_getAssociatedObject(promises, s_counter_key) intValue];
+        if (--counter > 0) {
+            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        else {
+            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             [promise rejectWithReason:@"none succeeded"];
         }
         return error;
     };
-    
     for (RXPromise* p in promises) {
         p.thenOn(Shared.sync_queue, onSuccess, onError);
     }
