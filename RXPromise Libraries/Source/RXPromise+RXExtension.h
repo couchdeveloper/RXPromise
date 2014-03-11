@@ -58,30 +58,51 @@ typedef RXPromise* (^rxp_nullary_task)();
  @brief Method \c all returns a \p RXPromise object which will be resolved when \a all
  promises in the array @p promises are fulfilled or when \a any of it will be rejected.
  
- @discussion The returned promise' success handler(s) (if any) will be called when 
- all given promises have been resolved successfully. The parameter @p result of the 
- success handler will be an array containing the eventual result of each promise 
- from the given array @p promises in the corresponding order.
+ @discussion The returned promise' completion handler (if any) will be called when
+ all promises in the array @p promises have been resolved successfully. The parameter 
+ @p result of the completion handler will be an array containing the result of each 
+ promise from the array @p promises in the corresponding order.
  
- @par The returned promise' error handler(s) (if any) will be called when any given
- promise has been rejected with the reason of the failed promise.
+ @par The returned promise' error handler (if any) will be called when any promise 
+ in the array @p promises has been rejected with the reason of the first failed 
+ promise. If any more promises do fail, the reason will be ignored. It is suggested
+ to register error handlers
  
- @par If any promise in the array has been rejected, all others will be send a
- @p cancelWithReason: message whose parameter @p reason is the error reason of the
- failing promise.
+ @par If the returned promise will be cancelled or if any promise in the array has 
+ been rejected or cancelled, all other promises in the array will remain unaffected.
+ If it is desired to cancel promises if any promise within the array failed, it is 
+ suggested to do this in the error handler.
+ 
  
  @par \b Caution:
- The handler's return value MUST NOT be \c nil. This is due the restriction of
- \c NSArrays which cannot contain \c nil values.
+ The completion handler's return value MUST NOT be \c nil. This is due the restriction 
+ of \c NSArrays which cannot contain \c nil values.
  
  @par \b Example: @code
- [RXPromise all:@[self asyncA], [self asyncB]]
+ [RXPromise all:@[
+    [self asyncA]
+    .then(^id(id result){ 
+        return @"A";
+    }, ^id(NSError*error){ 
+        return error;
+    });
+ ,  [self asyncB]
+    .then(^id(id result){ 
+        return @"B";
+    }, ^id(NSError*error){ 
+        return error;
+    });
+ ]
  .then(^id(id results){
-     id result = [self asyncCWithParamA:results[0]
-                                 paramB:results[1]]
+     // result equals @[@"A", @"B"]
+     id result = [self asyncWithParamA:results[0]
+                                paramB:results[1]]
      assert(result != nil);
      return result;
- },nil);
+ }, ^id(NSError*error){
+     for (RXPromise* p in promises) {[p.parent cancel];}
+     return nil;
+ });
  @endcode
 
  @param promises A @c NSArray containing promises.
@@ -92,7 +113,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  @return A new promise. 
  
  */
-+ (instancetype)all:(NSArray*)promises;
++ (instancetype)all:(NSArray*)promises NS_RETURNS_RETAINED;
 
 
 
@@ -101,8 +122,10 @@ typedef RXPromise* (^rxp_nullary_task)();
  \a any promise in the array \p promises is fulfilled or when \a all have been rejected.
  
  @discussion
- If any of the promises in the array will be fulfilled, all others will be send a
- \c cancel message.
+ If the first promises in the array will be resolved by the underlying task, all 
+ others will be unaffected. When it is desired to cancel all other promises it is 
+ suggested to do so in the completion respectively the error handler of the returned
+ promise.
  
  The @p result parameter of the completion handler of the @p then property of the
  returned promise is the result of the first promise which has been fulfilled.
@@ -111,13 +134,17 @@ typedef RXPromise* (^rxp_nullary_task)();
  promise indicates that none of the promises has been fulfilled.
  
  @par \b Example:@code
- NSArray* promises = @[async_A(),
-     async_B(), async_C();
+ NSArray* promises = @[async(a), async(b), async(c)];
  RXPromise* any = [RXPromise any:promises]
  .then(^id(id result){
      NSLog(@"first result: %@", result);
+     for (RXPromise* p in promises) {[p cancel];}
      return nil;
- },nil);
+ },^id(NSError* error){
+     NSLog(@"Error: %@", error);
+     for (RXPromise* p in promises) {[p cancel];}
+     return nil;
+ });
  @endcode
  
  @param promises A \c NSArray containing promises.
@@ -127,7 +154,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  
  @return A new promise.
  */
-+ (instancetype)any:(NSArray*)promises;
++ (instancetype)any:(NSArray*)promises NS_RETURNS_RETAINED;
 
 
 /*!
@@ -151,7 +178,7 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 @return A promise.
 */
-+ (instancetype) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
++ (instancetype) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task NS_RETURNS_RETAINED;
 
 
 /**
@@ -172,7 +199,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  promise's value equals @"OK". Otherwise the promise's value will contain the
  error reason of the task which rejected the returned promise.
 */
-+ (instancetype) repeat:(rxp_nullary_task)block;
++ (instancetype) repeat:(rxp_nullary_task)block NS_RETURNS_RETAINED;
 
 
 
