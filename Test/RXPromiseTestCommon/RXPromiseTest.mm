@@ -3096,6 +3096,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 
 -(void) testAllFulfilled1
 {
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
     NSArray* expectedResults = @[ @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H"];
     
     // Run eight tasks in parallel:
@@ -3116,6 +3118,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         for (RXPromise* p in promises) {
             XCTAssertTrue(p.isFulfilled, @"");
         }
+        dispatch_semaphore_signal(sem);
         return nil;
     },^id(NSError*error){
         XCTFail(@"must not be called");
@@ -3123,6 +3126,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return error;
     });
     
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
     [all wait];
 }
 
@@ -3132,6 +3136,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     // on unspecified queue. Fill the results array with the return value of the handler
     // and wait until all handlers are finished.
     
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
     // Note: we are accessing buffer from multiple threads without synchronization!
     char buffer[8] = {'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'};
     char* p = buffer;
@@ -3183,12 +3189,14 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         for (RXPromise* p in promises) {
             XCTAssertTrue(p.isFulfilled, @"");
         }
+        dispatch_semaphore_signal(sem);
         return nil;
     },^id(NSError*error){
         XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
         return error;
     });
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
     [all wait];
     // All tasks and all handlers shall be completed at this time.
     XCTAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
@@ -3254,6 +3262,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     },nil)
     ];
     
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     RXPromise* all = [RXPromise all:promises].thenOn(syncQueue, ^id(id results){
         for (RXPromise* p in promises) {
             XCTAssertTrue(p.isFulfilled, @"");
@@ -3261,6 +3270,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         XCTAssertTrue([results isKindOfClass:[NSArray class]], @"");
         XCTAssertTrue(results != promises, @"");
         XCTAssertTrue([expectedResults isEqualToArray:results], @"");
+        dispatch_semaphore_signal(sem);
         return nil;
     },^id(NSError*error){
         XCTFail(@"must not be called");
@@ -3268,6 +3278,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return error;
     });
     
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
     [all wait];
     std::sort(buffer, buffer+sizeof(buffer));
     XCTAssertTrue( std::memcmp(buffer, "ABCDEFGH", sizeof(buffer)) == 0, @"");
@@ -3275,6 +3286,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 
 -(void) testAllOneRejected1
 {
+    // Since v0.11.0 if any task rejects its returned promise, all other promises
+    // will be left untouched.
+    
     // Run three tasks in parallel:
     NSArray* tasks = @[mock::async(0.1, @"A"),
                        mock::async_fail(0.2, @"B"),
@@ -3290,7 +3304,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         XCTAssertTrue([tasks[0] isFulfilled], @"");
         XCTAssertTrue([tasks[1] isRejected], @"");
         [tasks[2] get];
-        XCTAssertTrue([tasks[2] isCancelled], @"");
+        XCTAssertTrue([tasks[2] isFulfilled], @"");
         return error;
     }) wait];
 }
@@ -3318,11 +3332,16 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return nil;
     },^id(NSError*error){
         XCTAssertTrue([@"B" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+        XCTAssertTrue([promises[0] isFulfilled], @"");
+        XCTAssertTrue([promises[1] isRejected], @"");
+        [promises[2] get];
+        XCTAssertTrue([promises[2] isFulfilled], @"");
         return error;
     });
     
     [all wait];
-    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+    XCTAssertTrue([s0 isEqualToString:@"AC"], @"%@", s0);
 }
 
 -(void) testAllOneRejectedWithQueue {
@@ -3350,17 +3369,20 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         XCTAssertTrue([tasks[0] isFulfilled], @"");
         XCTAssertTrue([tasks[1] isRejected], @"");
         [tasks[2] wait];
-        XCTAssertTrue([tasks[2] isCancelled], @"");
+        XCTAssertTrue([tasks[2] isFulfilled], @"");
         return error;
     }) wait];
 }
 
--(void) testAllCancelled {
+-(void) testAllCancellingReturnedPromisesMustNotCancelPromises {
+    // Since v0.11.0, cancelling the returned promise of method `all:` must not
+    // cancel the underlying promises given in the array
+    
     NSMutableString*  s0 = [[NSMutableString alloc] init];  // note: potentially race - if the promises do not share the same root promise
     
     // Array containing the returned promises of the tasks (not the returned promises of their handlers, see `.parent`)
     
-    NSArray* handlerPromises = @[mock::async(0.1, @"A")
+    NSArray* handlerPromises = @[mock::async(0.5, @"A")
                           .then(^id(id result) {
                               [s0 appendString:result];
                               return nil;
@@ -3377,31 +3399,34 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
                           },nil)];
     
     NSArray* taskPromises = @[[handlerPromises[0] parent], [handlerPromises[1] parent], [handlerPromises[2] parent]];
+    RXPromise* all = [RXPromise all:taskPromises];
     
-    
-    RXPromise* all = [RXPromise all:taskPromises].then(^id(id result){
-        XCTFail(@"must not be called");
+    [all setTimeout:0.2].then(^id(id result) {
+        XCTFail(@"Cancelling returned promise must not cancel underlying promises");
+        for (RXPromise* p in taskPromises) {
+            [p cancel];
+        }
         return nil;
-    },^id(NSError*error){
-        XCTAssertTrue([@"cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"error: %@", error);
-        return error;
+    }, ^id(NSError* error) {
+        XCTAssertTrue([taskPromises[0] isPending], @"");
+        XCTAssertTrue([taskPromises[1] isPending], @"");
+        XCTAssertTrue([taskPromises[2] isPending], @"");
+        for (RXPromise* p in taskPromises) {
+            [p cancel];
+        }
+        return nil;
     });
-    
-    double delayInSeconds = 0.2;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        [[all root] cancel];
-    });
+    [all cancel];
     
     [[RXPromise all:handlerPromises] wait];
-    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
 }
 
 
--(void) testAllCancelledWithQueue {
-    // Note: When `thenOn`'s block is invoked, the handler is invoked on the
-    // specified queue via a dispatch_barrier_sync. This means, write access
-    // to shared resources occuring within the handler is thread safe.
+-(void) testAllCancelWhenOnePromiseFailed {
+    // Since v0.11.0, cancelling the returned promise of method `all:` must not
+    // cancel the underlying promises given in the array
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     const char* QueueID = "com.test.queue.id";
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_queue_set_specific(concurrentQueue, QueueID, (__bridge void*)concurrentQueue, NULL);
@@ -3414,46 +3439,41 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
                               [s0 appendString:result];
                               return nil;
                           },nil),
-                          mock::async_fail(1, @"B")
+                          mock::async_fail(0.2, @"B")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
                           },nil),
-                          mock::async(1, @"C")
+                          mock::async(0.3, @"C")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
                           },nil)];
-    NSArray* taskPromises = @[[handlerPromises[0] parent], [handlerPromises[1] parent], [handlerPromises[2] parent]];
     
-    
-    RXPromise* allTasksFinishedWithHandler = [RXPromise all:taskPromises].thenOn(concurrentQueue,
-                                                     ^id(id promises){
-                                                         XCTFail(@"must not be called");
-                                                         return nil;
-                                                     },^id(NSError*error){
-                                                         XCTAssertTrue([taskPromises[0] isFulfilled], @"");
-                                                         [taskPromises[1] wait];
-                                                         XCTAssertTrue([taskPromises[1] isCancelled], @"");
-                                                         [taskPromises[2] wait];
-                                                         XCTAssertTrue([taskPromises[2] isCancelled], @"");
-                                                         XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
-                                                         XCTAssertTrue([@"XX cancelled XX" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"%@", error.userInfo[NSLocalizedFailureReasonErrorKey]);
-                                                         return error;
-                                                     });
-    
-    double delayInSeconds = 0.2;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_global_queue(0, 0), ^(void){
-        // Cancel the "all" promise
-        [allTasksFinishedWithHandler.parent cancelWithReason:@"XX cancelled XX"];
+    RXPromise* allHandlerPromises = [RXPromise all:handlerPromises].thenOn(concurrentQueue, ^id(id result) {
+        XCTFail(@"unexpected");
+        return nil;
+    }, ^id(NSError* error) {
+        for (RXPromise* p in handlerPromises) {
+            [p.parent cancel]; // cancel the underlying task promise
+        }
+        XCTAssertTrue([s0 isEqualToString:@"A"], @"");
+        dispatch_semaphore_signal(sem);
+        return error;
     });
     
-    [[RXPromise all:handlerPromises] wait];
-    [allTasksFinishedWithHandler wait];
-    XCTAssertTrue([s0 isEqualToString:@"A"], @"%@", s0);
+    [allHandlerPromises wait];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    XCTAssertTrue([handlerPromises[0] isFulfilled], @"");
+    XCTAssertTrue([handlerPromises[1] isRejected], @"");
+    XCTAssertTrue([handlerPromises[2] isCancelled], @"");
+    
+    XCTAssertTrue([(RXPromise*)[handlerPromises[0] parent] isFulfilled], @"");
+    XCTAssertTrue([(RXPromise*)[handlerPromises[1] parent] isRejected], @"");
+    XCTAssertTrue([(RXPromise*)[handlerPromises[2] parent] isCancelled], @"");
 }
 
 

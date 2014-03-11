@@ -45,7 +45,7 @@
 
 namespace {
     
-    void sync_sequence(NSEnumerator* iter, RXPromise* returnedPromise,
+    void sync_sequence(NSEnumerator* iter, __weak RXPromise* weakReturnedPromise,
                        RXPromiseWrapper* taskPromise, rxp_unary_task task)
     {
         // Implementation notes:
@@ -56,6 +56,8 @@ namespace {
         assert(Shared.sync_queue);
         assert(task);
         assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
+        
+        RXPromise* returnedPromise = weakReturnedPromise;
         
         // If the returned promise has been cancelled or otherwise resolved, bail out:
         if (returnedPromise && !returnedPromise.isPending) {
@@ -84,7 +86,8 @@ namespace {
     
     
     
-    void rxp_while(RXPromise* returnedPromise, rxp_nullary_task block) {
+    void rxp_while(__weak RXPromise* weakReturnedPromise, rxp_nullary_task block) {
+        RXPromise* returnedPromise = weakReturnedPromise;
         if (returnedPromise == nil || block == nil || returnedPromise.isCancelled) {
             return;
         }
@@ -127,25 +130,28 @@ namespace {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
+    __weak RXPromise* weakPromise = promise;
     promise_completionHandler_t onSuccess = ^id(id result) {
         --count;
         if (count == 0) {
-            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
-            for (RXPromise* p in promises) {
-                [results addObject:[p synced_peakResult]];
+            RXPromise* strongPromise = weakPromise;
+            if (strongPromise) {
+                NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
+                for (RXPromise* p in promises) {
+                    [results addObject:[p synced_peakResult]];
+                }
+                [promise fulfillWithValue:results];
             }
-            [promise fulfillWithValue:results];
         }
         return nil;
     };
     promise_errorHandler_t onError = ^id(NSError* error) {
-        [promise rejectWithReason:error];
+        [weakPromise rejectWithReason:error];
         return nil;
     };
     for (RXPromise* p in promises) {
         p.thenOn(Shared.sync_queue, onSuccess, onError);
     }
-    
     return promise;
 }
 
@@ -194,22 +200,21 @@ namespace {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
+    __weak RXPromise* weakPromise = promise;
     promise_completionHandler_t onSuccess = ^(id result){
-        [promise fulfillWithValue:result];
+        [weakPromise fulfillWithValue:result];
         return result;
     };
     promise_errorHandler_t onError = ^(NSError* error) {
         --count;
         if (count == 0) {
-            [promise rejectWithReason:@"none succeeded"];
+            [weakPromise rejectWithReason:@"none succeeded"];
         }
         return error;
     };
-    
     for (RXPromise* p in promises) {
         p.thenOn(Shared.sync_queue, onSuccess, onError);
     }
-    
     return promise;
 }
 
