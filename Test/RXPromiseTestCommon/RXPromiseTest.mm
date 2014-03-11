@@ -3490,9 +3490,11 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     // Start `Count` tasks in parallel. Return the  result of the task which
     // finished first and cancel the remaining yet running tasks.
     // Insert the promise of each async task into an array and send class message
-    // `any`. Note: do NOT put the promise of the `then`'s handler into the array!
-    // When any task has been finished `any` will automatically forward a `cancel`
-    // message to the remaining tasks.
+    // `any`.
+    // In this scenario, we put the handler promises of each task into the array,
+    // not the task promise itself!
+    // When the first task has been finished the handler will cancel all other
+    // possibly still running tasks.
     
     const char* QueueID = "test.queue.id";
     dispatch_queue_t sync_queue = dispatch_queue_create("sync.queue", NULL);
@@ -3512,82 +3514,80 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
       mock::async(0.1, @"A").thenOn(sync_queue, ^id(id result) {
           *(p+0)='A';
           dispatch_group_leave(group);
-          return nil;
+          return @"A";
       },^id(NSError*error){
           *(p+0)='a';
           dispatch_group_leave(group);
           return error;
-      }).parent,
+      }),
       mock::async(0.15, @"B").thenOn(sync_queue, ^id(id result) {
           *(p+1)='B';
           dispatch_group_leave(group);
-          return nil;
+          return @"B";
       },^id(NSError*error){
           *(p+1)='b';
           dispatch_group_leave(group);
           return error;
-      }).parent,
+      }),
       mock::async(0.2, @"C").thenOn(sync_queue, ^id(id result) {
           *(p+2)='C';
           dispatch_group_leave(group);
-          return nil;
+          return @"C";
       },^id(NSError*error){
           *(p+2)='c';
           dispatch_group_leave(group);
           return error;
-      }).parent,
+      }),
       mock::async(0.25, @"D").thenOn(sync_queue, ^id(id result) {
           *(p+3)='D';
           dispatch_group_leave(group);
-          return nil;
+          return @"C";
       },^id(NSError*error){
           *(p+3)='d';
           dispatch_group_leave(group);
           return error;
-      }).parent,
+      }),
       mock::async(0.3, @"E").thenOn(sync_queue, ^id(id result){
           *(p+4)='E';
           dispatch_group_leave(group);
-          return nil;
+          return @"E";
       },^id(NSError*error){
           *(p+4)='e';
           dispatch_group_leave(group);
           return error;
-      }).parent
+      })
     ];
     
     assert([promises count] == Count);
     
     RXPromise* firstTaskHandlerPromise = [RXPromise any:promises].then(^id(id result){
         // When we reach here - executing on an unspecified queue - the first
-        // task finished - yet it's handler may not be finished.
+        // task and it's handler has been finished.
+
+        // Other tasks may still run as well, cancel them now:
+        for (RXPromise* p in promises) {
+            // cancel the task promise, e.g. [p parent]:
+            [[p parent] cancel];  // note: cancel is asynchronous!
+        }
         XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
         XCTAssertTrue([@"A" isEqualToString:result], @"");
-        // Synchronously dispatch a block on the sync queue, which is guaranteed enqueued after
-        // the task's handler:
-        dispatch_sync(sync_queue, ^{
-            // When we reach here the first task's handler and all other tasks and its
-            // handler finished, since we enqueued this block after all others.
-            printf("%c", *p);
-        });
-        // When we reach here - executing on an unspecified queue - the first
-        // task and it's handler finished, as well as all others since we enqueued
-        // the former block behind all others.
         return @"first task handler finished";
     },^id(NSError*error){
         XCTFail(@"must not be called");
         NSLog(@"ERROR: %@", error);
+        // Other tasks may still running, cancel them now:
+        for (RXPromise* p in promises) {
+            [[p parent] cancel];
+        }
         return error;
     });
     
-    id firstTaskHandlerPromiseValue = [firstTaskHandlerPromise get];
-    // When we reach here - executing on an unspecified queue - the first
-    // task and it's handler finished.
-    NSLog(@"firstTaskHandlerPromise = %@", firstTaskHandlerPromiseValue);
-    XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
+    [firstTaskHandlerPromise get];
+    // When we reach here, the first task and it's handler finished.
     
+    // Wait until the all handlers have been called:
     [[RXPromise all:promises] wait];
-    // Wait until the all handlers have been invoked:
+    XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
     // It's a bit tricky to wait for a number of handlers to have all finished
     // when we do not have the promises. Note, that in the Unit Test handlers write
     // into the stack! This is be fatal if the next test starts and the handlers
@@ -3597,22 +3597,14 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 
 -(void) testAnyGetSecond {
     
-    // Start `Count` tasks in parallel. Return the first result of any task and
-    // cancel the remaining yet running tasks.
+    // Start `Count` tasks in parallel. Return the result of the first finished
+    // task's handler and cancel the remaining yet running tasks.
     // Insert the promise of each async task into an array and send class message
     // `any`.
-    //
-    // Note: We do NOT put the promise of the `then`'s handler into the array!
-    // We accomplish this via statement:
-    //
-    //   task().then(...).parent
-    //
-    // which returns the task's promise, that is
-    //   p = task().then(...).parent   is equivalent to
-    //   p = task()
-    //
-    // When any task has been finished `any` will automatically forward a `cancel`
-    // message to the remaining tasks.
+    // In this scenario, we put the handler promises of each task into the array,
+    // not the task promise itself!
+    // When the first task has been finished the handler will cancel all other
+    // possibly still running tasks.
     
     const char* QueueID = "test.queue.id";
     dispatch_queue_t sync_queue = dispatch_queue_create("sync.queue", NULL);
@@ -3627,15 +3619,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
     // Note that the array _promises_ contains the promises from the task's *handler*,
-    // not the *task promise* itself. Despite `any` will cancel all other promises
-    // once the first has been finished, it will not cancel the task promises!
-    // This is due to the fact that canceling a promise will not forward the cancel
-    // message to their *parent* - in order to prevent an avalange effect which
-    // would result in cancelling the whole promise tree, which is usually
-    // quite undesired. Thus when the task promise wont be cancelled, and the
-    // task has registred a handler to its retunred promise which detetcs
-    // cancellation, the task won't get notified about this and won't cancel
-    // itself.
+    // not the *task promise* itself.
     __block NSArray* promises;
     promises = @[
           mock::async(0.2, @"A").thenOn(sync_queue, ^id(id result) {
@@ -3676,23 +3660,21 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     
     assert([promises count] == Count);
     
-    [RXPromise any:promises].thenOn(sync_queue, ^id(id result) {
-        // If we reach here, the first finished task and its handler SHALL have been
-        // finished. Now, the other handler promises get cancelled, but this will not
-        // cancel the task promises!
-        //
+    RXPromise* firstTaskHandlerPromise = [RXPromise any:promises]
+    .thenOn(sync_queue, ^id(id result) {
+        // If we reach here, the first finished task and its handler has been
+        // finished.
+        
+        // Other tasks may still run as well, cancel them now:
+        for (RXPromise* p in promises) {
+            // cancel the task promise, e.g. [p parent]:
+            [[p parent] cancel];  // note: cancel is asynchronous!
+        }
+
         // The task which finishes first is task "B".
-        // The RXPromise `any` method will forward the cancel message only after
-        // the first task's handler has been finished.
         firstResult = result;
         XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
         XCTAssertTrue([@"B" isEqualToString:result], @"%@", result);
-        // Note: here a number of tasks may still run! We do not know WHEN the tasks
-        // eventually finish and try to resolve the handler promises which are
-        // already cancelled by the `any` method. So, we cancel them explictly:
-        for (RXPromise* p in promises) {
-            [p.parent cancel];
-        }
         dispatch_async(sync_queue, ^{
             dispatch_semaphore_signal(sem);
         });
@@ -3712,6 +3694,12 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return error;
     });
 
+    [firstTaskHandlerPromise get];
+    // When we reach here, the first task and it's handler finished.
+    
+    // Wait until the all handlers have been called:
+    [[RXPromise all:promises] wait];
+    
     // Ensure the tasks are fimished:
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
