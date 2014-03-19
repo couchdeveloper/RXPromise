@@ -30,8 +30,10 @@ task :version do
   replace_version_number(new_version_number)
 end
 
-desc "Release a new version of the Pod"
+desc "Release a new version of the Pod (append POD_SPEC_REPO=name to push to a private spec repo)"
 task :release do
+  # Allow override of spec repo name using `repo=private` after task name
+  repo = ask("Pushing the Podspec requires a repo:", "POD_SPEC_REPO", "master")
 
   puts "* Running version"
   sh "rake version"
@@ -62,7 +64,7 @@ task :release do
   sh "git tag -a #{spec_version} -m 'Release #{spec_version}'"
   sh "git push origin master"
   sh "git push origin --tags"
-  sh "pod push master #{podspec_path}"
+  sh "pod push #{repo} #{podspec_path}"
 end
 
 # @return [Pod::Version] The version as reported by the Podspec.
@@ -145,4 +147,18 @@ def replace_version_number(new_version_number)
   text = File.read(podspec_path)
   text.gsub!(/(s.version( )*= ")#{spec_version}(")/, "\\1#{new_version_number}\\3")
   File.open(podspec_path, "w") { |file| file.puts text }
+end
+
+def ask(prompt, env, default="")
+    return ENV[env] if ENV.include?(env)
+    print "#{prompt} (#{default}): "
+    resp = STDIN.gets.chomp
+    resp.empty? ? default : resp
+end
+ 
+desc "for testing `pod push'"
+task :test_pod_push do
+  puts "Podspec: #{podspec_path} version: #{remote_spec_version}"
+  repo = ask("Pushing the Podspec requires a repo:", "POD_SPEC_REPO", "master")
+  sh "pod push #{repo} #{podspec_path} --local-only"
 end

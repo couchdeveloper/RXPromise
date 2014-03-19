@@ -18,6 +18,7 @@
 #import "RXPromise.h"
 #import <dispatch/dispatch.h>
 #include <map>
+#include "utility/DLog.h"
 
 #if !defined (OS_OBJECT_USE_OBJC)
 #error missing include os/object.h
@@ -81,6 +82,12 @@ namespace rxpromise {
             assert(sync_queue);
             assert(default_concurrent_queue);
             dispatch_queue_set_specific(sync_queue, QueueID, (void*)(sync_queue_id), NULL);
+            DLogInfo(@"created: sync_queue (0x%p), default_concurrent_queue (0y%p) ", (sync_queue), (default_concurrent_queue));
+        }
+        
+        ~shared() {
+            DLogInfo(@"destroyed: sync_queue (0x%p), default_concurrent_queue (0y%p) ", (sync_queue), (default_concurrent_queue));
+            assert(assocs.size() == 0);
         }
         
     };

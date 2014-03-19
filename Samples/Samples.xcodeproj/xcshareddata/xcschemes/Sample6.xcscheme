@@ -8,16 +8,16 @@
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-               BuildableName = "RXPromise-OSX-Test.xctest"
-               BlueprintName = "RXPromise-OSX-Test"
-               ReferencedContainer = "container:Test.xcodeproj">
+               BlueprintIdentifier = "A1C9FDFE184DE98800872798"
+               BuildableName = "Sample6"
+               BlueprintName = "Sample6"
+               ReferencedContainer = "container:Samples.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,40 +26,18 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Release">
+      buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-               BuildableName = "RXPromise-OSX-Test.xctest"
-               BlueprintName = "RXPromise-OSX-Test"
-               ReferencedContainer = "container:Test.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-            BuildableName = "RXPromise-OSX-Test.xctest"
-            BlueprintName = "RXPromise-OSX-Test"
-            ReferencedContainer = "container:Test.xcodeproj">
+            BlueprintIdentifier = "A1C9FDFE184DE98800872798"
+            BuildableName = "Sample6"
+            BlueprintName = "Sample6"
+            ReferencedContainer = "container:Samples.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "MallocScribble=1"
-            value = ""
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "NSZombieEnabled=1"
-            value = ""
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -70,6 +48,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1C9FDFE184DE98800872798"
+            BuildableName = "Sample6"
+            BlueprintName = "Sample6"
+            ReferencedContainer = "container:Samples.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -77,8 +64,17 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1C9FDFE184DE98800872798"
+            BuildableName = "Sample6"
+            BlueprintName = "Sample6"
+            ReferencedContainer = "container:Samples.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

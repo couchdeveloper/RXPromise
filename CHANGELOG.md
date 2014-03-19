@@ -422,3 +422,100 @@ Added Sample7 showing how to use class method `repeat`.
 Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 
+
+### Version 0.11.0 beta (2014-03-11)
+
+#### Bug Fixes
+
+ - Fixed a glaring bug in the class methods `all` and `any` which may have caused
+  crashes.
+
+### Breaking API Changes
+
+- The behavior of the class methods `all:` and `any` has been changed.
+
+ Now, the methods don't cancel any other promise in the given array if any has 
+ been resolved or if the returned promise has been cancelled.
+ 
+ This is more consistent with the rule that a promise if cancelled shall not forward the cancellation to its parents. The promises in the given  array can be viewed as the "parents" of the returned promise. Now, cancelling the returned promise won't touch the promises in the given array.
+ 
+ Furthermore, not forwarding the cancel message or cancelling all ather promises if one has been resolved enables to use promises within the array which are part of any other promise tree, without affecting this other tree.
+ 
+ Now, it is suggested to take any required action in the *handlers* of the returned promise. 
+ 
+ For example, cancel all other promises when one has been resolved:
+ 
+        NSArray* promises = @[async(@"a"), @async(@"b")];
+        [RXPromise all:promises]
+        .then(^id(id result){
+            for (RXPromise* p in promises) {
+                [p cancel];
+            }
+            return nil;
+        }, ^id(NSError*error){
+            for (RXPromise* p in promises) {
+                [p cancel];
+            }
+            return error;
+        });
+
+
+
+
+#### API Additions
+
+ - Added an instance method `makeBackgroundTaskWithName`.
+
+        /**
+         Executes the asynchronous task associated to the receiver as an 
+         iOS Background Task.
+         
+         @discussion The receiver requests background execution time from 
+         the system which delays suspension of the app up until the receiver 
+         will be resolved or cancelled.
+         
+         Since Apps are given only a limited amount of time to finish
+         background tasks, this time may expire before the task finishes. 
+         In this case the receiver's root will be cancelled which in turn
+         propagates the cancel event to all children of the reciever, 
+         including the receiver.
+    
+         Tasks may want to handle the cancellation in order to execute 
+         additional code which orderly closes the task. This should not take 
+         too long, since by the time the cancel handler is called, the app is
+         already very close to its time limit.
+         
+         @warning Handlers registered on child promises may not be executed 
+         when the app is in background.
+         
+         @param taskName The name to display in the debugger when viewing the
+         background task.
+         
+         If you specify \c nil for this parameter, this method generates a
+         name based on the name of the calling function or method.
+        */
+        - (void) makeBackgroundTaskWithName:(NSString*)taskName;
+
+    
+    
+#### Unit Tests
+
+- Fixed issues with unit tests having promises whose handlers may still execute
+after the test finished and which modified the stack. This caused a crash in the subsequent test.
+
+
+#### Implementation
+
+- Method `registerWithQueue:onSuccess:onFailure:returnPromise:` has been rewritten. 
+Observable behavior is still the same, though.
+
+- Changed code and added attributes to function/method declarations which now 
+should help the compiler during ARC optimization to avoid putting objects into the 
+autorelease pool.
+
+ There is still one occurence where the ARC optimizer cannot prevent this: when an 
+ object is created and returned in handlers, these objects will be put into the 
+ autoreleaspool. This does not happen when the source code is direcly included in 
+ the client project.
+
+
