@@ -61,10 +61,6 @@
 		A17306DA17F0C76C00A1AD7B /* RXPromise-iOS-Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromise-iOS-Test-Info.plist"; sourceTree = "<group>"; };
 		A17306DC17F0C76C00A1AD7B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A17306E017F0C76C00A1AD7B /* RXPromise-iOS-Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise-iOS-Test-Prefix.pch"; sourceTree = "<group>"; };
-		A19172F418CB549400B3CFDD /* Test2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test2-Info.plist"; sourceTree = "<group>"; };
-		A19172F618CB549400B3CFDD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		A19172F818CB549400B3CFDD /* Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Test2.m; sourceTree = "<group>"; };
-		A19172FA18CB549400B3CFDD /* Test2-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Test2-Prefix.pch"; sourceTree = "<group>"; };
 		A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A1C0C60117F04CBC001D2CDC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -170,25 +166,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		A19172F218CB549300B3CFDD /* Test2 */ = {
-			isa = PBXGroup;
-			children = (
-				A19172F818CB549400B3CFDD /* Test2.m */,
-				A19172F318CB549400B3CFDD /* Supporting Files */,
-			);
-			path = Test2;
-			sourceTree = "<group>";
-		};
-		A19172F318CB549400B3CFDD /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				A19172F418CB549400B3CFDD /* Test2-Info.plist */,
-				A19172F518CB549400B3CFDD /* InfoPlist.strings */,
-				A19172FA18CB549400B3CFDD /* Test2-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		A1C0C5DD17F04C71001D2CDC = {
 			isa = PBXGroup;
 			children = (
@@ -198,7 +175,6 @@
 				A17306A117F0C0F400A1AD7B /* TestDummy */,
 				A1E27ECC17F1D7B1006BB86D /* RXPromise-OSX-Test */,
 				A17306D817F0C76C00A1AD7B /* RXPromise-iOS-Test */,
-				A19172F218CB549300B3CFDD /* Test2 */,
 				A1C0C5EA17F04CAB001D2CDC /* Frameworks */,
 				A1C0C5E917F04CAA001D2CDC /* Products */,
 			);
@@ -479,14 +455,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				A17306DC17F0C76C00A1AD7B /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		A19172F518CB549400B3CFDD /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				A19172F618CB549400B3CFDD /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
