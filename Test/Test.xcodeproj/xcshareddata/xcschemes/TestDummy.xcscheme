@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A173069C17F0C0F400A1AD7B"
+               BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
                BuildableName = "TestDummy.app"
                BlueprintName = "TestDummy"
                ReferencedContainer = "container:Test.xcodeproj">
@@ -32,7 +32,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A17306BB17F0C0F500A1AD7B"
+               BlueprintIdentifier = "A1A65DB318D9ECCF005695ED"
                BuildableName = "TestDummyTests.xctest"
                BlueprintName = "TestDummyTests"
                ReferencedContainer = "container:Test.xcodeproj">
@@ -48,11 +48,21 @@
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A11C881C18D9E758002EE22D"
+               BuildableName = "TestDummy Tests.xctest"
+               BlueprintName = "TestDummy Tests"
+               ReferencedContainer = "container:Test.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A173069C17F0C0F400A1AD7B"
+            BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
             BuildableName = "TestDummy.app"
             BlueprintName = "TestDummy"
             ReferencedContainer = "container:Test.xcodeproj">
@@ -71,7 +81,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A173069C17F0C0F400A1AD7B"
+            BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
             BuildableName = "TestDummy.app"
             BlueprintName = "TestDummy"
             ReferencedContainer = "container:Test.xcodeproj">
@@ -89,7 +99,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A173069C17F0C0F400A1AD7B"
+            BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
             BuildableName = "TestDummy.app"
             BlueprintName = "TestDummy"
             ReferencedContainer = "container:Test.xcodeproj">

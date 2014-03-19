@@ -519,3 +519,8 @@ autorelease pool.
  the client project.
 
 
+
+### Version head (will become 0.11.1 beta) (2014-03-19)
+
+- Simplified implementation of class method `all` and `any`.
+

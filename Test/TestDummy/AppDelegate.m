@@ -2,30 +2,25 @@
 //  AppDelegate.m
 //  TestDummy
 //
-//  Created by Andreas Grosam on 23.09.13.
+//  Created by Andreas Grosam on 19.03.14.
 //
 //
 
 #import "AppDelegate.h"
-#import <RXPromise/RXPromise.h>
-#import <RXPromise/RXPromise+RXExtension.h>
-
-
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    RXPromise* promise = [[RXPromise alloc] init];
-    [promise self];
-    promise = nil;
-    [RXPromise all:@[]];
-    
-    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
+    UIViewController *viewController = [[UIViewController alloc] init];
+    self.window.rootViewController = viewController;
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
     return YES;
 }
-							
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

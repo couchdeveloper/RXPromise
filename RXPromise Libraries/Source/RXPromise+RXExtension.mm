@@ -80,9 +80,6 @@ namespace {
         
     }
     
-    
-    
-    
     void rxp_while(__weak RXPromise* weakReturnedPromise, rxp_nullary_task block) {
         RXPromise* returnedPromise = weakReturnedPromise;
         if (returnedPromise == nil || block == nil || returnedPromise.isCancelled) {
@@ -106,12 +103,7 @@ namespace {
         });
     }
     
-    
-    
-    
 }
-
-
 
 
 @implementation RXPromise (RXExtension)
@@ -121,44 +113,27 @@ namespace {
 
 +(instancetype) all:(NSArray*)promises
 {
-    static void const* const s_counter_key = &s_counter_key;
     RXPromise* promise = [[self alloc] init];
-    int count = (int)[promises count];
+    __block NSUInteger count = [promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
         return promise;
     }
-    objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:count], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     __weak RXPromise* weakPromise = promise;
     promise_completionHandler_t onSuccess = ^id(id result) {
+        --count;
         RXPromise* strongPromise = weakPromise;
-        if (strongPromise) {
-            int counter = [objc_getAssociatedObject(strongPromise, s_counter_key) intValue];
-            if (--counter > 0) {
-                objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        if (count == 0 and strongPromise) {
+            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
+            for (RXPromise* p in promises) {
+                [results addObject:[p synced_peakResult]];
             }
-            else {
-                objc_setAssociatedObject(strongPromise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:count];
-                for (RXPromise* p in promises) {
-                    [results addObject:[p synced_peakResult]];
-                }
-                [strongPromise fulfillWithValue:results];
-            }
+            [strongPromise fulfillWithValue:results];
         }
         return nil;
     };
     promise_errorHandler_t onError = ^id(NSError* error) {
-        RXPromise* strongPromise = weakPromise;
-        if (strongPromise) {
-            int counter = [objc_getAssociatedObject(strongPromise, s_counter_key) intValue];
-            if (--counter > 0) {
-                objc_setAssociatedObject(strongPromise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            } else {
-                objc_setAssociatedObject(strongPromise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            }
-            [strongPromise rejectWithReason:error];
-        }
+        [weakPromise rejectWithReason:error];
         return nil;
     };
     for (RXPromise* p in promises) {
@@ -168,58 +143,10 @@ namespace {
 }
 
 
-+ (instancetype) any_deprecated:(NSArray*)promises
-{
-    static void const* const s_counter_key = &s_counter_key;
-    RXPromise* promise = [[self alloc] init];
-    int count = (int)[promises count];
-    if (count == 0) {
-        [promise rejectWithReason:@"parameter error"];
-        return promise;
-    }
-    objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:count], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    promise_completionHandler_t onSuccess = ^(id result){
-        int counter = [objc_getAssociatedObject(promise, s_counter_key) intValue];
-        if (--counter > 0) {
-            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        else {
-            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        for (RXPromise* p in promises) {
-            [p cancel];
-        }
-        [promise fulfillWithValue:result];
-        return result;
-    };
-    promise_errorHandler_t onError = ^(NSError* error) {
-        int counter = [objc_getAssociatedObject(promises, s_counter_key) intValue];
-        if (--counter > 0) {
-            objc_setAssociatedObject(promise, s_counter_key, [NSNumber numberWithInt:counter], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        else {
-            objc_setAssociatedObject(promise, s_counter_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            [promise rejectWithReason:@"none succeeded"];
-        }
-        return error;
-    };
-    for (RXPromise* p in promises) {
-        p.thenOn(Shared.sync_queue, onSuccess, onError);
-    }
-    promise.thenOn(Shared.sync_queue, nil, ^id(NSError*error){
-        for (RXPromise* p in promises) {
-            [p cancelWithReason:error];
-        }
-        return error;
-    });
-    
-    return promise;
-}
-
 + (instancetype) any:(NSArray*)promises
 {
     RXPromise* promise = [[self alloc] init];
-    __block int count = (int)[promises count];
+    __block NSUInteger count = [promises count];
     if (count == 0) {
         [promise rejectWithReason:@"parameter error"];
         return promise;
