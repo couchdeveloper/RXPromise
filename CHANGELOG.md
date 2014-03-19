@@ -520,7 +520,9 @@ autorelease pool.
 
 
 
-### Version head (will become 0.11.1 beta) (2014-03-19)
+### Version 0.11.1 beta (2014-03-19)
 
-- Simplified implementation of class method `all` and `any`.
+ - Simplified implementation of class method `all` and `any`.
+
+ - Improved setup for iOS Unit Tests
 
