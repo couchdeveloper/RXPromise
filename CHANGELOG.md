@@ -527,3 +527,14 @@ autorelease pool.
 
  - Improved setup for iOS Unit Tests
 
+
+
+### Version head (becomes 0.12.0 beta (2014-xx-xx))
+
+
+ - The minmum deployment version of Mac OS X is now 10.8.
+
+
+ - Additional Execution Contexts
+ 
+

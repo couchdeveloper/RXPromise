@@ -24,6 +24,7 @@
 
 #import <RXPromise/RXPromise.h>
 #import <RXPromise/RXPromise+RXExtension.h>
+#import <CoreData/CoreData.h>
 #include <libkern/OSAtomic.h>
 
 #import "RXTimer.h"
@@ -527,6 +528,20 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+}
+
++ (void) threadMain
+{
+    @autoreleasepool {
+        [[NSThread currentThread] setName:@"WorkerThread.sharedThread"];
+        NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
+        [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+        while (![NSThread currentThread].isCancelled) {
+            @autoreleasepool {
+                [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+            }
+        }
+    }
 }
 
 
@@ -4523,6 +4538,115 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     
 }
 
+
+#pragma mark -
+
+
+- (void) testExecutionContextWithMainThread {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise.thenOn([NSThread mainThread], ^id(id result) {
+        XCTAssertTrue([NSThread mainThread] == [NSThread currentThread], @"");
+        return nil;
+    }, nil) runLoopWait];
+}
+
+- (void) testExecutionContextWithBackgroundThread {
+    
+    NSLog(@"self: %@", self);
+    
+    NSThread* backgroundThread = [[NSThread alloc] initWithTarget:[self class] selector:@selector(threadMain) object:nil];
+    [backgroundThread start];
+
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+
+    [promise setTimeout:0.5];
+    [promise.thenOn(backgroundThread, ^id(id result) {
+        XCTAssertTrue(backgroundThread == [NSThread currentThread], @"");
+        [backgroundThread cancel];
+        return nil;
+    }, nil)
+     .then(nil, ^id(NSError* error) {
+        XCTFail(@"Error: %@", error);
+        return error;
+    })runLoopWait];
+    
+}
+
+- (void) testExecutionContextWithOperationQueue {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    NSOperationQueue* queue = [[NSOperationQueue alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise setTimeout:0.5];
+    [promise.thenOn(queue, ^id(id result) {
+        NSUInteger operationCount = [queue operationCount];
+        XCTAssertTrue(operationCount == 1, @"");
+        return nil;
+    }, nil)
+     .then(nil, ^id(NSError* error) {
+        XCTFail(@"Error: %@", error);
+        return error;
+    })runLoopWait];
+}
+
+
+- (void) testExecutionContextWithManagedObjectContextWithPrivateQueueConcurrencyType {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    NSManagedObjectContext* context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise setTimeout:0.5];
+    [promise.thenOn(context, ^id(id result) {
+        return nil;
+    }, nil)
+     .then(nil, ^id(NSError* error) {
+        XCTFail(@"Error: %@", error);
+        return error;
+    })runLoopWait];
+    
+}
+
+- (void) testExecutionContextWithManagedObjectContextWithMainQueueConcurrencyType {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    NSManagedObjectContext* context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise setTimeout:0.5];
+    [promise.thenOn(context, ^id(id result) {
+        XCTAssertTrue([NSThread mainThread] == [NSThread currentThread], @"");
+        return nil;
+    }, nil)
+     .then(nil, ^id(NSError* error) {
+        XCTFail(@"Error: %@", error);
+        return error;
+    })runLoopWait];
+    
+}
 
 
 @end

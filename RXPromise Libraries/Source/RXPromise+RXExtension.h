@@ -182,17 +182,18 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 
 /**
- Asynchronously executes the block in a continuous loop until the block returns
- \c nil or the returned promise will be rejected.
+ Executes the asynchronous block repeatedly until the block returns \c nil or the 
+ promise returned from the current block will be rejected.
  
- The block can be regarded as the body in a while loop. The block's return value is 
- used in the expression in the "repeat" statement: If the block returns \c nil or if the
- returned promise will be rejected, the loop stops executing the next iteration.
+ The block is an asynchronous task returning a new promise. The receiver will 
+ \c sequentially invoke the asynchronous block until either it returns \c nil
+ or its returned promise will be rejected. The next block will be executed
+ only after the promise of the previous block has been fulfilled.
  
- The asychronous "repeat" can be canceled by sending the returned promise a
- cancel message.
+ The method \c repeat is itself asynchronous. It can be cancelled by sending the
+ returned promise a \c cancel message.
  
- @param block The block shall return a promise returned from an asynchronous 
+ @param block The block shall return a new promise returned from an asynchronous
  task, or \c nil in order to indicate the stop condition for the loop.
  
  @return A promise. If the \p repeat: method could be executed successfully, the

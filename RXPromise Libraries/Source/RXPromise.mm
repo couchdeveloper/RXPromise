@@ -22,6 +22,7 @@
 
 #import "RXPromise.h"
 #import "RXPromise+Private.h"
+#import <objc/runtime.h>
 #include <dispatch/dispatch.h>
 #include <cassert>
 #include <cstdio>
@@ -53,12 +54,55 @@
 @end
 
 
+#pragma mark ExecutionContext - NSThread
+@interface NSThread (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block;
+- (void) rxp_performBlock:(void(^)())block;
+@end
+
+@implementation NSThread (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block {
+    if (block) {
+        [self performSelector:@selector(rxp_performBlock:) onThread:self withObject:block waitUntilDone:NO];
+    }
+}
+- (void) rxp_performBlock:(void(^)())block {
+    if (block) {
+        block();
+    }
+}
+
+@end
+
+
+#pragma mark ExecutionContext - NSManagedObjectContext
+@interface NSManagedObjectContext (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block;
+@end
+
+@implementation NSManagedObjectContext (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block {
+    [self performBlock:block];
+}
+@end
+
+
+#pragma mark ExecutionContext - NSOperationQueue
+@interface NSOperationQueue (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block;
+@end
+
+@implementation NSOperationQueue (RXPromise)
+- (void) rxp_dispatchBlock:(void(^)())block {
+    [self addOperationWithBlock:block];
+}
+@end
 
 
 
 rxpromise::shared Shared;
 
-
+#pragma mark -
 namespace {
     
     DISPATCH_RETURNS_RETAINED
@@ -84,6 +128,7 @@ namespace {
 
 
 
+#pragma mark - RXPromise
 
 @interface RXPromise ()
 @property (nonatomic) id result;
@@ -243,7 +288,7 @@ namespace {
                               DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
     dispatch_resume(timer);
 
-    [self registerWithQueue:Shared.sync_queue onSuccess:^id(id result) {
+    [self registerWithExecutionContext:Shared.sync_queue onSuccess:^id(id result) {
         dispatch_source_cancel(timer);
         RX_DISPATCH_RELEASE(timer);
         return nil;
@@ -342,7 +387,7 @@ namespace {
 // resolved (see "Requirements for an asynchronous result provider").
 // Returns a new promise which represents the return values of the handler
 // blocks.
-- (instancetype) registerWithQueue:(dispatch_queue_t)target_queue
+- (instancetype) registerWithExecutionContext:(id)executionContext
                          onSuccess:(promise_completionHandler_t)onSuccess
                          onFailure:(promise_errorHandler_t)onFailure
                      returnPromise:(BOOL)returnPromise NS_RETURNS_RETAINED
@@ -351,8 +396,8 @@ namespace {
     returnedPromise.parent = self;
     __weak RXPromise* weakReturnedPromise = returnedPromise;
     __block RXPromise* blockSelf = self;
-    if (target_queue == nil) {
-        target_queue = Shared.default_concurrent_queue;
+    if (executionContext == nil) {
+        executionContext = Shared.default_concurrent_queue;
     }
     dispatch_block_t syncBlock = ^{
         if (_handler_queue == nil) {
@@ -377,13 +422,12 @@ namespace {
                     }
                     else {
                         DLogInfo(@"%p add child %p", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
-                        dispatch_block_t block = ^{
+                        if (executionContext == Shared.sync_queue) {
                             Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
-                        };
-                        if (target_queue == Shared.sync_queue) {
-                            block();
                         } else {
-                            dispatch_barrier_sync(Shared.sync_queue, block);  // MUST be synchronous!
+                            dispatch_barrier_sync(Shared.sync_queue, ^{
+                                Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
+                            });  // MUST be synchronous!
                         }
                         //  §2.2: if parent is fulfilled, fulfill the "returned promise" with the same value
                         //  §2.3: if parent is rejected, reject the "returned promise" with the same value.
@@ -413,13 +457,16 @@ namespace {
             }//@autoreleasepool
         };
         dispatch_async(_handler_queue, ^{
-            assert(target_queue);
+            assert(executionContext);
             assert(handlerBlock);
-            if (target_queue == Shared.default_concurrent_queue) {
-                dispatch_async(target_queue, handlerBlock);
+            if (executionContext == Shared.default_concurrent_queue) {
+                dispatch_async(executionContext, handlerBlock);
+            }
+            else if ([executionContext conformsToProtocol:@protocol(OS_dispatch_queue)]) {
+                dispatch_barrier_async(executionContext, handlerBlock);
             }
             else {
-                dispatch_barrier_async(target_queue, handlerBlock);
+                [executionContext rxp_dispatchBlock:handlerBlock];
             }
         });
     };
@@ -437,14 +484,14 @@ namespace {
 
 - (then_block_t) then {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithQueue:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
     };
 }
 
 
 - (then_on_block_t) thenOn {
-    return ^RXPromise*(dispatch_queue_t queue, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithQueue:queue onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+    return ^RXPromise*(id executionContext, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
+        return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
     };
 }
 
@@ -594,7 +641,7 @@ namespace {
             break;
         default: {
             __weak RXPromise* weakSelf = self;
-            [other registerWithQueue:Shared.sync_queue onSuccess:^id(id result) {
+            [other registerWithExecutionContext:Shared.sync_queue onSuccess:^id(id result) {
                 assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
                 RXPromise* strongSelf = weakSelf;
                 [strongSelf synced_fulfillWithValue:result];
@@ -613,7 +660,7 @@ namespace {
     }
     __weak RXPromise* weakSelf = self;
     __weak RXPromise* weakOther = other;
-    [self registerWithQueue:Shared.sync_queue onSuccess:nil onFailure:^id(NSError *error) {
+    [self registerWithExecutionContext:Shared.sync_queue onSuccess:nil onFailure:^id(NSError *error) {
         assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
         RXPromise* strongSelf = weakSelf;
         if (strongSelf) {
@@ -672,6 +719,7 @@ namespace {
     
     return desc;
 }
+
 
 @end
 

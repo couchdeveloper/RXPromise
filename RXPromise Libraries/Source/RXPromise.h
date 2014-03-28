@@ -35,7 +35,7 @@ typedef id (^promise_errorHandler_t)(NSError* error);
  
 typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t);
  
-typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandler_t, promise_errorHandler_t);
+typedef RXPromise* (^then_on_block_t)(id, promise_completionHandler_t, promise_errorHandler_t);
 
 
 @interface RXPromise : NSObject
@@ -89,8 +89,11 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
  RXPromises are itself thread safe and will not dead lock. It's safe to send them 
  messages from any thread/queue and at any time.
  
- The handlers use an "execution context" which they are executed on. The execution
- context is either explicit or implicit.
+ The handlers use an /e execution-context" where they are executed. The execution
+ context is either explicit or implicit. If the execution context is nil or not 
+ specified, the handler will execute on a concurrent dispatch queue. Otherwise, 
+ the execution context can be specified with the `thenOn` property and can be a 
+ dispatch_queue, a NSThread, a NSOperationQueue or a NSManagedObjectContext.
  
  If the \p then propertie's block will be used to define the completion and error
  handler, the handlers will implictily run on an _unspecified_ and _concurrent_
@@ -162,7 +165,6 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t, promise_completionHandle
 
 
 
-// forward
 @class RXPromise;
 
 /*!
@@ -243,7 +245,7 @@ typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHan
  if the handler block is \c nil the "returned promise" (if it exists) will be resolved 
  with the parent promise' result value.
  */
-typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
+typedef RXPromise* (^then_on_block_t)(id,
                                       promise_completionHandler_t,
                                       promise_errorHandler_t);
 
@@ -312,15 +314,16 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
 /*!
  @brief Property \p thenOn returns a block whose signature is
  @code
- RXPromise* (^)(dispatch_queue_t queue, 
+ RXPromise* (^)(id executionContext,
                 promise_completionHandler_t onSuccess, 
                 promise_errorHandler_t onError)
  @endcode
  
  When the block is called it will register the completion handler \p onSuccess and
  the error handler \p onError. When the receiver will be fulfilled the completion handler
- will be executed on the specified queue \p queue. When the receiver will be rejected
- the error handler will be called on the specified queue \p queue.
+ will be executed on the specified execution context \p executionContext. When the 
+ receiver will be rejected the error handler will be called on the specified
+ execution context \p executionContext.
  
  @par The receiver will be retained and released only until after the receiver has
  been resolved.
@@ -329,15 +332,16 @@ typedef RXPromise* (^then_on_block_t)(dispatch_queue_t,
  the return value of either handler that gets called when the receiver will be resolved.
  
  @par When the block is invoked and the receiver is already resolved, the corresponding
- handler will be immediately asynchronously scheduled for execution on the
- \e specified execution context.
+ handler will be immediately asynchronously scheduled for execution on the specified \e execution-context.
 
  @par Parameter \p onSuccess and \p onError may be \c nil.
  
- @par Parameter \p queue may be \c nil which effectivle is the same as when using the
+ @par Parameter \p executionContext is an "execution context" where blocks can be executed. This can
+ be a \c dispatch_queue, a \c NSThread, a \c NSOperationQueue or a \c NSManagedObjectContext.
+ \p executionContext can be \c nil which effectively is the same as when using the
  \c then_block_t block returned from property \p then.
  
- @par The receiver can register zero or more handler (pairs) through clientes calling
+ @par The receiver can register zero or more handler (pairs) through clients calling
  the block multiple times.
  
  @return Returns a block of type \c then_on_block_t.

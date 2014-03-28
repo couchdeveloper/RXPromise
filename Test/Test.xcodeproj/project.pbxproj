@@ -25,6 +25,7 @@
 		A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 		A1E27ED117F1D7B1006BB86D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1E27ECF17F1D7B1006BB86D /* InfoPlist.strings */; };
 		A1ECBC7F1813D6BE0081F955 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
+		A1F3ADCF18DC836B0097A085 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C9E1F117F0B86C00E3E76E /* CoreData.framework */; };
 		A1FEBE0318CB55BB005754A5 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1F3ADCF18DC836B0097A085 /* CoreData.framework in Frameworks */,
 				A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */,
 				A131904E18CA0D3E00E73E6E /* RXPromise.framework in Frameworks */,
 			);
