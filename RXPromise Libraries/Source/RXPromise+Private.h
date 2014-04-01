@@ -87,7 +87,12 @@ namespace rxpromise {
         
         ~shared() {
             DLogInfo(@"destroyed: sync_queue (0x%p), default_concurrent_queue (0y%p) ", (sync_queue), (default_concurrent_queue));
-            assert(assocs.size() == 0);
+#if 1 //defined(DEBUG)
+            for (auto p : assocs) {
+                printf("parent: %p, child %p\n", p.first, p.second);
+            }
+#endif
+            //assert(assocs.size() == 0);
         }
         
     };

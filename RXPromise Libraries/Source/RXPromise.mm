@@ -528,7 +528,6 @@ namespace {
     CFRunLoopRef runLoop = CFRunLoopGetCurrent();
     CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(NULL, 0, &context);
     CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
-    CFRelease(runLoopSource);
     
     self.then(^id(id result) {
         CFRunLoopStop(runLoop);
@@ -544,6 +543,7 @@ namespace {
         CFRunLoopRun();
     }
     CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
+    CFRelease(runLoopSource);
 }
 
 
@@ -762,7 +762,7 @@ namespace {
 }
 
 + (instancetype)promiseWithTask:(id(^)(void))task {
-    NSParameterAssert(task);
+    assert(task);
     RXPromise* promise = [[self alloc] init];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         [promise resolveWithResult:task()];
@@ -772,8 +772,8 @@ namespace {
 
 
 + (instancetype)promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task {
-    NSParameterAssert(queue);
-    NSParameterAssert(task);
+    assert(queue);
+    assert(task);
     RXPromise* promise = [[self alloc] init];
     dispatch_async(queue, ^{
         [promise resolveWithResult:task()];
@@ -792,7 +792,7 @@ namespace {
 
 // 2. Designated Initializer
 - (instancetype)initWithResult:(id)result {
-    NSParameterAssert(![result isKindOfClass:[RXPromise class]]);
+    assert(![result isKindOfClass:[RXPromise class]]);
     DLogInfo(@"create: %p", (__bridge void*)self);
     self = [super init];
     if (self) {
