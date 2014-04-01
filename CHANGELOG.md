@@ -528,6 +528,7 @@ autorelease pool.
  - Improved setup for iOS Unit Tests
 
 
+
 ### Version 0.11.2 beta (2014-04-01)
 
  - Fixed a bug in method `runLoopWait`
