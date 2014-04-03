@@ -235,7 +235,7 @@ We can also see, that a handler can be `nil`. Frequently, only the completion ha
 
 A handler can execute any statements, but it must return a result. This result can be an "immediate" value like an  `NSArray` or `@"OK"`, or `nil.` Or it may signal an error through returning an `NSError` object. Or, the handler may execute an _asynchronous_ task and returning the task's _promise_. 
 
-A continuation - whether it was for an asynchronous task returning a promise or whether it was an immediate value - will be setup with a subsequent `then` or `thenOn` and defining a completion and error handler. A handler is optional, but it makes sense to define at least one for a continuation.
+A continuation - whether it was for an asynchronous task returning a promise or whether it was an immediate value - will be setup with a subsequent `then`,  `thenOn` or `thenOnMain` and defining a completion and error handler. A handler is optional, but it makes sense to define at least one for a continuation.
 
 The return value of a handler will "appear" as the parameter of the  handler of the continuation (either as the _result_ in the completion handler or the error reason in the error handler).
 
@@ -1044,14 +1044,27 @@ In `RXPromise`, handler can execute on the following types of execution contexts
 
 #### Unspecified Execution Context
 
-If the execution context is not specified in a continuation, the handler will execute on a _private concurrent dispatch queue_. More precisely, the handler will be dispatched via `dispatch_async()` on a _concurrent_ queue. Thus, handlers of different continuations executing on an unspecified execution context may execute in _parallel_ and no synchronization guarantees can be made.
+Using the `then` property to setup a Continuation, e.g.:
+
+> `then(<completion-handler>, <error-handler>)`, 
+
+the execution context is not specified. In this case, the handler will execute on a _private concurrent dispatch queue_. More precisely, the handler will be dispatched via `dispatch_async()` on a _concurrent_ queue. Thus, handlers of different continuations executing on an unspecified execution context may execute in _parallel_ and no synchronization guarantees can be made.
 
 
 #### Explicit Execution Context
 
-As already mentioned in brief earlier, when setting up a continuation, with the second form "`thenOn`" we can explicitly specify an execution context:
+As already mentioned in brief earlier, when setting up a continuation, with the second form "`thenOn`" or the third form "`thenOnMain`" we explicitly specify an execution context:
 
-`thenOn(<execution-context>, <completion-handler>, <error-handler>)`, 
+With `thenOn` we can specify any valid execution context
+
+> `thenOn(<execution-context>, <completion-handler>, <error-handler>)`, 
+
+and with 
+
+> `thenOnMain(<completion-handler>, <error-handler>)`, 
+
+we specify the main thread. The third form is funcional equivalent to 
+`thenOn(dispatch_get_main_queue(), <completion-handler>, <error-handler>)`.
 
 In the example below, we setup a continuation which executes the handler on the main queue:
 
@@ -1122,7 +1135,7 @@ If those handlers access shared resources we MUST be worried about concurrent ac
 With this design it is possible to define even _complex trees_ of tasks in a concise way. Since access of shared resources can be made safe from within handlers, setting up complex composed tasks with access to shared resources becomes quite easy.
 
 
-Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just invoke the `thenOn` or `then` block and define what shall happen anywhere in a program. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.
+Furthermore, it's also possible to "hook" into a promise with a handler from anywhere and anytime. Just establish a Continuation with the `thenOn`, `thenOnMain` or `then` property and define handlers. If the promise is already resolved, the handler will just execute immediately, with the same concurrency guarantees.
 
 [Contents ^](#contents)
 
@@ -1190,7 +1203,7 @@ From this it follows, that if the the `then` property is used for registering ha
 
 #### Making access to shared resources thread-safe
 
-Concurrent access to shared resources can be made easily thread-safe from within handlers when the execution context (a dispatch queue) will be *explicitly* specified through the `thenOn` property:
+Concurrent access to shared resources can be made easily thread-safe from within handlers when the execution context (a dispatch queue) will be *explicitly* specified through the `thenOn` or then `thenOnMain` property:
 
     [self doSomethingAsync].thenOn(dispatch_queue, completion_block, error_block);
 
