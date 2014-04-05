@@ -11,6 +11,7 @@
 		A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
 		A17306DD17F0C76C00A1AD7B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A17306DB17F0C76C00A1AD7B /* InfoPlist.strings */; };
+		A1A5811B18F0154B00A00242 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A5811A18F0154B00A00242 /* libRXPromise.a */; };
 		A1A65D9F18D9ECCF005695ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5FF17F04CBC001D2CDC /* Foundation.framework */; };
 		A1A65DA018D9ECCF005695ED /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C67B17F05D3C001D2CDC /* CoreGraphics.framework */; };
 		A1A65DA118D9ECCF005695ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C60117F04CBC001D2CDC /* UIKit.framework */; };
@@ -21,7 +22,6 @@
 		A1A7DBB717F320D20073A2DE /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61B17F04DD7001D2CDC /* RXTimer.m */; };
 		A1A7DBB817F320D80073A2DE /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61B17F04DD7001D2CDC /* RXTimer.m */; };
 		A1A7DBB917F32E920073A2DE /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
-		A1C03E6518D9FB2300DEB480 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C03E6418D9FB2300DEB480 /* libRXPromise.a */; };
 		A1E27ECB17F1D7B1006BB86D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C5EB17F04CAB001D2CDC /* XCTest.framework */; };
 		A1E27ED117F1D7B1006BB86D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1E27ECF17F1D7B1006BB86D /* InfoPlist.strings */; };
 		A1ECBC7F1813D6BE0081F955 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1C0C61317F04CCB001D2CDC /* RXPromiseTest.mm */; };
@@ -35,6 +35,7 @@
 		A17306DA17F0C76C00A1AD7B /* RXPromise-iOS-Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RXPromise-iOS-Test-Info.plist"; sourceTree = "<group>"; };
 		A17306DC17F0C76C00A1AD7B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A17306E017F0C76C00A1AD7B /* RXPromise-iOS-Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RXPromise-iOS-Test-Prefix.pch"; sourceTree = "<group>"; };
+		A1A5811A18F0154B00A00242 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release-iphoneos/libRXPromise.a"; sourceTree = "<group>"; };
 		A1A65D9E18D9ECCF005695ED /* TestDummy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDummy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A65DA418D9ECCF005695ED /* TestDummy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TestDummy-Info.plist"; sourceTree = "<group>"; };
 		A1A65DA618D9ECCF005695ED /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -78,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1A5811B18F0154B00A00242 /* libRXPromise.a in Frameworks */,
 				A1FEBE0318CB55BB005754A5 /* XCTest.framework in Frameworks */,
 				A17306D717F0C76C00A1AD7B /* UIKit.framework in Frameworks */,
 				A17306D617F0C76C00A1AD7B /* Foundation.framework in Frameworks */,
@@ -88,7 +90,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C03E6518D9FB2300DEB480 /* libRXPromise.a in Frameworks */,
 				A1A65DA018D9ECCF005695ED /* CoreGraphics.framework in Frameworks */,
 				A1A65DA118D9ECCF005695ED /* UIKit.framework in Frameworks */,
 				A1A65D9F18D9ECCF005695ED /* Foundation.framework in Frameworks */,
@@ -176,6 +177,7 @@
 		A1C0C5EA17F04CAB001D2CDC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1A5811A18F0154B00A00242 /* libRXPromise.a */,
 				A1C03E6418D9FB2300DEB480 /* libRXPromise.a */,
 				A1C03E6218D9F8E600DEB480 /* libRXPromise.a */,
 				A1C03E6018D9F7CF00DEB480 /* libRXPromise.a */,
@@ -467,9 +469,11 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-iOS-Test/RXPromise-iOS-Test-Info.plist";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-ObjC",
 					"-framework",
 					XCTest,
 				);
@@ -515,8 +519,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "RXPromise-iOS-Test/RXPromise-iOS-Test-Info.plist";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-ObjC",
 					"-framework",
 					XCTest,
 				);

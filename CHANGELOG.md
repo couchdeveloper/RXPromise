@@ -454,7 +454,7 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
             return nil;
         }, ^id(NSError*error){
             for (RXPromise* p in promises) {
-                [p cancel];
+                [p cancelWithReason:error];
             }
             return error;
         });
