@@ -3381,7 +3381,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     }) wait];
 }
 
--(void) testAllCancellingReturnedPromisesMustNotCancelPromises {
+-(void) testAllShouldNotCancelOtherPromisesWhenReturnedPromiseWillBeCancelled {
     // Since v0.11.0, cancelling the returned promise of method `all:` must not
     // cancel the underlying promises given in the array
     
@@ -3415,9 +3415,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         }
         return nil;
     }, ^id(NSError* error) {
-        XCTAssertTrue([taskPromises[0] isPending], @"");
-        XCTAssertTrue([taskPromises[1] isPending], @"");
-        XCTAssertTrue([taskPromises[2] isPending], @"");
+        XCTAssertTrue([taskPromises[0] isPending], @"%@", taskPromises[0]);
+        XCTAssertTrue([taskPromises[1] isPending], @"%@", taskPromises[1]);
+        XCTAssertTrue([taskPromises[2] isPending], @"%@", taskPromises[2]);
         for (RXPromise* p in taskPromises) {
             [p cancel];
         }
@@ -3429,7 +3429,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 }
 
 
--(void) testAllCancelWhenOnePromiseFailed {
+-(void) testAllShouldNotCancelOtherPromisesWhenOnePromiseFailed {
     // Since v0.11.0, cancelling the returned promise of method `all:` must not
     // cancel the underlying promises given in the array
 
@@ -3452,35 +3452,50 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
                               [s0 appendString:result];
                               return nil;
                           },nil),
-                          mock::async(0.3, @"C")
+                          mock::async(10000, @"C")
                           .thenOn(concurrentQueue, ^id(id result) {
                               XCTAssertTrue( dispatch_get_specific(QueueID) == (__bridge void *)(concurrentQueue), @"");
                               [s0 appendString:result];
                               return nil;
-                          },nil)];
+                          },^id(NSError*error){
+                              return error;
+                          })];
     
     RXPromise* allHandlerPromises = [RXPromise all:handlerPromises].thenOn(concurrentQueue, ^id(id result) {
         XCTFail(@"unexpected");
         return nil;
     }, ^id(NSError* error) {
-        for (RXPromise* p in handlerPromises) {
-            [p.parent cancel]; // cancel the underlying task promise
-        }
+        XCTAssertTrue(((RXPromise*)handlerPromises[0]).isFulfilled, @"%@", handlerPromises[0]);
+        XCTAssertTrue(((RXPromise*)handlerPromises[1]).isRejected, @"%@", handlerPromises[1]);
+        XCTAssertTrue(((RXPromise*)handlerPromises[2]).parent.isPending, @"%@", handlerPromises[2]);
+        XCTAssertTrue(((RXPromise*)handlerPromises[2]).isPending, @"%@", handlerPromises[2]);
+        
         XCTAssertTrue([s0 isEqualToString:@"A"], @"");
         dispatch_semaphore_signal(sem);
         return error;
     });
     
-    [allHandlerPromises wait];
+    [allHandlerPromises runLoopWait];
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-    
-    XCTAssertTrue([handlerPromises[0] isFulfilled], @"");
-    XCTAssertTrue([handlerPromises[1] isRejected], @"");
-    XCTAssertTrue([handlerPromises[2] isCancelled], @"");
     
     XCTAssertTrue([(RXPromise*)[handlerPromises[0] parent] isFulfilled], @"");
     XCTAssertTrue([(RXPromise*)[handlerPromises[1] parent] isRejected], @"");
-    XCTAssertTrue([(RXPromise*)[handlerPromises[2] parent] isCancelled], @"");
+    XCTAssertTrue([(RXPromise*)[handlerPromises[2] parent] isPending], @"");
+         
+    for (RXPromise* p in handlerPromises) {
+        [p.parent cancel]; // cancel the underlying task promise
+    }
+    RXPromise* handler3Promise = handlerPromises[2];
+    RXPromise* task3Promise = [handler3Promise parent];
+    [task3Promise cancel];
+    [handler3Promise.then(^id(id result) {
+        XCTFail(@"Unexpected");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTAssertTrue([handler3Promise isCancelled], @"");
+        return error;;
+    }) runLoopWait];
+     
 }
 
 
@@ -4385,6 +4400,55 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
 }
 
+- (void) testErrorReasonWhenCancellingSequenceShouldBeForwarded
+{
+    double taskDuration = 1;
+    // Define a task:
+    typedef RXPromise* (^task_t)(id input);
+    task_t task = ^RXPromise*(id input)
+    {
+        RXPromise* taskPromise = [[RXPromise alloc] init];
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:taskDuration
+                                                             tolorance:0
+                                                                 queue:dispatch_get_global_queue(0, 0)
+                                                                 block:^(RXTimer* timer) {
+                                                                     [taskPromise fulfillWithValue:@"OK"];
+                                                                 }];
+        // Catch any errors - especially "cancel" - sent to the task promise,
+        // in which case we cancel the timer:
+        taskPromise.thenOn(dispatch_get_main_queue(), nil, ^id(NSError*error){
+            // Here, we expect the "User cancelled" error reason
+            XCTAssertTrue([@"User" isEqualToString:error.domain], @"");
+            XCTAssertTrue(error.code == -1, @"");
+            XCTAssertTrue([@"User cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+            
+            [timer cancel];
+            return nil;
+        });
+        return taskPromise;
+    };
+    
+    RXPromise* sequencePromise = [RXPromise sequence:@[@"a", @"b"] task:task];
+
+    // Cancel the sequence after 0.1 secs
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSError* error = [NSError errorWithDomain:@"User" code:-1 userInfo:@{NSLocalizedFailureReasonErrorKey: @"User cancelled"}];
+        [sequencePromise cancelWithReason:error];
+    });
+    
+    [[sequencePromise setTimeout:2.0].thenOn(dispatch_get_main_queue(), ^id(id result){
+        XCTFail(@"Unexpected");
+        return result;
+    }, ^id(NSError* error){
+        XCTAssertTrue([@"User" isEqualToString:error.domain], @"");
+        XCTAssertTrue(error.code == -1, @"");
+        XCTAssertTrue([@"User cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        return error;
+    }) runLoopWait];
+}
+
+
+#pragma mark repeat
 
 - (void) testRepeat
 {
@@ -4472,6 +4536,61 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 }
 
 
+- (void) testErrorReasonWhenCancellingRepeatShouldBeForwarded
+{
+    double taskDuration = 1;
+    // Define a task:
+    typedef RXPromise* (^task_t)(id input);
+    task_t task = ^RXPromise*(id input)
+    {
+        RXPromise* taskPromise = [[RXPromise alloc] init];
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:taskDuration
+                                                             tolorance:0
+                                                                 queue:dispatch_get_global_queue(0, 0)
+                                                                 block:^(RXTimer* timer) {
+                                                                     [taskPromise fulfillWithValue:@"OK"];
+                                                                 }];
+        // Catch any errors - especially "cancel" - sent to the task promise,
+        // in which case we cancel the timer:
+        taskPromise.thenOn(dispatch_get_main_queue(), nil, ^id(NSError*error){
+            // Here, we expect the "User cancelled" error reason
+            XCTAssertTrue([@"User" isEqualToString:error.domain], @"");
+            XCTAssertTrue(error.code == -1, @"");
+            XCTAssertTrue([@"User cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+
+            [timer cancel];
+            return nil;
+        });
+        [timer start];
+        return taskPromise;
+    };
+    
+    RXPromise* repeatPromise = [RXPromise repeat:^RXPromise *{
+        return task(nil);
+    }];
+    
+    // Cancel the repeat after 0.1 secs
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSError* error = [NSError errorWithDomain:@"User" code:-1 userInfo:@{NSLocalizedFailureReasonErrorKey: @"User cancelled"}];
+        [repeatPromise cancelWithReason:error];
+    });
+    
+    [[repeatPromise setTimeout:2.0].thenOn(dispatch_get_main_queue(), ^id(id result){
+        XCTFail(@"Unexpected");
+        return result;
+    }, ^id(NSError* error){
+        XCTAssertTrue([@"User" isEqualToString:error.domain], @"");
+        XCTAssertTrue(error.code == -1, @"");
+        XCTAssertTrue([@"User cancelled" isEqualToString:error.userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        return error;
+    }) runLoopWait];
+}
+
+
+
+
+
+#pragma mark Concurrent Handler Queue
 - (void) testConcurrentHandlerQueue {
     
     typedef RXPromise* (^task_t)(int a);
@@ -4522,6 +4641,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
 }
+
+
 
 
 

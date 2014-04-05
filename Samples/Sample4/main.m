@@ -32,7 +32,7 @@ static RXPromise* do_serial_each(NSEnumerator* iter, RXPromise* promiseResult, u
         return nil;
     });
     promiseResult.then(nil, ^id(NSError* error) {
-        [p cancel];
+        [p cancelWithReason:error];
         return nil;
     });
     

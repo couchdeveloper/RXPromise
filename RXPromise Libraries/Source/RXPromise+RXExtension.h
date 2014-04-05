@@ -100,7 +100,7 @@ typedef RXPromise* (^rxp_nullary_task)();
      assert(result != nil);
      return result;
  }, ^id(NSError*error){
-     for (RXPromise* p in promises) {[p.parent cancel];}
+     for (RXPromise* p in promises) {[p.parent cancelWithReason:error];}
      return nil;
  });
  @endcode
@@ -142,7 +142,7 @@ typedef RXPromise* (^rxp_nullary_task)();
      return nil;
  },^id(NSError* error){
      NSLog(@"Error: %@", error);
-     for (RXPromise* p in promises) {[p cancel];}
+     for (RXPromise* p in promises) {[p cancelWithReason:error];}
      return nil;
  });
  @endcode

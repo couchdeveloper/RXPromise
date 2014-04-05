@@ -546,7 +546,7 @@ A asynchronous service provider should - if it supports cancellation at all - ad
 
     promise.then(^id(NSError* error){
         if (promise.isCancelled) {
-            [op cancel];
+            [op cancelWithReason:error];
         }
         return error;
     });

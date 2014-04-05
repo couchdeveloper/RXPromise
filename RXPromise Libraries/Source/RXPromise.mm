@@ -329,7 +329,7 @@ namespace {
         auto range = Shared.assocs.equal_range(key);
         while (range.first != range.second) {
             DLogDebug(@"%p forwarding cancel to %p", key, (__bridge void*)((*(range.first)).second));
-            [(*(range.first)).second cancel];
+            [(*(range.first)).second cancelWithReason:reason];
             ++range.first;
         }
         Shared.assocs.erase(key);

@@ -98,7 +98,7 @@ namespace {
             return nil;
         });
         returnedPromise.then(nil, ^id(NSError* error) {
-            [taskPromise cancel];
+            [taskPromise cancelWithReason:error];
             return nil;
         });
     }
