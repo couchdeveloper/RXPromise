@@ -536,7 +536,7 @@ autorelease pool.
  - Minimum Deployment target for Mac OS X is now 10.8
  
  
-### Version 0.11.3 beta (2014-04-01)
+### Version 0.11.3 beta (2014-04-05)
 
  - Fixed a bug where the cancel reason for promises returned by methods `repeat` and `sequence` has not been forwarded to the current task.
 
