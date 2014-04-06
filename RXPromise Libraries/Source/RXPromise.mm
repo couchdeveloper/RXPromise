@@ -22,6 +22,7 @@
 
 #import "RXPromise.h"
 #import "RXPromise+Private.h"
+#import <CoreData/CoreData.h>
 #import <objc/runtime.h>
 #include <dispatch/dispatch.h>
 #include <cassert>
@@ -288,7 +289,8 @@ namespace {
                               DISPATCH_TIME_FOREVER /*one shot*/, 0 /*_leeway*/);
     dispatch_resume(timer);
 
-    [self registerWithExecutionContext:Shared.sync_queue onSuccess:^id(id result) {
+    id executionContext = Shared.sync_queue;
+    [self registerWithExecutionContext:executionContext onSuccess:^id(id result) {
         dispatch_source_cancel(timer);
         RX_DISPATCH_RELEASE(timer);
         return nil;
@@ -494,6 +496,14 @@ namespace {
         return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
     };
 }
+
+- (then_on_main_block_t) thenOnMain {
+    return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+    };
+}
+
+
 
 
 #pragma mark -

@@ -47,6 +47,7 @@ typedef RXPromise* (^then_on_block_t)(id, promise_completionHandler_t, promise_e
 
 @property (nonatomic, readonly) then_t then;
 @property (nonatomic, readonly) then_t thenOn;
+@property (nonatomic, readonly) then_t thenOnMain;
  
 @property (nonatomic, readonly) RXPromise* parent;
 @property (nonatomic, readonly) RXPromise* root;
@@ -250,6 +251,23 @@ typedef RXPromise* (^then_on_block_t)(id,
                                       promise_errorHandler_t);
 
 
+
+/*!
+ @brief Type definition of the "then_on_main block". The "then_on_main block" is the return
+ value of the property \p thenOnMain.
+ 
+ @discussion The "then_on_main block" has two parameters, the completion handler block 
+ and the error handler block. The handlers may be \c nil.
+ 
+ @par The "then block" returns a promise, the "returned promise". When the parent
+ promise will be resolved the corresponding handler (if not \c nil) will be invoked
+ and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_errorHandler_t);
+
+
 /*!
  
  @brief A \p RXPromise object represents the eventual result of an asynchronous
@@ -347,6 +365,41 @@ typedef RXPromise* (^then_on_block_t)(id,
  @return Returns a block of type \c then_on_block_t.
  */
 @property (nonatomic, readonly) then_on_block_t thenOn;
+
+
+
+/*!
+ @brief Property \p thenOnMain returns a block whose signature is
+ @code
+ RXPromise* (^)(promise_completionHandler_t onSuccess, promise_errorHandler_t onError)
+ @endcode
+ 
+ When the block is called it will register the completion handler \p onSuccess and
+ the error handler \p onError. When the receiver will be fulfilled the completion handler
+ will be executed on the main thread. When the receiver will be rejected the error 
+ handler will be called and executed on the main thread.
+ 
+ @par The receiver will be retained and released only until after the receiver has
+ been resolved.
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of either handler that gets called when the receiver will be resolved.
+ 
+ @par When the block is invoked and the receiver is already resolved, the corresponding
+ handler will be immediately asynchronously scheduled for execution on the main thread.
+ 
+ @par Parameter \p onSuccess and \p onError may be \c nil.
+ 
+ @par The receiver can register zero or more handler (pairs) through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \c then_on_block_t.
+ */
+@property (nonatomic, readonly) then_on_main_block_t thenOnMain;
+
+
+
+
 
 /*!
  Returns \c YES if the receiveer is pending.

@@ -2,27 +2,27 @@
 
 # RXPromise
 
-### Version 0.1 beta (22.05.2013)
+## Version 0.1.0 beta (22.05.2013)
 
 * Initial Version
 
 
 
-### Version 0.2 beta (29.05.2013)
+## Version 0.2.0 beta (29.05.2013)
 
 #### Changes
 
 * Improved runtime memory requirements of a promise instance.
 
 
-### Version 0.3 beta (30.05.2013)
+## Version 0.3.0 beta (30.05.2013)
 
 #### Bug Fixes
 
-* Fixed issue with dispatch objects becoming "retainabel object pointers. Compiles now for deployment targets iOS >= 6.0 and Mac OS X >= 10.8.
+* Fixed issue with dispatch objects becoming "retainable object pointers. Compiles now for deployment targets iOS >= 6.0 and Mac OS X >= 10.8.
 
 
-### Version 0.4 beta (31.05.2013)
+## Version 0.4.0 beta (31.05.2013)
 
 #### Changes
 
@@ -46,7 +46,7 @@ A `cancel` message will be forwarded to the bound promise.
 * Fixed bug in a macro used for source code compatibility for different OS versions. This should now definitely fix the OS version issue.
 
 
-### Version 0.5 beta (1.06.2013)
+## Version 0.5.0 beta (1.06.2013)
 
 #### Changes
 
@@ -66,7 +66,7 @@ Due to moving the code into libraries, the logging mechanism became an implement
 
 
 
-### Version 0.6 beta (5.07.2013)
+## Version 0.6 beta (5.07.2013)
 
 #### Changes 
 
@@ -82,7 +82,7 @@ Due to moving the code into libraries, the logging mechanism became an implement
 * A few new unit tests have been added to specifically test subtle edge-cases. The implementation appears to be quite stable and no failure could have been detected.
 
 
-### Version 0.7 beta (6.08.2013)
+## Version 0.7 beta (6.08.2013)
 
 #### Changes 
 
@@ -121,11 +121,11 @@ The `thenOn` property has been added which provides a means to explicitly specif
 
 #### Bug Fixes
 
-* Fixed a bug in method bind, which errornously fulfilled the target promise if the other promise was rejected.
+* Fixed a bug in method bind, which erroneously fulfilled the target promise if the other promise was rejected.
 
 
 
-### Version 0.8 beta (08.09.2013)
+## Version 0.8 beta (08.09.2013)
 
 
 #### New APIs
@@ -159,7 +159,7 @@ In the current implementation and in the _worst case_, the behavior *MAY* be suc
 
 #### Changes
 
- -  The logging feature - primarily a means for debugging and hunting subtle bugs - has been effectivel disabled by default. The verbosity of and the "severity" of the log messages will be controlled by the macro `DEBUG_LOG`. Unless it is defined in a build setting or elsewhere, `DEBUG_LOG` will be defined in RXPromise.mm such that only errors will be logged. Defining it to 2, 3, or 4 will increase the verbosity.
+ -  The logging feature - primarily a means for debugging and hunting subtle bugs - has been effectively disabled by default. The verbosity of and the "severity" of the log messages will be controlled by the macro `DEBUG_LOG`. Unless it is defined in a build setting or elsewhere, `DEBUG_LOG` will be defined in RXPromise.mm such that only errors will be logged. Defining it to 2, 3, or 4 will increase the verbosity.
 
 
  -  A few typos have been fixed in code and README.md  (Contributed by Rob Ryan)
@@ -168,12 +168,12 @@ In the current implementation and in the _worst case_, the behavior *MAY* be suc
 
 #### Bug Fixes
 
-A Unit Test has been fixed which potentially has reported a false positve.
+A Unit Test has been fixed which potentially has reported a false positive.
 
 
 #### Misc:
 
- Fixed a spurious Static Analyser warning.
+ Fixed a spurious Static Analyzer warning.
 
 
 
@@ -186,7 +186,7 @@ Added a "How To Install" section in the README.md file.
 
 
 
-### Version 0.9 beta (2013-09-20)
+## Version 0.9 beta (2013-09-20)
 
 
 #### Changes
@@ -292,7 +292,7 @@ Likewise, inherited class factory methods now return on object of the subclass, 
 
 
 
- #### Kown Issues
+ #### Known Issues
  
  -  Due to an issue in Xcode 5, it's not possible to run *individual* unit test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same unit test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, and individual unit tests can be run from within the Test Navigation pane.
  
@@ -302,12 +302,12 @@ Likewise, inherited class factory methods now return on object of the subclass, 
 
 #### Changes
 
-- Removed LTO optimization and added 64-bit architecturefrom iOS static library project.
+- Removed LTO optimization and added 64-bit architecture from iOS static library project.
 
 
 
 
-### Version 0.10.0 beta (2013-11-11)
+## Version 0.10.0 beta (2013-11-11)
 
 
 #### Added `RXPromise+RXExtension` module
@@ -409,7 +409,7 @@ Fixed the implementation of the second designated initializer `initWithResult:`
 #### Changes
 
 
-Added Sample6 which demonstrates how an asynchronous task can be cancelled when there are no more "obeservers" to the promise anymore.
+Added Sample6 which demonstrates how an asynchronous task can be cancelled when there are no more "observers" to the promise anymore.
 
 Added Sample7 showing how to use class method `repeat`.
 
@@ -423,7 +423,7 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 
 
-### Version 0.11.0 beta (2014-03-11)
+## Version 0.11.0 beta (2014-03-11)
 
 #### Bug Fixes
 
@@ -437,9 +437,9 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
  Now, the methods don't cancel any other promise in the given array if any has 
  been resolved or if the returned promise has been cancelled.
  
- This is more consistent with the rule that a promise if cancelled shall not forward the cancellation to its parents. The promises in the given  array can be viewed as the "parents" of the returned promise. Now, cancelling the returned promise won't touch the promises in the given array.
+ This is more consistent with the rule that a promise if cancelled shall not forward the cancellation to its parents. The promises in the given  array can be viewed as the "parents" of the returned promise. Now, canceling the returned promise won't touch the promises in the given array.
  
- Furthermore, not forwarding the cancel message or cancelling all ather promises if one has been resolved enables to use promises within the array which are part of any other promise tree, without affecting this other tree.
+ Furthermore, not forwarding the cancel message or canceling all other promises if one has been resolved enables to use promises within the array which are part of any other promise tree, without affecting this other tree.
  
  Now, it is suggested to take any required action in the *handlers* of the returned promise. 
  
@@ -477,7 +477,7 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
          Since Apps are given only a limited amount of time to finish
          background tasks, this time may expire before the task finishes. 
          In this case the receiver's root will be cancelled which in turn
-         propagates the cancel event to all children of the reciever, 
+         propagates the cancel event to all children of the receiver,
          including the receiver.
     
          Tasks may want to handle the cancellation in order to execute 
@@ -513,9 +513,9 @@ Observable behavior is still the same, though.
 should help the compiler during ARC optimization to avoid putting objects into the 
 autorelease pool.
 
- There is still one occurence where the ARC optimizer cannot prevent this: when an 
+ There is still one occurrence where the ARC optimizer cannot prevent this: when an
  object is created and returned in handlers, these objects will be put into the 
- autoreleaspool. This does not happen when the source code is direcly included in 
+ autorelease pool. This does not happen when the source code is directly included in
  the client project.
 
 
@@ -525,16 +525,53 @@ autorelease pool.
 
  - Simplified implementation of class method `all` and `any`.
 
- - Improved setup for iOS Unit Tests
+ - Improved setup for iOS Unit Tests.
 
 
 
-### Version head (becomes 0.12.0 beta (2014-xx-xx))
+### Version 0.11.2 beta (2014-04-01)
+
+ - Fixed a bug in method `runLoopWait`.
+
+ - Minimum Deployment target for Mac OS X is now 10.8.
+ 
+ 
+ 
+### Version 0.11.3 beta (2014-04-05)
+
+ - Fixed a bug where the cancel reason for promises returned by methods `repeat` and `sequence` has not been forwarded to the current task.
+
+ - Added Unit Tests to confirm that cancel reasons get forwarded correctly.
 
 
- - The minmum deployment version of Mac OS X is now 10.8.
 
+
+## Version 0.12.0 beta (2014-04-xx)
+
+### API Changes
 
  - Additional Execution Contexts
  
+ The with the `thenOn` property it's now possible to specify an execution context which is not only a dispatch queues, but also a `NSThread`, a `NSOperationQueue` and a `NSManagedObjectContext`. For example:
+ 
+ NSOperationQueue* operationQueue = [[NSOperationQueue alloc] init];
+ 
+ promise.thenOn(operationQueue, ^id(id result){
+     // executing on the NSOperationQueue
+     ...
+     return nil;
+ }, nil);
+
+ 
+
+
+### Bug Fixes
+
+ - Fixed a Unit Test
+
+
+### Miscellaneous
+
+
+
 

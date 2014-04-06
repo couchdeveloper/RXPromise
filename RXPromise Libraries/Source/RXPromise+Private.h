@@ -15,12 +15,23 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+#import <Foundation/Foundation.h>
 #import "RXPromise.h"
 #import <dispatch/dispatch.h>
 #include <map>
 #include "utility/DLog.h"
 
-#if !defined (OS_OBJECT_USE_OBJC)
+
+#if defined(__OBJC__) && defined(__OBJC2__) && !defined(__OBJC_GC__) && ( \
+__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_8 || \
+__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)
+
+#else
+#error No OS_OBJECT_HAVE_OBJC_SUPPORT
+#endif
+
+
+#if !defined (OS_OBJECT_HAVE_OBJC_SUPPORT)
 #error missing include os/object.h
 #endif
 
@@ -61,6 +72,8 @@ struct RXPromise_StateAndResult {
 @class RXPromise;
 
 namespace rxpromise {
+    
+    static_assert(OS_OBJECT_HAVE_OBJC_SUPPORT == 1, "");
     
     struct shared {
         typedef std::multimap<void const*, __weak RXPromise*> assocs_t;

@@ -20,8 +20,10 @@
 		A19C19D61759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
 		A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromise.mm */; };
 		A19C19D81759EA3B008E3F63 /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
-		A19C19E21759EE9B008E3F63 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A19C19CF1759EA3B008E3F63 /* RXPromise.h */; };
-		A1F3ADCE18DC6B120097A085 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199F1759E879008E3F63 /* CoreData.framework */; };
+		A1A5811E18F030D400A00242 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1A5811F18F0310F00A00242 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; };
+		A1A5812018F0312600A00242 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; };
+		A1A5812118F0494C00A00242 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199F1759E879008E3F63 /* CoreData.framework */; };
 		A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
 		A1FB3A9518C0E7DA00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -82,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1F3ADCE18DC6B120097A085 /* CoreData.framework in Frameworks */,
+				A1A5812118F0494C00A00242 /* CoreData.framework in Frameworks */,
 				A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -512,7 +514,7 @@
 					"$(inherited)",
 					"$(SOURCR_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
@@ -550,7 +552,7 @@
 					"$(inherited)",
 					"$(SOURCR_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 			};
@@ -586,7 +588,7 @@
 					"$(inherited)",
 					"$(SOURCE_DIR)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -625,7 +627,7 @@
 					"$(inherited)",
 					"$(SOURCE_DIR)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
