@@ -3148,7 +3148,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return error;
     });
     
-    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)), @"");
+    XCTAssertTrue(0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10000*NSEC_PER_SEC)), @"");
     [all wait];
 }
 
@@ -4608,6 +4608,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 #pragma mark Concurrent Handler Queue
 - (void) testConcurrentHandlerQueue {
     
+    // Caution: this will create a lot of threads!
+    
     typedef RXPromise* (^task_t)(int a);
     
     
@@ -4658,7 +4660,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 }
 
 
-#pragma mark -
+#pragma mark - Execution Context
 
 
 - (void) testExecutionContextWithMainThread {
@@ -4674,6 +4676,22 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return nil;
     }, nil) runLoopWait];
 }
+
+
+- (void) testExecutionContextWithImplicitMainThread {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise fulfillWithValue:@"OK"];
+    });
+    
+    [promise.thenOnMain(^id(id result) {
+        XCTAssertTrue([NSThread mainThread] == [NSThread currentThread], @"");
+        return nil;
+    }, nil) runLoopWait];
+}
+
 
 - (void) testExecutionContextWithBackgroundThread {
     

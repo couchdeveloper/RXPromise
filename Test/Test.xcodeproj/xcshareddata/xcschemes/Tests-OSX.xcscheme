@@ -5,36 +5,6 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
-      <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A17306D317F0C76C00A1AD7B"
-               BuildableName = "RXPromise-iOS-Test.xctest"
-               BlueprintName = "RXPromise-iOS-Test"
-               ReferencedContainer = "container:Test.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
-               BuildableName = "TestDummy.app"
-               BlueprintName = "TestDummy"
-               ReferencedContainer = "container:Test.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-      </BuildActionEntries>
    </BuildAction>
    <TestAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -46,9 +16,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A17306D317F0C76C00A1AD7B"
-               BuildableName = "RXPromise-iOS-Test.xctest"
-               BlueprintName = "RXPromise-iOS-Test"
+               BlueprintIdentifier = "A146E8A618F1844400001BCF"
+               BuildableName = "Tests-OSX.xctest"
+               BlueprintName = "Tests-OSX"
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -14,9 +14,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-               BuildableName = "RXPromise-OSX-Test.xctest"
-               BlueprintName = "RXPromise-OSX-Test"
+               BlueprintIdentifier = "A1A65D9D18D9ECCF005695ED"
+               BuildableName = "TestDummy.app"
+               BlueprintName = "TestDummy"
+               ReferencedContainer = "container:Test.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1537EE818F17C2E0080871D"
+               BuildableName = "Tests-iOS.xctest"
+               BlueprintName = "Tests-iOS"
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,40 +40,19 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      buildConfiguration = "Release">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-               BuildableName = "RXPromise-OSX-Test.xctest"
-               BlueprintName = "RXPromise-OSX-Test"
+               BlueprintIdentifier = "A1537EE818F17C2E0080871D"
+               BuildableName = "Tests-iOS.xctest"
+               BlueprintName = "Tests-iOS"
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1E27EC917F1D7B1006BB86D"
-            BuildableName = "RXPromise-OSX-Test.xctest"
-            BlueprintName = "RXPromise-OSX-Test"
-            ReferencedContainer = "container:Test.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "MallocScribble=1"
-            value = ""
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "NSZombieEnabled=1"
-            value = ""
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -77,11 +70,11 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "Debug">
+      buildConfiguration = "Release">
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"

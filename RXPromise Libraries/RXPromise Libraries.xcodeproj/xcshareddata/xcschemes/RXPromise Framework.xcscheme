@@ -28,6 +28,16 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1537F0318F17F5F0080871D"
+               BuildableName = "Tests-OSX.xctest"
+               BlueprintName = "Tests-OSX"
+               ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

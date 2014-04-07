@@ -22,12 +22,10 @@
 #include "utility/DLog.h"
 
 
-#if defined(__OBJC__) && defined(__OBJC2__) && !defined(__OBJC_GC__) && ( \
-__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_8 || \
-__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)
-
+#if defined(__has_feature) && __has_feature(objc_arc)
+#define RX_ARC_ENABLED 1
 #else
-#error No OS_OBJECT_HAVE_OBJC_SUPPORT
+#error ARC must be enabled
 #endif
 
 
@@ -35,20 +33,8 @@ __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)
 #error missing include os/object.h
 #endif
 
-#if defined(__has_feature) && __has_feature(objc_arc)
- #define RX_ARC_ENABLED 1
-#else
- #define RX_ARC_ENABLED 0
-#endif
-
-#if OS_OBJECT_USE_OBJC && RX_ARC_ENABLED
-    #define RX_DISPATCH_RELEASE(__object) do {} while(0)
-    #define RX_DISPATCH_RETAIN(__object) do {} while(0)
-    #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) (__bridge void*)__object
-#else
-    #define RX_DISPATCH_RELEASE(__object) do {dispatch_release(__object);} while(0)
-    #define RX_DISPATCH_RETAIN(__object) do {dispatch_retain(__object);} while(0)
-    #define RX_DISPATCH_BRIDGE_VOID_CAST(__object) __object
+#if !OS_OBJECT_HAVE_OBJC_SUPPORT
+#error OS_OBJECT_HAVE_OBJC_SUPPORT must be enabled
 #endif
 
 
@@ -100,7 +86,16 @@ namespace rxpromise {
         
         ~shared() {
             DLogInfo(@"destroyed: sync_queue (0x%p), default_concurrent_queue (0y%p) ", (sync_queue), (default_concurrent_queue));
-            assert(assocs.size() == 0);
+#if defined (DEBUG)
+            // Note: at exit, the sync queue *may* still have enqueued blocks,
+            // which insert/remove associations between a parent and its children
+            // running on a secondary thread. At exit, this running thread will be
+            // forced to terminate and the assocs container may not be clean. This
+            // is considered harmless.
+            if (assocs.size() != 0) {
+                DLogInfo(@"Association container not empty");
+            }
+#endif
         }
         
     };

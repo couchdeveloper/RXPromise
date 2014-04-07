@@ -58,6 +58,36 @@
                ReferencedContainer = "container:Test.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A107AAD918F170A000A7421C"
+               BuildableName = "RXPromise-iOS-Tests.xctest"
+               BlueprintName = "RXPromise-iOS-Tests"
+               ReferencedContainer = "container:Test.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1537EE818F17C2E0080871D"
+               BuildableName = "Tests-iOS.xctest"
+               BlueprintName = "Tests-iOS"
+               ReferencedContainer = "container:Test.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A146E8A618F1844400001BCF"
+               BuildableName = "Tests-OSX.xctest"
+               BlueprintName = "Tests-OSX"
+               ReferencedContainer = "container:Test.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

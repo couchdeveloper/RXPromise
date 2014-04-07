@@ -43,15 +43,15 @@
 
 
 @interface NSError (RXResolver)
-- (void) rxp_resolvePromise:(RXPromise*)promise;
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise;
 @end
 
 @interface NSObject (RXResolver)
-- (void) rxp_resolvePromise:(RXPromise*)promise;
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise;
 @end
 
 @interface RXPromise (RXResolver)
-- (void) rxp_resolvePromise:(RXPromise*)promise;
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise;
 @end
 
 
@@ -156,7 +156,6 @@ namespace {
             DLogWarn(@"handlers not signaled");
             dispatch_resume(_handler_queue);
         }
-        RX_DISPATCH_RELEASE(_handler_queue);
     }
     void const* key = (__bridge void const*)(self);
     if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
@@ -225,7 +224,7 @@ namespace {
 
 
 
-
+#if 0
 // Returns a copy of the handler queue
 - (dispatch_queue_t) copyHandlerQueue DISPATCH_RETURNS_RETAINED
 {
@@ -258,7 +257,7 @@ namespace {
     }
     return Shared.sync_queue;
 }
-
+#endif
 
 
 - (void) cancel {
@@ -292,11 +291,9 @@ namespace {
     id executionContext = Shared.sync_queue;
     [self registerWithExecutionContext:executionContext onSuccess:^id(id result) {
         dispatch_source_cancel(timer);
-        RX_DISPATCH_RELEASE(timer);
         return nil;
     }  onFailure:^id(NSError *error) {
         dispatch_source_cancel(timer);
-        RX_DISPATCH_RELEASE(timer);
         return nil;
     }
     returnPromise:NO];
@@ -312,7 +309,7 @@ namespace {
         [self synced_fulfillWithValue:nil];
     }
     else {
-        [result rxp_resolvePromise:self];
+        [result rxp_synced_resolvePromise:self];
     }
 }
 
@@ -401,84 +398,107 @@ namespace {
     if (executionContext == nil) {
         executionContext = Shared.default_concurrent_queue;
     }
-    dispatch_block_t syncBlock = ^{
+    dispatch_block_t registerBlock = ^{
+        assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
         if (_handler_queue == nil) {
             _handler_queue = createHandlerQueue(_state == Pending, (__bridge void*)self);
         }
-        dispatch_block_t handlerBlock = ^{
-            @autoreleasepool {
-                RXPromise_StateT state = blockSelf->_state;
-                __strong id result = blockSelf->_result;
-                assert(state != Pending);
-                if (state == Fulfilled && onSuccess) {
-                    result = onSuccess(blockSelf->_result);
-                }
-                else if (state != Fulfilled && onFailure) {
-                    result = onFailure(blockSelf->_result);
-                }
-                RXPromise* strongReturnedPromise = weakReturnedPromise;
-                if (strongReturnedPromise) {
-                    assert(result != strongReturnedPromise); // @"cyclic promise error");
-                    if (state == Cancelled) {
-                        [strongReturnedPromise cancelWithReason:result];
+        // Finally, *enqueue* a wrapper block which eventually gets invoked when the
+        // promise will be resolved:
+        dispatch_async(_handler_queue, ^{
+            // The continuation has been fired!
+            assert(executionContext);
+            // Get the state of the promise:
+            assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
+            RXPromise_StateT promise_state = blockSelf->_state;
+            __strong id promise_result = blockSelf->_result;
+            
+            dispatch_block_t handlerBlock = ^{
+                // The handler block will be executed in the specified execution
+                // context - it can be Shared.sync_queue, too - when invoked internally!
+                // If the execution context equals the Shared.sync_queue, the block
+                // must be enqueued with a barrier! (implementation details)
+                @autoreleasepool {
+                    assert(promise_state != Pending);
+                    RXPromise_StateT state = promise_state;
+                    __strong id result = promise_result;
+                    if (state == Fulfilled && onSuccess) {
+                        result = onSuccess(blockSelf->_result);
                     }
-                    else {
-                        DLogInfo(@"%p add child %p", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
-                        if (executionContext == Shared.sync_queue) {
-                            Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
-                        } else {
-                            dispatch_barrier_sync(Shared.sync_queue, ^{
-                                Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
-                            });  // MUST be synchronous!
-                        }
-                        //  §2.2: if parent is fulfilled, fulfill the "returned promise" with the same value
-                        //  §2.3: if parent is rejected, reject the "returned promise" with the same value.
-                        //
-                        // There are four cases how the "returned promise" (child) will be resolved:
-                        // 1. result isKindOfClass NSError   -> rejected with reason error
-                        // 2. result isKindOfClass RXPromise -> fulFilled with promise
-                        // 3. result equals nil              -> fulFilled with nil
-                        // 4  result is any other object     -> fulFilled with value
-                        //
-                        // Note: if parent is cancelled, the "returned promise" will NOT be cancelled - it just adopts the error reason!
-                        if (result && [result isKindOfClass:[NSError class]]) {
-                            [strongReturnedPromise rejectWithReason:result];
-                        }
-                        else if (result && [result isKindOfClass:[RXPromise class]]) {
-                            [strongReturnedPromise bind:result];
+                    else if (state != Fulfilled && onFailure) {
+                        result = onFailure(blockSelf->_result);
+                    }
+                    RXPromise* strongReturnedPromise = weakReturnedPromise;
+                    if (strongReturnedPromise) {
+                        assert(result != strongReturnedPromise); // @"cyclic promise error");
+                        if (state == Cancelled) {
+                            [strongReturnedPromise cancelWithReason:result];
                         }
                         else {
-                            [strongReturnedPromise fulfillWithValue:result];
+                            DLogInfo(@"%p add child %p", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
+                            if (executionContext == Shared.sync_queue) {
+                                // prerequiste: the block must have been enqueued with a barrier!
+                                Shared.assocs.emplace((__bridge void*)(blockSelf), weakReturnedPromise);
+                            } else {
+                                void const* parent_pointer = (__bridge void*)(blockSelf);
+                                dispatch_barrier_async(Shared.sync_queue, ^{  // TODO:
+                                    Shared.assocs.emplace(parent_pointer, weakReturnedPromise);
+                                }); 
+                            }
+                            //  §2.2: if parent is fulfilled, fulfill the "returned promise" with the same value
+                            //  §2.3: if parent is rejected, reject the "returned promise" with the same value.
+                            //
+                            // There are four cases how the "returned promise" (child) will be resolved:
+                            // 1. result isKindOfClass NSError   -> rejected with reason error
+                            // 2. result isKindOfClass RXPromise -> fulFilled with promise
+                            // 3. result equals nil              -> fulFilled with nil
+                            // 4  result is any other object     -> fulFilled with value
+                            //
+                            // Note: if parent is cancelled, the "returned promise" will NOT be cancelled - it just adopts the error reason!
+                            if (result && [result isKindOfClass:[NSError class]]) {
+                                [strongReturnedPromise rejectWithReason:result];
+                            }
+                            else if (result && [result isKindOfClass:[RXPromise class]]) {
+                                [strongReturnedPromise bind:result];
+                            }
+                            else {
+                                [strongReturnedPromise fulfillWithValue:result];
+                            }
                         }
                     }
-                }
-                else {
-                    DLogInfo(@"parent's  %p returned promisze %p died", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
-                }
-                blockSelf = nil;
-            }//@autoreleasepool
-        };
-        dispatch_async(_handler_queue, ^{
-            assert(executionContext);
-            assert(handlerBlock);
+                    else {
+                        DLogInfo(@"parent's  %p returned promisze %p died", (__bridge void*)(blockSelf), (__bridge void*)(strongReturnedPromise));
+                    }
+                    blockSelf = nil;
+                }//@autoreleasepool
+            };
+            
             if (executionContext == Shared.default_concurrent_queue) {
+                // If the continuation has been registered with `then`, we run
+                // the handler is parallel:
                 dispatch_async(executionContext, handlerBlock);
             }
             else if ([executionContext conformsToProtocol:@protocol(OS_dispatch_queue)]) {
+                // If the continuation has been registered with `thenOn:` and when the
+                // execution context is a dispatch queue, we run the handler serially:
                 dispatch_barrier_async(executionContext, handlerBlock);
             }
             else {
+                // Otherwise, the execution context is not a dispatch_queue. Dispatch
+                // to the corresponding execution context:
                 [executionContext rxp_dispatchBlock:handlerBlock];
             }
         });
     };
     
     if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
-        syncBlock();
+        // when entering here, we need to ensure the block has been dispatched with a barrier!
+        // (currently, this path only gets executed when invoking `resolveWithResult:` and `bind:`)
+        registerBlock();
     }
     else {
         assert(Shared.sync_queue);
-        dispatch_barrier_sync(Shared.sync_queue, syncBlock);
+        dispatch_barrier_sync(Shared.sync_queue, registerBlock);
     }
     return returnedPromise;
 }
@@ -496,6 +516,7 @@ namespace {
         return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
     };
 }
+
 
 - (then_on_main_block_t) thenOnMain {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
@@ -543,28 +564,10 @@ namespace {
         else {
             result = makeTimeoutError();
         }
-        RX_DISPATCH_RELEASE(sem);
     }
     return result;
 }
 
-
-
-
-- (id) get2 {
-    assert(dispatch_get_specific(rxpromise::shared::QueueID) != rxpromise::shared::sync_queue_id); // Must not execute on the private sync queue!
-    __block id result;
-    dispatch_semaphore_t avail = dispatch_semaphore_create(0);
-    dispatch_queue_t handlerQueue = [self copyHandlerQueue];
-    dispatch_async(handlerQueue, ^{
-        result = _result;
-        dispatch_semaphore_signal(avail);
-        RX_DISPATCH_RELEASE(handlerQueue);
-    });
-    dispatch_semaphore_wait(avail, DISPATCH_TIME_FOREVER);
-    RX_DISPATCH_RELEASE(avail);
-    return result;
-}
 
 
 - (void) wait {
@@ -730,6 +733,17 @@ namespace {
     return desc;
 }
 
+- (NSString*) rxp_debugSummary {
+    NSString* result = [_result description];
+    NSMutableString* summary = [[NSMutableString alloc] initWithFormat:@"<%@>{%@}",
+                                NSStringFromClass([self class]),
+                                ( (_state == Fulfilled)?[NSString stringWithFormat:@"fulfilled with value: %@", result]:
+                                 (_state == Rejected)?[NSString stringWithFormat:@"rejected with reason: %@", result]:
+                                 (_state == Cancelled)?[NSString stringWithFormat:@"cancelled with reason: %@", result]
+                                 :@"pending")
+                                ];
+    return summary;
+}
 
 @end
 
@@ -737,7 +751,7 @@ namespace {
 #pragma mark - RXPromise (RXResolver)
 
 @implementation RXPromise (RXResolver)
-- (void) rxp_resolvePromise:(RXPromise*)promise
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise
 {
     assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
     [promise synced_bind:self];
@@ -745,7 +759,7 @@ namespace {
 @end
 
 @implementation NSObject (RXResolver)
-- (void) rxp_resolvePromise:(RXPromise*)promise {
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise {
     // This is not strict according the spec:
     // If value is an object we require it to be a `thenable` or we must
     // reject the promise with an appropriate error.
@@ -761,7 +775,7 @@ namespace {
 
 @implementation NSError (RXResolver)
 
-- (void) rxp_resolvePromise:(RXPromise*)promise {
+- (void) rxp_synced_resolvePromise:(RXPromise*)promise {
     [promise rejectWithReason:self];
 }
 
@@ -875,7 +889,7 @@ namespace {
         [self synced_fulfillWithValue:value];
     }
     else {
-        dispatch_barrier_sync(Shared.sync_queue, ^{
+        dispatch_barrier_async(Shared.sync_queue, ^{
             [self synced_fulfillWithValue:value];
         });
     }
@@ -887,7 +901,7 @@ namespace {
         [self synced_rejectWithReason:reason];
     }
     else {
-        dispatch_barrier_sync(Shared.sync_queue, ^{
+        dispatch_barrier_async(Shared.sync_queue, ^{
             [self synced_rejectWithReason:reason];
         });
     }

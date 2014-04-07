@@ -552,7 +552,7 @@ autorelease pool.
 
  - Additional Execution Contexts
  
- The with the `thenOn` property it's now possible to specify an execution context which is not only a dispatch queues, but also a `NSThread`, a `NSOperationQueue` and a `NSManagedObjectContext`. For example:
+ With the `thenOn` property it's now possible to specify an execution context for handlers which can be a `NSThread`, a `NSOperationQueue`, a `NSManagedObjectContext` or a dispatch queue (as usual). For example:
  
  NSOperationQueue* operationQueue = [[NSOperationQueue alloc] init];
  
@@ -562,15 +562,20 @@ autorelease pool.
      return nil;
  }, nil);
 
- 
+ - Added a property `thenOnMain` for convenience which is functional equivalent to 
+  `thenOn(dispatch_get_main_queue(), .., ...)`
 
 
 ### Bug Fixes
+
+ - Minimum iOS deployment target (since 0.11.0) MUST be iOS 6.0
 
  - Fixed a Unit Test
 
 
 ### Miscellaneous
+
+ - Minor changes in project structure and namings of projects and targets.
 
 
 

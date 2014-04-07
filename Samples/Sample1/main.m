@@ -68,9 +68,16 @@ int main(int argc, const char * argv[])
 {
     @autoreleasepool {
         RXPromise* result = getNamesAndProcessNames();
-        NSArray* processedNames = [result get];
-        NSLog(@"processedNames: %@", processedNames);
+        [result.thenOnMain(^id(NSArray* processedNames) {
+            NSLog(@"processedNames: %@", processedNames);
+            return @"OK";
+        }, ^id(NSError* error) {
+            NSLog(@"ERROR: %@", error);
+            return error;
+        }) runLoopWait];
+        NSLog(@"result promise: %@", result);
     }
+    
     return 0;
 }
 
