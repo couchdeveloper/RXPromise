@@ -4,27 +4,25 @@ A thread safe implementation of the Promises/A+ specification in Objective-C wit
 
 
 ## **Important Note:**
- > There are breaking changes since version 0.11.0 beta.
- > Minimum deployment version on Mac OS X is now 10.8
- > Please read the [CHANGELOG](CHANGELOG.md) document.
+ > For breaking changes and API extensions please read the [CHANGELOG](CHANGELOG.md) document.
 
 
 ### A Brief Feature List:
 
 
- - Employs the asynchronous "non-blocking" style.
+ - Employs the asynchronous "non-blocking" style
  
- - Supports continuation.
+ - Supports chained continuations
  
- - Supports cancellation.
+ - Supports cancellation
  
- - Simplifies error handling through error propagation.
+ - Simplifies error handling through error propagation
 
- - `RXPromise` objects are thread safe.
+ - Thread-safe implementation
 
  - Handlers can execute on diverse execution contexts, namely `dispatch_queue`, `NSThread`, `NSOperationQueue` and `NSManagedObjectContext`.
 
- - RXPromise objects are lightweight.
+ - `RXPromise` objects are lightweight.
  
 
 
@@ -32,7 +30,7 @@ A thread safe implementation of the Promises/A+ specification in Objective-C wit
 
 `RXPromise` has been inspired by the  [Promises/A+](https://github.com/promises-aplus/promises-spec) specification which defines an open standard for robust and interoperable implementations of promises in JavaScript.
 
-Thus, much of the credits go to their work and to those smart people they based their work on!
+Much of the credits go to their work and to those smart people they based their work on!
 
 ### How to Install
 For install instructions, please refer to: [INSTALL](INSTALL.md)
@@ -62,21 +60,25 @@ For install instructions, please refer to: [INSTALL](INSTALL.md)
 -----
 ## Introduction
 
-### What is RXPromise
+### What Is A Promise
 
 In general, a promise represents the _eventual result_  of an asynchronous task,  respectively the _error reason_ when the task fails. Equal and similar concepts are also called _future_, _deferred_ or _delay_ (see also wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises)). 
 
 The `RXPromise` implementation strives to meet the requirements specified in the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) as close as possible. The specification was originally written for the JavaScript language but the architecture and the design can be implemented in virtually any language.
 
-A `RXPromise` employs the asynchronous non-blocking style. That is, a call site can invoke an _asynchronous_ task which _immediately_ returns a `RXPromise` object. For example, an asynchronous network request:
+**Asynchronous non-blocking**
+
+A `RXPromise` employs the asynchronous non-blocking style. That is, a call site can invoke an _asynchronous_ task which _immediately_ returns a `RXPromise` object. For example, starting an asynchronous network request:
 
 ```Objective-C
     RXPromise* usersPromise = [self fetchUsers];
 ```
     
-The asynchronous method `fetchUsers` returns immediately, and its _eventual_ result is represented by the _promise_.
+The asynchronous method `fetchUsers` returns immediately and its _eventual_ result will be represented by the _returned_ object, a _promise_.
 
-The call site can setup a _Continuation_ - which defines how to proceed when the result or the error is eventually available:
+**Continuation**
+
+The call site can setup a _Continuation_. With a continuation, we obtain the eventual result of the taks and we define how to proceed when the result or the error is available:
 
     
 ```Objective-C
@@ -90,27 +92,35 @@ The call site can setup a _Continuation_ - which defines how to proceed when the
     });
 ```
 
-A _Continuation_ for a promise will be established via the `then` property and defining two handlers: the _completion handler_ and the _error handler_.
+A _Continuation_ for a promise will be established via the `then` family of properties, e.g. `then`, `thenOn` or `thenOnMain` (see also [Defining a Continuation with Completion and Error Handler](#defining-a-continuation-with-Completion-and-Error-Handler)). 
+
+The continuation defines two handlers: the _completion handler_ and the _error handler_. Both are optional, but usually at least one of the handler is defined.
     
-**A Continuation:**
+**A Continuation will be established through one of the `then` famliy of properties and defining a success and an error handler:**
 
  >   `then(<completion-handler>, <error-handler>)`
    
-The _completion handler_ has a parameter _result_ of type `id`. This value is the _eventual result_  of the promise, which has been evaluated by the asynchronous task associated to this promise.
+**Note:**  A continuation can also be establlished with the `thenOn`  and `thenOnMain` property.
 
-The _error handler_  has a parameter _error_ of type `NSError*`. An error handler "catches" the error reason from this promise or any other error "thrown" from a "previous" continuation which has not been "caught" by a "previous" error handler.
+The _completion handler_, which will be called when the asynchronous task succeeds, has a parameter _result_ of type `id`. This value is the _eventual result_ evaluated by the asynchronous task associated to this promise.
 
-A Continuation can also be registered with the `thenOn`  and `thenOnMain` property.
+The _error handler_ has a parameter _error_ of type `NSError`. This error may come from the asynchronous task when it fails or from any handler of a previous continuation that returns an `NSError` object. We can say, the error handler "catches" the error from its promise or any other error "thrown" from a "previous" continuation.
 
 > A more thorough explanation of the "Continuation" and its handles is given in chapter [Understanding Promises](#understanding-promises).
+
+**Thread-Safety**
 
 `RXPromise`'s principal methods are all *asynchronous and thread-safe*. That means, a particular implementation utilizing `RXPromise` will resemble a purely *asynchronous* and also *thread-safe* system, where no thread is ever blocked. (There are a few exceptions where certain miscellaneous methods *do* block).
 
 In addition to the requirements stated in the Promise/A++ specification the `RXPromise` library contains a number of useful extensions. For example, it's possible to specify the *execution context* of the completion and error handler which helps to synchronize access to shared resources. This execution context can be a `dispatch_queue`, a `NSThread`, a `NSOperationQueue` or a `NSManagedObjectContext`.
 
+**Cancellation**
+
 Additionally, `RXPromise` supports *cancellation*, which is invaluable in virtual every real application. 
 
 The library also provides a couple of useful helper methods which makes it especially easy to manage a list or a group of asynchronous operations. 
+
+For more details about _Cancellation_ please refere to chapter [Cancellation](#cancellation).
 
 
 [Contents ^](#contents)
@@ -1173,7 +1183,7 @@ A asynchronous service provider should - if it supports cancellation at all - ad
 
     promise.then(^id(NSError* error){
         if (promise.isCancelled) {
-            [op cancelWithReason:error];
+            [op cancel];
         }
         return error;
     });

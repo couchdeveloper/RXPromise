@@ -23,7 +23,7 @@
 		A1A5811E18F030D400A00242 /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A1A5811F18F0310F00A00242 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; };
 		A1A5812018F0312600A00242 /* RXPromise.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromise.h */; };
-		A1A5812118F0494C00A00242 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199F1759E879008E3F63 /* CoreData.framework */; };
+		A1C7125C18F2BC24005BC050 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199F1759E879008E3F63 /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
 		A1FB3A9518C0E7DA00905F85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -84,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1A5812118F0494C00A00242 /* CoreData.framework in Frameworks */,
+				A1C7125C18F2BC24005BC050 /* CoreData.framework in Frameworks */,
 				A1FB3A9418C0E7CE00905F85 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -434,6 +434,7 @@
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = framework;
@@ -477,6 +478,7 @@
 				);
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = framework;

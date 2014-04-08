@@ -16,6 +16,8 @@ Pod::Spec.new do |s|
   s.header_mappings_dir = "RXPromise\ Libraries/Source"
   s.libraries = 'c++'
 
+  s.weak_framework = 'CoreData'
+
   s.compiler_flags = '-O3', '-std=c++11', '-stdlib=libc++', '-DNDEBUG', '-DDEBUG_LOG=1', '-DNS_BLOCK_ASSERTIONS', '-D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0'
 
   s.xcconfig = { 'OTHER_LDFLAGS' => '-ObjC' }

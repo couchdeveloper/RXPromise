@@ -7,14 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
+		A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A10A620917858A4F0019F7EA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A10A620817858A4F0019F7EA /* main.m */; };
-		A10F1DD117ECC79F00801746 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DD017ECC79F00801746 /* RXPromise.framework */; };
-		A10F1DD217ECC7A500801746 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DD017ECC79F00801746 /* RXPromise.framework */; };
-		A10F1DD517ECC7B500801746 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10F1DD017ECC79F00801746 /* RXPromise.framework */; };
 		A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A11842A017EC697100EE4FD8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A118429F17EC697100EE4FD8 /* main.m */; };
-		A131904C18C9CBF600E73E6E /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E6AD1218BE945A004A7037 /* RXPromise.framework */; };
 		A15CD82318C8EBE80067F898 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A15CD82618C8EBE80067F898 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CD82518C8EBE80067F898 /* main.m */; };
 		A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
@@ -22,15 +18,19 @@
 		A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378D11784BC6A0037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378D01784BC6A0037A3AC /* main.m */; };
 		A1BC9F10180DEE56002A3487 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC9F0F180DEE56002A3487 /* RXTimer.m */; };
-		A1C0C59E17F04414001D2CDC /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C59D17F04414001D2CDC /* libRXPromise.a */; };
-		A1C0C5A017F0442B001D2CDC /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C0C59F17F0442B001D2CDC /* libRXPromise.a */; };
+		A1C7125218F2AB7C005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
+		A1C7125318F2AB86005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
+		A1C7125518F2AB90005BC050 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125418F2AB90005BC050 /* libRXPromise.a */; };
+		A1C7125618F2AB9B005BC050 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125418F2AB90005BC050 /* libRXPromise.a */; };
+		A1C7125718F2ABA2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
+		A1C7125818F2ABAA005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
+		A1C7125918F2ABB2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
 		A1C9FE00184DE98800872798 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1C9FE03184DE98800872798 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C9FE02184DE98800872798 /* main.m */; };
 		A1C9FE0B184DEF2200872798 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A45F591821045E00CEC749 /* RXPromise.framework */; };
 		A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1D9632617953DBC00090EDC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D9632517953DBC00090EDC /* main.m */; };
 		A1E6AD0C18BE9447004A7037 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E6AD0B18BE9447004A7037 /* main.m */; };
-		A1E6AD1318BE945A004A7037 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E6AD1218BE945A004A7037 /* RXPromise.framework */; };
 		A1E6AD1418BE9498004A7037 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -135,6 +135,9 @@
 		A1BC9F0F180DEE56002A3487 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A1C0C59D17F04414001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
 		A1C0C59F17F0442B001D2CDC /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = "../RXPromise Libraries/build/Release/libRXPromise.a"; sourceTree = "<group>"; };
+		A1C7125118F2AB7C005BC050 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../DerivedData/RXPromise/Build/Products/Release/RXPromise.framework; sourceTree = "<group>"; };
+		A1C7125418F2AB90005BC050 /* libRXPromise.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRXPromise.a; path = ../DerivedData/RXPromise/Build/Products/Release/libRXPromise.a; sourceTree = "<group>"; };
+		A1C7125A18F2B4CE005BC050 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		A1C9FDFF184DE98800872798 /* Sample6 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample6; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1C9FE02184DE98800872798 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1C9FE05184DE98800872798 /* Sample6-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample6-Prefix.pch"; sourceTree = "<group>"; };
@@ -157,7 +160,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C0C59E17F04414001D2CDC /* libRXPromise.a in Frameworks */,
+				A1C7125518F2AB90005BC050 /* libRXPromise.a in Frameworks */,
 				A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -166,7 +169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10F1DD517ECC7B500801746 /* RXPromise.framework in Frameworks */,
+				A1C7125718F2ABA2005BC050 /* RXPromise.framework in Frameworks */,
 				A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -175,7 +178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A131904C18C9CBF600E73E6E /* RXPromise.framework in Frameworks */,
+				A1C7125918F2ABB2005BC050 /* RXPromise.framework in Frameworks */,
 				A15CD82318C8EBE80067F898 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -184,7 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10F1DD117ECC79F00801746 /* RXPromise.framework in Frameworks */,
+				A1C7125218F2AB7C005BC050 /* RXPromise.framework in Frameworks */,
 				A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -193,7 +196,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10F1DD217ECC7A500801746 /* RXPromise.framework in Frameworks */,
+				A1C7125318F2AB86005BC050 /* RXPromise.framework in Frameworks */,
 				A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,7 +214,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C0C5A017F0442B001D2CDC /* libRXPromise.a in Frameworks */,
+				A1C7125618F2AB9B005BC050 /* libRXPromise.a in Frameworks */,
 				A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,8 +223,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1C7125818F2ABAA005BC050 /* RXPromise.framework in Frameworks */,
 				A1E6AD1418BE9498004A7037 /* Foundation.framework in Frameworks */,
-				A1E6AD1318BE945A004A7037 /* RXPromise.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,6 +317,9 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1C7125A18F2B4CE005BC050 /* CoreData.framework */,
+				A1C7125418F2AB90005BC050 /* libRXPromise.a */,
+				A1C7125118F2AB7C005BC050 /* RXPromise.framework */,
 				A1AE767118C9BEAF00246669 /* RXPromise.framework */,
 				A1AE766D18C9BDAD00246669 /* RXPromise.framework */,
 				A15CD82E18C8ED590067F898 /* RXPromise.framework */,
@@ -673,10 +679,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -692,9 +695,16 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -714,10 +724,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -726,8 +733,15 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -751,7 +765,7 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -797,7 +811,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -833,7 +847,10 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -878,7 +895,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
@@ -923,10 +943,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -944,6 +961,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -963,10 +981,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -976,6 +991,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -994,10 +1010,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1015,6 +1028,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1034,10 +1048,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1047,6 +1058,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1068,10 +1080,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/Promise-dgyrvqswrkfnaoathrecbvjiyjmc/Build/Products/Debug",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1113,10 +1122,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/Promise-dgyrvqswrkfnaoathrecbvjiyjmc/Build/Products/Debug",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1150,10 +1156,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1171,9 +1174,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1198,10 +1208,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/Promise/Build/Products/Debug,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1212,8 +1219,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1238,7 +1252,7 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/agrosam/Develop/Promise/DerivedData/Promise/Build/Products/Debug,
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1282,7 +1296,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/agrosam/Develop/Promise/DerivedData/Promise/Build/Products/Debug,
+					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;

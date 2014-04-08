@@ -95,6 +95,8 @@ unsigned int fibonacci_recursive(unsigned int n)
 int main(int argc, const char * argv[])
 {
     @autoreleasepool {
+        NSLog(@"This sample is meant to be profiled. It may take a while to finish.");
+        
 #if 1
         // The time it takes to finish one fibonacci_recursive(30) call is roughly
         // 15 ms. fibonacci_recursive is a CPU bound operation.

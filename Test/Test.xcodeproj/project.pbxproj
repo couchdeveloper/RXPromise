@@ -27,6 +27,7 @@
 		A1A65DA918D9ECCF005695ED /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A65DA818D9ECCF005695ED /* main.m */; };
 		A1A65DAD18D9ECCF005695ED /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A65DAC18D9ECCF005695ED /* AppDelegate.m */; };
 		A1A65DAF18D9ECCF005695ED /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1A65DAE18D9ECCF005695ED /* Images.xcassets */; };
+		A1C7125018F2A7FB005BC050 /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1537F2A18F182840080871D /* RXPromiseTest.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -406,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1537EFB18F17CAF0080871D /* RXTimer.m in Sources */,
+				A1C7125018F2A7FB005BC050 /* RXPromiseTest.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,6 +583,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
+					"-lc++",
 					"-ObjC",
 					"-framework",
 					XCTest,
@@ -628,6 +631,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
+					"-lc++",
 					"-ObjC",
 					"-framework",
 					XCTest,
