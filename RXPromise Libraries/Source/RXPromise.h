@@ -34,8 +34,8 @@ typedef id (^promise_completionHandler_t)(id result);
 typedef id (^promise_errorHandler_t)(NSError* error);
  
 typedef RXPromise* (^then_block_t)(promise_completionHandler_t, promise_errorHandler_t);
- 
 typedef RXPromise* (^then_on_block_t)(id, promise_completionHandler_t, promise_errorHandler_t);
+typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_errorHandler_t);
 
 
 @interface RXPromise : NSObject
@@ -45,9 +45,9 @@ typedef RXPromise* (^then_on_block_t)(id, promise_completionHandler_t, promise_e
 @property (nonatomic, readonly) BOOL isRejected;
 @property (nonatomic, readonly) BOOL isCancelled;
 
-@property (nonatomic, readonly) then_t then;
-@property (nonatomic, readonly) then_t thenOn;
-@property (nonatomic, readonly) then_t thenOnMain;
+@property (nonatomic, readonly) then_block_t then;
+@property (nonatomic, readonly) then_on_block_t thenOn;
+@property (nonatomic, readonly) then_on_main_block_t thenOnMain;
  
 @property (nonatomic, readonly) RXPromise* parent;
 @property (nonatomic, readonly) RXPromise* root;
