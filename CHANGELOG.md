@@ -546,14 +546,22 @@ autorelease pool.
 
 
 
-## Version 0.12.0 beta (2014-04-xx)
+## Version 0.12.0 beta (2014-04-09)
 
 ### API Changes
 
  - Additional Execution Contexts
  
- With the `thenOn` property it's now possible to specify an execution context for handlers which can be a `NSThread`, a `NSOperationQueue`, a `NSManagedObjectContext` or a dispatch queue (as usual). For example:
+ Now, the following kind of execution contects can be specified with the `thenOn` property:
  
+  - dispatch_queue
+  - NSOperationQueue
+  - NSThread
+  - NSManagedObjectContext
+ 
+ For example:
+
+ ```Objective-C
  NSOperationQueue* operationQueue = [[NSOperationQueue alloc] init];
  
  promise.thenOn(operationQueue, ^id(id result){
@@ -561,7 +569,7 @@ autorelease pool.
      ...
      return nil;
  }, nil);
-
+```
  - Added a property `thenOnMain` for convenience which is functional equivalent to 
   `thenOn(dispatch_get_main_queue(), .., ...)`
 
@@ -572,11 +580,12 @@ autorelease pool.
 
  - Fixed a Unit Test
 
+### Documentation
+
+- The documentation in the README.md file has been revised.
 
 ### Miscellaneous
 
- - Minor changes in project structure and namings of projects and targets.
-
-
+ - Minor changes in project structure and naming of projects and targets.
 
 
