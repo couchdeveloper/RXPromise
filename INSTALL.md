@@ -6,6 +6,8 @@ Important note beforehand:
 
 > RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step in your target build settings which is explained in detail below. If your project links against the RXPromise Framework or when you use CocoaPods, there is no extra step.
 
+> The minimum deployment version for iOS is 6.0 and for Mac OS X it is 10.8.
+
 > Note that RXPromise is a *pure* Objective-C API. Even though it depends itself on the standard C++ library it does not affect (or "infect") *your* Objective-C sources in any way with C++.
 
 ### Adding RXPromise library project to your Xcode project
@@ -20,7 +22,7 @@ There are three ways to incorporate `RXPromise` library into you project:
 > `RXPromise` version number system adheres to the rules of [Semantic Versioning](http://semver.org).
 
 **Note:**
-> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.10.5**.
+> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.12.0**.
 
 
 #### Using CocoaPods
