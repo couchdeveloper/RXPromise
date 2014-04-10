@@ -370,7 +370,7 @@ The [Promises/A+ specification](https://github.com/promises-aplus/promises-spec)
 
 That is, the "continuation" will be defined by means of the promise. In `RXPromise` we have three variants, namely the `then`, `thenOn` respectively the `thenOnMain` property in order to establish a continuation and define the completion handler and the error handler.
 
-Give, the expression `[self fetchUsersWithParams:params]` returns a promise, the corresponding example code using promises may look as follows:
+Given the expression `[self fetchUsersWithParams:params]` returns a promise, the example above may look as follows:
 
 ```
 [self fetchUsersWithParams:params]
@@ -387,7 +387,7 @@ Give, the expression `[self fetchUsersWithParams:params]` returns a promise, the
 
 > The call-site registers a _Continuation_  through the property `then`, `thenOn` or `thenOnMain` and defines completion handler and error handler in order to obtain the eventual result or error of the underlying task and continue with the program. This is called a _Continuation_.
 
-There's a lot more to say about promises and we can do a lot more with them, even its usage remains simple and clean. This intro only glanced over the basic functions of a promise, further details are explained in detail in the following chapters.
+The following chapters will go into detail how to use a `RXPromise`.
 
 
 [Contents ^](#contents)
