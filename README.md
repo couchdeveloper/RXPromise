@@ -1374,12 +1374,66 @@ root.thenOn(sync_queue, ^id(id result) {
 
 
 
-#### Executing on a NSThread
+#### Executing on a `NSThread`
 
 Specifying a `NSThread` object as execution context requires that this thread has a Run Loop.
 TBD
 
+#### Executing on the private queue of a `NSManagedObjectContext`
+
+`RXRomise`'s continuations can execute on the private queue of a `NSManagedObjectContext`. A small example demonstrates this feature:
+
+Here, we assume there is a "Core Data Stack", which has a "root context" associated with a persistent store and executing on a private queue, and a "main context" executing on the main thread and whose parent context is the "root context".
+
+The code sample first creates a child managed object context based on the main context executing on a private queue. Then it creates a new managed object into this new context. When this succeeded, it fetches all managed objects into this context:
+```Objective-C
+    // Create a new managed object context executing on a private queue and whose
+    // managed object context will be a child of the main context of the core 
+    // data stack:
+    NSManagedObjectContext* context = [self.coreDataStack newManagedObjectContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    // Obtain parameters for initialzing a User object:
+    NSDictionary* userParams = ...;   // obtain parameters 
+
+    // Create and register a managed object of type User with that managed
+    // object context:
+    [User createWithParameters:user inManagedObjectContext:context];
+    // Note: `createWithParameters:inManagedObjectContext` implementation ensures
+    // that the managed object will be modified running on the execution context
+    // associated to the managed object contex!
+    
+    // Save the context chain and when finished, fetch all Users into the 
+    // same context:
+    [[self.coreDataStack saveContextChainWithContext:context]
+     .thenOn(context, ^id(id result) {
+        NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"User"];
+        NSError* error;
+        NSArray* users = [context executeFetchRequest:fetchRequest error:&error];
+        if (users) {
+            ...
+            return @"OK";
+        }
+        else {
+            return error;
+        }
+    },nil)
+```
+
+The code snippet above asynchronously executes core data methods on their associated execution context suitable for their concurrency policy. 
+
+Internally, `RXPromise` will use `performBlock:` in order to execute the handler block.
+
+
+> **Caution:**
+
+> The NSManagedObjectContext must be created with either `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`. 
+
+> "Thread confinment", (e.g. `NSConfinementConcurrencyType`) is not yet supported.
+
+
 [Contents ^](#contents)
+
+
 
 ------
 ## Cancellation
