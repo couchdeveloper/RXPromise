@@ -224,42 +224,6 @@ namespace {
 
 
 
-#if 0
-// Returns a copy of the handler queue
-- (dispatch_queue_t) copyHandlerQueue DISPATCH_RETURNS_RETAINED
-{
-    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
-        return [self copyHandlerQueueSynced];
-    }
-    else {
-        __block dispatch_queue_t queue = nil;
-        assert(Shared.sync_queue);
-        dispatch_barrier_sync(Shared.sync_queue, ^{
-            queue = [self copyHandlerQueueSynced];
-        });
-        return queue;
-    }
-}
-
-// Returns a copy of the handler queue (+1 retain count).
-// Returns s_sync_queue if the receiver has already been resolved. Creates a new
-// queue if the receiver is pending and there is no handler queue yet. Otherwise,
-// returns a copy of the receiver's _handlerQueue.
--(dispatch_queue_t) copyHandlerQueueSynced DISPATCH_RETURNS_RETAINED
-{
-    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
-    if (_state == Pending) {
-        if (_handler_queue == nil) {
-            _handler_queue = createHandlerQueue(_state == Pending, (__bridge void*)(self));
-        }
-        assert(_handler_queue);
-        return _handler_queue;
-    }
-    return Shared.sync_queue;
-}
-#endif
-
-
 - (void) cancel {
     [self cancelWithReason:@"cancelled"];
 }
