@@ -74,9 +74,10 @@ typedef RXPromise* (^rxp_nullary_task)();
  suggested to do this in the error handler.
  
  
- @par \b Caution:
- The completion handler's return value MUST NOT be \c nil. This is due the restriction 
- of \c NSArrays which cannot contain \c nil values.
+ @par \b Note:
+ If the eventual result of the task equals \c nil, an object of type \c NSNull will be 
+ stored in the correspondin index of the result array instead. This is due the restriction 
+ of \c NSArray which cannot contain \c nil values.
  
  @par \b Example: @code
  [RXPromise all:@[

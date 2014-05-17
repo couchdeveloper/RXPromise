@@ -126,7 +126,8 @@ namespace {
         if (count == 0 and strongPromise) {
             NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
             for (RXPromise* p in promises) {
-                [results addObject:[p synced_peakResult]];
+                id result = [p synced_peakResult];
+                [results addObject:result ? result : [NSNull null]];
             }
             [strongPromise fulfillWithValue:results];
         }

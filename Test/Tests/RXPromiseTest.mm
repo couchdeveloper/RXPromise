@@ -3508,9 +3508,19 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return nil;
     }, ^id(NSError* error) {
         XCTAssertTrue([handler3Promise isCancelled], @"");
-        return error;;
+        return error;
     }) runLoopWait];
      
+}
+
+
+- (void) testAllShouldStoreNSNullWhenTaskReturnsNil
+{
+    NSArray* promises = @[ mock::async(0.01, nil) ];
+    [[RXPromise all:promises].then(^id(NSArray* results) {
+        XCTAssertTrue([results[0] isKindOfClass:[NSNull class]], @"");
+        return nil;
+    }, nil) runLoopWait];
 }
 
 
