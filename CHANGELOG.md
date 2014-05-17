@@ -589,3 +589,10 @@ autorelease pool.
  - Minor changes in project structure and naming of projects and targets.
 
 
+
+## Version 0.12.0 beta (2014-05-17)
+
+### Enhancements
+
+ - Class extension method `all:` now stores `nil` results as a `NSNull` object into the result array.
+
