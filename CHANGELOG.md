@@ -590,9 +590,20 @@ autorelease pool.
 
 
 
-## Version 0.12.0 beta (2014-05-17)
+## Version 0.12.1 beta (2014-05-17)
 
 ### Enhancements
 
  - Class extension method `all:` now stores `nil` results as a `NSNull` object into the result array.
 
+
+
+## Version 0.13.0 beta (2014-05-17)
+
+
+### Enhancements
+
+ - Merged Pull request.
+
+ - Added extension class method `allSettled:`.
+ 
