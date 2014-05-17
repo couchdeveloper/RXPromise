@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F56AD3D1922A25800947570 /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9F56AD3E1922A25800947570 /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
+		9F56AD3F1922A59500947570 /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
+		9F56AD401922A59500947570 /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
+		9F56AD411922A65F00947570 /* RXSettledResult.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; };
+		9F56AD421922A66500947570 /* RXSettledResult.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; };
 		A124D1EE182F902300F35B28 /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A124D1EF182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
 		A124D1F0182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
@@ -35,6 +41,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				9F56AD411922A65F00947570 /* RXSettledResult.h in CopyFiles */,
 				A1A5811F18F0310F00A00242 /* RXPromise.h in CopyFiles */,
 				A129D01F182FB831008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */,
 			);
@@ -46,6 +53,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				9F56AD421922A66500947570 /* RXSettledResult.h in CopyFiles */,
 				A1A5812018F0312600A00242 /* RXPromise.h in CopyFiles */,
 				A129D020182FB83B008E6DA1 /* RXPromise+RXExtension.h in CopyFiles */,
 			);
@@ -54,6 +62,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9F56AD3B1922A25800947570 /* RXSettledResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXSettledResult.h; sourceTree = "<group>"; };
+		9F56AD3C1922A25800947570 /* RXSettledResult.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXSettledResult.mm; sourceTree = "<group>"; };
 		A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+RXExtension.h"; sourceTree = "<group>"; };
 		A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RXPromise+RXExtension.mm"; sourceTree = "<group>"; };
 		A124D1F2182F942D00F35B28 /* RXPromise+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+Private.h"; sourceTree = "<group>"; };
@@ -214,6 +224,8 @@
 				A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */,
 				A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */,
 				A124D1F2182F942D00F35B28 /* RXPromise+Private.h */,
+				9F56AD3B1922A25800947570 /* RXSettledResult.h */,
+				9F56AD3C1922A25800947570 /* RXSettledResult.mm */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -234,6 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A124D1F4182F942D00F35B28 /* RXPromise+Private.h in Headers */,
+				9F56AD3D1922A25800947570 /* RXSettledResult.h in Headers */,
 				A1A5811E18F030D400A00242 /* RXPromise.h in Headers */,
 				A124D1EE182F902300F35B28 /* RXPromise+RXExtension.h in Headers */,
 				A19C19D81759EA3B008E3F63 /* DLog.h in Headers */,
@@ -340,6 +353,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A19C19D51759EA3B008E3F63 /* RXPromise.mm in Sources */,
+				9F56AD3E1922A25800947570 /* RXSettledResult.mm in Sources */,
 				A124D1EF182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -349,6 +363,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A19C19D61759EA3B008E3F63 /* RXPromise.mm in Sources */,
+				9F56AD3F1922A59500947570 /* RXSettledResult.mm in Sources */,
 				A124D1F0182F902300F35B28 /* RXPromise+RXExtension.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -358,6 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A129D0211830095C008E6DA1 /* RXPromise+RXExtension.mm in Sources */,
+				9F56AD401922A59500947570 /* RXSettledResult.mm in Sources */,
 				A19C19D71759EA3B008E3F63 /* RXPromise.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

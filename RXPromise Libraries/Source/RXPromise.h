@@ -17,7 +17,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 /*
  
  A RXPromise object represents the eventual result of an asynchronous function

@@ -17,6 +17,7 @@
 
 #import "RXPromise+RXExtension.h"
 #import "RXPromise.h"
+#import "RXSettledResult.h"
 #import "RXPromise+Private.h"
 #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
     #import <UIKit/UIKit.h>
@@ -139,6 +140,34 @@ namespace {
     };
     for (RXPromise* p in promises) {
         p.thenOn(Shared.sync_queue, onSuccess, onError);
+    }
+    return promise;
+}
+
++(instancetype) allSettled:(NSArray*)promises
+{
+    RXPromise* promise = [[self alloc] init];
+    __block NSUInteger count = [promises count];
+    if (count == 0) {
+        [promise rejectWithReason:@"parameter error"];
+        return promise;
+    }
+    __weak RXPromise* weakPromise = promise;
+    promise_completionHandler_t onSuccess = ^id(id result) {
+        --count;
+        RXPromise* strongPromise = weakPromise;
+        if (count == 0 and strongPromise) {
+            NSMutableArray* results = [[NSMutableArray alloc] initWithCapacity:[promises count]];
+            for (RXPromise* p in promises) {
+                RXSettledResult *result = [[RXSettledResult alloc] initWithFulfilled:p.isFulfilled andResult:[p synced_peakResult]];
+                [results addObject:result];
+            }
+            [strongPromise fulfillWithValue:results];
+        }
+        return nil;
+    };
+    for (RXPromise* p in promises) {
+        p.thenOn(Shared.sync_queue, onSuccess, onSuccess);
     }
     return promise;
 }

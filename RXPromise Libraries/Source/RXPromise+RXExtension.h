@@ -111,12 +111,34 @@ typedef RXPromise* (^rxp_nullary_task)();
  @warning The promise is rejected with reason \c \@"parameter error" if
  the parameter @p promises is \c nil or empty.
  
- @return A new promise. 
- 
+ @return A new promise.
  */
 + (instancetype)all:(NSArray*)promises NS_RETURNS_RETAINED;
 
 
+/**
+ @brief Method \c allSettled returns a \p RXPromise object which will be resolved when \a all
+ promises in the array @p promises are fulfilled or all are rejected.
+ 
+ @discussion In contrast to \c all, which resolves as soon as one of the promises
+ has been rejected, \c allSettled waits until all promises have resolved before
+ proceeding. The promise will be fulfilled as long \c allSettled was provided with
+ valid params. The parameter @p result of the completion handler will be an array
+ of RXSettledResult objects. Each will have either isFulfilled or isRejected set to
+ true, and the result property will hold the fulfillment value or rejection reason.
+ 
+ @par \b Caution:
+ The completion handler's return value MUST NOT be \c nil. This is due the restriction
+ of \c NSArrays which cannot contain \c nil values.
+ 
+ @param promises A @c NSArray containing promises.
+ 
+ @warning The promise is rejected with reason \c \@"parameter error" if
+ the parameter @p promises is \c nil or empty.
+ 
+ @return A new promise.
+ */
++ (instancetype)allSettled:(NSArray*)promises NS_RETURNS_RETAINED;
 
 /*!
  @brief Method \p any returns a \c RXPromise object which will be resolved when
