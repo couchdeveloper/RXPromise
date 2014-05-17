@@ -124,12 +124,9 @@ typedef RXPromise* (^rxp_nullary_task)();
  has been rejected, \c allSettled waits until all promises have resolved before
  proceeding. The promise will be fulfilled as long \c allSettled was provided with
  valid params. The parameter @p result of the completion handler will be an array
- of RXSettledResult objects. Each will have either isFulfilled or isRejected set to
- true, and the result property will hold the fulfillment value or rejection reason.
+ of \c RXSettledResult objects. Each will have either \c isFulfilled or \c isRejected set to
+ \c YES, and the result property will hold the fulfillment value or rejection reason.
  
- @par \b Caution:
- The completion handler's return value MUST NOT be \c nil. This is due the restriction
- of \c NSArrays which cannot contain \c nil values.
  
  @param promises A @c NSArray containing promises.
  

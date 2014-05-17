@@ -3532,7 +3532,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     // Run three tasks in parallel:
     NSArray* tasks = @[mock::async(0.1, @"A"),
                        mock::async_fail(0.2, @"B"),
-                       mock::async(0.3, @"C")];
+                       mock::async(0.3, nil)];
     
     [[RXPromise allSettled:tasks]
     .then(^id(id results) {
@@ -3546,12 +3546,14 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         XCTAssertTrue([@"B" isEqualToString:((NSError*)result1.result).userInfo[NSLocalizedFailureReasonErrorKey]], @"");
         
         XCTAssertTrue([results[2] isFulfilled]);
-        XCTAssertEqual(((RXSettledResult*)results[2]).result, @"C");
-        return nil;
+        XCTAssertTrue(((RXSettledResult*)results[2]).result == nil, @"");
+        return results;
     },^id(id reason) {
         XCTFail(@"must not be called");
         return reason;
-    }) runLoopWait];
+    }).then(^id(id result) {
+        return nil;
+    }, nil) runLoopWait];
 }
 
 -(void) testAllOneSettledRejectedWithQueue {
@@ -3569,21 +3571,22 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     NSArray* tasks = @[mock::async(0.1, @"A"), mock::async_fail(0.2, @"B"), mock::async(0.3, @"C")];
     
     [[RXPromise allSettled:tasks]
-     .thenOn(concurrentQueue,
-             ^id(id results) {
-                 XCTAssertTrue( dispatch_get_specific(QueueIDKey) == (void *)(concurrent_queue_id), @"");
-                 XCTAssertTrue([results[1] isRejected]);
-                 RXSettledResult *result1 = (RXSettledResult*)results[1];
-                 XCTAssertTrue([@"B" isEqualToString:((NSError*)result1.result).userInfo[NSLocalizedFailureReasonErrorKey]], @"");
-                 
-                 XCTAssertTrue([tasks[0] isFulfilled], @"");
-                 XCTAssertTrue([tasks[1] isRejected], @"");
-                 XCTAssertTrue([tasks[2] isFulfilled], @"");
-                 return results;
-             },^id(NSError*error) {
-                 XCTFail(@"must not be called");
-                 return error;
-             }) runLoopWait];
+     .thenOn(concurrentQueue, ^id(id results) {
+        XCTAssertTrue( dispatch_get_specific(QueueIDKey) == (void *)(concurrent_queue_id), @"");
+        XCTAssertTrue([results[1] isRejected]);
+        RXSettledResult *result1 = (RXSettledResult*)results[1];
+        XCTAssertTrue([@"B" isEqualToString:((NSError*)result1.result).userInfo[NSLocalizedFailureReasonErrorKey]], @"");
+        
+        XCTAssertTrue([tasks[0] isFulfilled], @"");
+        XCTAssertTrue([tasks[1] isRejected], @"");
+        XCTAssertTrue([tasks[2] isFulfilled], @"");
+        return results;
+    },^id(NSError*error) {
+        XCTFail(@"must not be called");
+        return error;
+    }).then(^id(id result) {
+        return nil;
+    }, nil) runLoopWait];
 }
 
 #pragma mark - any
