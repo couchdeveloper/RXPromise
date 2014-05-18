@@ -607,3 +607,11 @@ autorelease pool.
 
  - Added extension class method `allSettled:`.
  
+ 
+ 
+## Version 0.13.1 beta (2014-05-18)
+
+### Changes
+
+-  Class method `all:` and `allSettled:` now fulfill the returned promise with an empty `NSArray` if no promise are given, instead of rejecting the promise.
+ 
