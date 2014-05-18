@@ -114,12 +114,11 @@ namespace {
 
 +(instancetype) all:(NSArray*)promises
 {
-    RXPromise* promise = [[self alloc] init];
     __block NSUInteger count = [promises count];
     if (count == 0) {
-        [promise rejectWithReason:@"parameter error"];
-        return promise;
+        return [RXPromise promiseWithResult:@[]];
     }
+    RXPromise* promise = [[self alloc] init];
     __weak RXPromise* weakPromise = promise;
     promise_completionHandler_t onSuccess = ^id(id result) {
         --count;
@@ -146,12 +145,11 @@ namespace {
 
 +(instancetype) allSettled:(NSArray*)promises
 {
-    RXPromise* promise = [[self alloc] init];
     __block NSUInteger count = [promises count];
     if (count == 0) {
-        [promise rejectWithReason:@"parameter error"];
-        return promise;
+        return [RXPromise promiseWithResult:@[]];
     }
+    RXPromise* promise = [[self alloc] init];
     __weak RXPromise* weakPromise = promise;
     promise_completionHandler_t onSuccess = ^id(id result) {
         --count;

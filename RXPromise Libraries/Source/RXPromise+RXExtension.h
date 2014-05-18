@@ -55,29 +55,34 @@ typedef RXPromise* (^rxp_nullary_task)();
 @interface RXPromise (RXExtension)
 
 /**
- @brief Method \c all returns a \p RXPromise object which will be resolved when \a all
- promises in the array @p promises are fulfilled or when \a any of it will be rejected.
+ @brief Returns a new \p RXPromise object. If \a all promises in the given array 
+ \p promises have been \a fulfilled, the returned promise will be fulfilled with 
+ an array containing the result of each promise. Otherwise, the returned promise 
+ will be rejected with the error reason of the first failing promise in the array.
  
- @discussion The returned promise' completion handler (if any) will be called when
- all promises in the array @p promises have been resolved successfully. The parameter 
- @p result of the completion handler will be an array containing the result of each 
- promise from the array @p promises in the corresponding order.
+ @discussion If the given array is \c nil or empty, the returned promise will be
+ fulfilled with an empty \c NSArray. Otherwise, if all promises have been fulfilled, 
+ the returned promise will be fulfilled with an \c NSArray object containing the
+ result value of each promise from the given array @p promises in the corresponding 
+ order. 
  
- @par The returned promise' error handler (if any) will be called when any promise 
- in the array @p promises has been rejected with the reason of the first failed 
- promise. If any more promises do fail, the reason will be ignored. It is suggested
- to register error handlers
+ @par If the result of any promise equals `nil` a \c NSNull object will be stored 
+ into the result array instead.
  
- @par If the returned promise will be cancelled or if any promise in the array has 
+ @par If the returned promise will be cancelled or if any promise in the array has
  been rejected or cancelled, all other promises in the array will remain unaffected.
- If it is desired to cancel promises if any promise within the array failed, it is 
+ If it is desired to cancel promises if any promise within the array failed, it is
  suggested to do this in the error handler.
  
+ @note If more than one promises will be rejected, the error reason of the subsequent
+ promises will be ignored. It is suggested to register error handlers in order 
+ to track the errors if required.
  
- @par \b Note:
- If the eventual result of the task equals \c nil, an object of type \c NSNull will be 
- stored in the correspondin index of the result array instead. This is due the restriction 
- of \c NSArray which cannot contain \c nil values.
+ @param promises A @c NSArray containing promises. It may be empty or \c nil.
+ 
+ @return A new promise whose value is a \c NSArray containing the result of each
+ promise, or an empty \c NSArray.
+ 
  
  @par \b Example: @code
  [RXPromise all:@[
@@ -106,52 +111,48 @@ typedef RXPromise* (^rxp_nullary_task)();
  });
  @endcode
 
- @param promises A @c NSArray containing promises.
-
- @warning The promise is rejected with reason \c \@"parameter error" if
- the parameter @p promises is \c nil or empty.
- 
- @return A new promise.
  */
 + (instancetype)all:(NSArray*)promises NS_RETURNS_RETAINED;
 
 
 /**
- @brief Method \c allSettled returns a \p RXPromise object which will be resolved when \a all
- promises in the array @p promises are fulfilled or all are rejected.
+ @brief Returns a new \p RXPromise object. If \a all promises in the given array
+ \p promises have been fulfilled \a or rejected, the returned promise will be
+ \a fulfilled with an array containing \c RXSettledResult objects each representing
+ the result of the correspoding promise in the same order.
  
- @discussion In contrast to \c all, which resolves as soon as one of the promises
- has been rejected, \c allSettled waits until all promises have resolved before
- proceeding. The promise will be fulfilled as long \c allSettled was provided with
- valid params. The parameter @p result of the completion handler will be an array
- of \c RXSettledResult objects. Each will have either \c isFulfilled or \c isRejected set to
- \c YES, and the result property will hold the fulfillment value or rejection reason.
+ @discussion Each \c RXSettledResult object will have either \c isFulfilled or
+ \c isRejected set to \c YES, and the \c result property will hold the value \a or
+ the error reason. If the given array is \c nil or empty, the returned promise 
+ will be fulfilled with an empty \c NSArray.
+
+ @note The returned promise will always be be \a fulfilled when all promises in the
+ array have been resolved - no matter if they get fulfilled \a or rejected or cancelled.
  
+ @par If the returned promise will be cancelled or if any promise in the array has
+ been rejected or cancelled, all other promises in the array will remain unaffected.
+ If it is desired to cancel promises if any promise in the array has been rejected,
+ it is suggested to do this in the error handler.
  
- @param promises A @c NSArray containing promises.
+ @param promises A @c NSArray containing promises. It may be empty or \c nil.
  
- @warning The promise is rejected with reason \c \@"parameter error" if
- the parameter @p promises is \c nil or empty.
- 
- @return A new promise.
+ @return A new promise whose value is a \c NSArray containing \c RXSettledResult 
+ objects, or an empty \c NSArray.
  */
 + (instancetype)allSettled:(NSArray*)promises NS_RETURNS_RETAINED;
 
-/*!
- @brief Method \p any returns a \c RXPromise object which will be resolved when
- \a any promise in the array \p promises is fulfilled or when \a all have been rejected.
+
+/**
+ @brief Returns a new \c RXPromise object. If \a any promise in the given array
+ @p promises has been \a fulfilled, the returned promise will be fulfilled with 
+ the value of this first fulfilled promise. The returned promise will be rejected
+ only after when \a all promises in the given array have been rejected.
  
- @discussion
- If the first promises in the array will be resolved by the underlying task, all 
- others will be unaffected. When it is desired to cancel all other promises it is 
- suggested to do so in the completion respectively the error handler of the returned
- promise.
- 
- The @p result parameter of the completion handler of the @p then property of the
- returned promise is the result of the first promise which has been fulfilled.
- 
- The @p reason parameter of the error handler of the @p then property of the returned
- promise indicates that none of the promises has been fulfilled.
+ @discussion If more than one promise will be fulfilled, the result of the subsequent
+ promises will be ignored. If any promise in the array will be resolved or cancelled, 
+ all other promises will be unaffected. When it is desired to cancel all other promises 
+ it is suggested to do so in the completion respectively the error handler of the 
+ returned promise.
  
  @par \b Example:@code
  NSArray* promises = @[async(a), async(b), async(c)];
@@ -169,15 +170,15 @@ typedef RXPromise* (^rxp_nullary_task)();
  
  @param promises A \c NSArray containing promises.
  
- @note The promise is rejected with reason \c \@"parameter error" if
+ @note The returned promise will be rejected with reason \c \@"parameter error" if
  the parameter \p promises is \c nil or empty.
  
- @return A new promise.
+ @return A new promise whose value is the value of the first fulfilled promise.
  */
 + (instancetype)any:(NSArray*)promises NS_RETURNS_RETAINED;
 
 
-/*!
+/**
  For each element in array \p inputs sequentially call the asynchronous task
  passing it the element as its input argument.
  
@@ -216,9 +217,9 @@ typedef RXPromise* (^rxp_nullary_task)();
  @param block The block shall return a new promise returned from an asynchronous
  task, or \c nil in order to indicate the stop condition for the loop.
  
- @return A promise. If the \p repeat: method could be executed successfully, the
- promise's value equals @"OK". Otherwise the promise's value will contain the
- error reason of the task which rejected the returned promise.
+ @return A new promise. If the \p repeat: method could be executed successfully, 
+ the promise will be fulfilled with @"OK". Otherwise the promise will be rejected 
+ with the error reason of the promise which has been rejected by the underlying task.
 */
 + (instancetype) repeat:(rxp_nullary_task)block NS_RETURNS_RETAINED;
 

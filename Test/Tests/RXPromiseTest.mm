@@ -3524,6 +3524,31 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     }, nil) runLoopWait];
 }
 
+- (void) testAllShouldFulfillWithEmptyArrayWhenGivenPromisesArrayIsNil {
+    
+    [[RXPromise all:nil].thenOnMain(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue([result count] == 0, @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"unexpected");
+        return nil;
+    }) runLoopWait];
+}
+
+- (void) testAllShouldFulfillWithEmptyArrayWhenGivenPromisesArrayIsEmpty {
+    
+    [[RXPromise all:@[]].thenOnMain(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue([result count] == 0, @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"unexpected");
+        return nil;
+    }) runLoopWait];
+}
+
+
 
 #pragma mark - allSettled
 
@@ -3588,6 +3613,31 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         return nil;
     }, nil) runLoopWait];
 }
+
+- (void) testAllSettledShouldFulfillWithEmptyArrayWhenGivenPromisesArrayIsNil {
+    
+    [[RXPromise allSettled:nil].thenOnMain(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue([result count] == 0, @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"unexpected");
+        return nil;
+    }) runLoopWait];
+}
+
+- (void) testAllSettledShouldFulfillWithEmptyArrayWhenGivenPromisesArrayIsEmpty {
+    
+    [[RXPromise allSettled:@[]].thenOnMain(^id(id result) {
+        XCTAssertTrue([result isKindOfClass:[NSArray class]], @"");
+        XCTAssertTrue([result count] == 0, @"");
+        return nil;
+    }, ^id(NSError* error) {
+        XCTFail(@"unexpected");
+        return nil;
+    }) runLoopWait];
+}
+
 
 #pragma mark - any
 
