@@ -488,6 +488,17 @@ namespace {
     };
 }
 
+- (catch_on_block_t) catchOn {
+    return ^RXPromise*(id executionContext, promise_errorHandler_t onFailure) {
+        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:onFailure returnPromise:YES];
+    };
+}
+
+- (catch_on_main_block_t) catchOnMain {
+    return ^RXPromise*(promise_errorHandler_t onFailure) {
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:onFailure returnPromise:YES];
+    };
+}
 
 
 

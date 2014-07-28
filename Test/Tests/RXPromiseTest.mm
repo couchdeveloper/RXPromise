@@ -1236,8 +1236,25 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     }
 }
 
-
-
+-(void) testBasicFailureWithCatchOn
+{
+    // Check whether a promise fires its error handler in due time:
+    
+    @autoreleasepool {
+        
+        dispatch_semaphore_t finished_sem = dispatch_semaphore_create(0);
+        
+        mock::async_fail(.01).catchOn(nil, ^id(NSError* error){
+            dispatch_semaphore_signal(finished_sem);
+            return nil;
+        });
+        
+        // The operation is finished after about 0.01 s. Thus, the handler should
+        // start to execute after about 0.01 seconds. Given a reasonable delay:
+        XCTAssertTrue(dispatch_semaphore_wait(finished_sem, dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC)) == 0,
+                      @"error callback not called after 1 second");
+    }
+}
 
 #pragma mark - Chaining
 
@@ -4815,6 +4832,20 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         XCTAssertTrue([NSThread mainThread] == [NSThread currentThread], @"");
         return nil;
     }, nil) runLoopWait];
+}
+
+- (void) testRejectionExecutionContextWithImplicitMainThread {
+    
+    RXPromise* promise = [[RXPromise alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [promise rejectWithReason:@"OK"];
+    });
+    
+    [promise.catchOnMain(^id(id result) {
+        XCTAssertTrue([NSThread mainThread] == [NSThread currentThread], @"");
+        return nil;
+    }) runLoopWait];
 }
 
 
