@@ -86,7 +86,7 @@ typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_
  
 ## Concurrency:
  
- RXPromises are itself thread safe and will not dead lock. It's safe to send them 
+ RXPromises are thread safe and will not dead lock. It's safe to send them
  messages from any thread/queue and at any time.
  
  The handlers use an /e execution-context" where they are executed. The execution
@@ -95,12 +95,12 @@ typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_
  the execution context can be specified with the `thenOn` property and can be a 
  dispatch_queue, a NSThread, a NSOperationQueue or a NSManagedObjectContext.
  
- If the \p then propertie's block will be used to define the completion and error
- handler, the handlers will implictily run on an _unspecified_ and _concurrent_
+ If the \p then property's block will be used to define the completion and error
+ handler, the handlers will implicitly run on an _unspecified_ and _concurrent_
  execution context. That is, once the promise is resolved the corresponding 
  handler MAY execute on any thread and concurrently to any other handler.
  
- If the \p thenOn propertie's block will be used to define completion and error handler,
+ If the \p thenOn property's block will be used to define completion and error handler,
  the execution context will be explicitly defined through the first parameter 
  _queue_ of the block, which is either a serial or concurrent _dispatch queue_.
  Once the promise is resolved, the handler is guaranteed to execute on the specified
@@ -249,8 +249,6 @@ typedef RXPromise* (^then_on_block_t)(id,
                                       promise_completionHandler_t,
                                       promise_errorHandler_t);
 
-
-
 /*!
  @brief Type definition of the "then_on_main block". The "then_on_main block" is the return
  value of the property \p thenOnMain.
@@ -266,6 +264,35 @@ typedef RXPromise* (^then_on_block_t)(id,
  */
 typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_errorHandler_t);
 
+/*!
+ @brief Type definition of the "catch_on block". The "catch_on block" is the return value
+ of the property \p catchOn.
+ 
+ @discussion  The "catch_on block" has two parameters, the execution context and the error
+ handler block. The handler may be \c nil.
+ 
+ @par The "catch block" returns a promise, the "returned promise". When the parent
+ promise will be resolved the corresponding handler (if not \c nil) will be invoked
+ and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise *(^catch_on_block_t)(id, promise_errorHandler_t errorHandler);
+
+/*!
+ @brief Type definition of the "catch_on_main block". The "catch_on_main block" is the return
+ value of the property \p catchOnMain.
+ 
+ @discussion The "catch_on_main block" has one parameters, the error handler block.
+ The handler may be \c nil.
+ 
+ @par The "catch_on_main block" returns a promise, the "returned promise". When the parent
+ promise will be resolved the error handler (if not \c nil) will be invoked if the promise
+ is rejected and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise* (^catch_on_main_block_t)(promise_errorHandler_t);
 
 /*!
  
@@ -396,7 +423,57 @@ typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_
  */
 @property (nonatomic, readonly) then_on_main_block_t thenOnMain;
 
+/*!
+ @brief Property \p catchOn returns a block whose signature is
+ @code
+ RXPromise* (^)(id executionContext, promise_errorHandler_t onError) @endcode
+ 
+ When this returned block is called it will register the error handler
+ given as the block parameter with the execution context set as specified.
+ 
+ @par The receiver will be retained and released only until after the receiver
+ has been resolved.
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of either handler that gets called when the receiver will be resolved.
+ 
+ @par When the block is invoked and the receiver is already resolved, the corresponding
+ handler will be immediately asynchronously scheduled for the execution context.
+ 
+ @par The receiver can register zero or more handlers through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \p then_block_t.
+ */
+@property (nonatomic, readonly) catch_on_block_t catchOn;
 
+/*!
+ @brief Property \p catchOnMain returns a block whose signature is
+ @code
+ RXPromise* (^)(promise_errorHandler_t onError)
+ @endcode
+ 
+ When the block is called it will register the error handler \p onError.
+ When the receiver will be rejected the error handler will be called and
+ executed on the main thread.
+ 
+ @par The receiver will be retained and released only until after the receiver has
+ been resolved.
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of the handler if it is called.
+ 
+ @par When the block is invoked and the receiver is already rejected, the error handler will
+ be immediately asynchronously scheduled for execution on the main thread.
+ 
+ @par Parameter \p onError may be \c nil.
+ 
+ @par The receiver can register zero or more handlers through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \c catch_on_main_block_t.
+ */
+@property (nonatomic, readonly) catch_on_main_block_t catchOnMain;
 
 
 
