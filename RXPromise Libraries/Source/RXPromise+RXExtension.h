@@ -49,7 +49,7 @@ typedef RXPromise* (^rxp_unary_task)(id input);
  */
 typedef RXPromise* (^rxp_nullary_task)();
 
-
+typedef id (^rxp_or_object_nullary_task)();
 
 
 @interface RXPromise (RXExtension)

@@ -4627,6 +4627,29 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
 }
 
+- (void) testRepeatWithResult
+{
+    NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g"];
+    NSMutableString* resultString = [[NSMutableString alloc] init];
+    const NSUInteger count = [inputs count];
+    __block NSUInteger i = 0;
+    [[RXPromise repeat:^id{
+        if (i >= count) {
+            return resultString;
+        }
+        return [RXPromise promiseWithTask:^id{
+            NSString* str = [inputs[i++] capitalizedString];
+            [resultString appendString:str];
+            return @"OK";
+        }];
+    }].then(^id(id result) {
+        XCTAssertTrue([resultString isEqualToString:result], @"");
+        return result;
+    }, nil) runLoopWait];
+    
+    XCTAssertTrue([resultString isEqualToString:@"ABCDEFG"], @"");
+}
+
 - (void) testRepeatWithCancellation
 {
     NSMutableString* resultString = [[NSMutableString alloc] init];

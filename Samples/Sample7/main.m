@@ -50,9 +50,9 @@ RXPromise* performTasksWithArray(NSArray* inputs)
 {
     const NSUInteger count = [inputs count];
     __block NSUInteger i = 0;
-    return [RXPromise repeat:^RXPromise*{
+    return [RXPromise repeat:^id{
         if (i >= count) {
-            return nil;
+            return @"final value";
         }
         return [inputs[i++] asyncTask].then(^id(id result){
             NSLog(@"%@", result);
