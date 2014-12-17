@@ -81,16 +81,26 @@ namespace {
         
     }
     
-    void rxp_while(__weak RXPromise* weakReturnedPromise, rxp_nullary_task block) {
+    void rxp_while(__weak RXPromise* weakReturnedPromise, rxp_or_object_nullary_task block) {
         RXPromise* returnedPromise = weakReturnedPromise;
-        if (returnedPromise == nil || block == nil || returnedPromise.isCancelled) {
+        if (block == nil || returnedPromise.isCancelled) {
             return;
         }
-        RXPromise* taskPromise = block();
-        if (taskPromise == nil) {
-            [returnedPromise fulfillWithValue:@"OK"];
+        
+        // rxp_or_object_nullary_task returns a promise or an object..or nil
+        id result = block();
+        
+        
+        // fulfilling a promise with nil/object is valid. since we've gotten a value instead of another promise
+        // we'll no longer repeat.
+        if (result == nil || ![result isKindOfClass:[RXPromise class]]) {
+            [returnedPromise fulfillWithValue:result];
             return;
         }
+        
+        // so the result is a promise. continue the chain.
+        RXPromise* taskPromise = (RXPromise*) result;
+        
         taskPromise.then(^id(id result) {
             rxp_while(returnedPromise, block);
             return nil;
