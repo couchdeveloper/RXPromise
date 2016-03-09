@@ -259,7 +259,7 @@ namespace {
     }  onFailure:^id(NSError *error) {
         dispatch_source_cancel(timer);
         return nil;
-    }
+    }  onProgress:nil
     returnPromise:NO];
 
     return self;
@@ -353,6 +353,7 @@ namespace {
 - (instancetype) registerWithExecutionContext:(id)executionContext
                          onSuccess:(promise_completionHandler_t)onSuccess
                          onFailure:(promise_errorHandler_t)onFailure
+                        onProgress:(promise_progressHandler_t)onProgress
                      returnPromise:(BOOL)returnPromise NS_RETURNS_RETAINED
 {
     RXPromise* returnedPromise = returnPromise ? ([[[self class] alloc] init]) : nil;
@@ -383,11 +384,15 @@ namespace {
                 // If the execution context equals the Shared.sync_queue, the block
                 // must be enqueued with a barrier! (implementation details)
                 @autoreleasepool {
-                    assert(promise_state != Pending);
+                    assert(promise_state != Pending || abs(progress) < FLT_EPSILON);
                     RXPromise_StateT state = promise_state;
                     __strong id result = promise_result;
                     if (state == Fulfilled && onSuccess) {
                         result = onSuccess(blockSelf->_result);
+                    }
+                    else if (state == Pending && onProgress) {
+                        onProgress(blockSelf->_progressValue);
+                        return;
                     }
                     else if (state != Fulfilled && onFailure) {
                         result = onFailure(blockSelf->_result);
@@ -470,33 +475,51 @@ namespace {
 
 - (then_block_t) then {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:nil onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 
 - (then_on_block_t) thenOn {
     return ^RXPromise*(id executionContext, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 
 - (then_on_main_block_t) thenOnMain {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 - (catch_on_block_t) catchOn {
     return ^RXPromise*(id executionContext, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 - (catch_on_main_block_t) catchOnMain {
     return ^RXPromise*(promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:onFailure onProgress:nil returnPromise:YES];
+    };
+}
+
+- (progress_block_t) progress {
+    return ^RXPromise*(promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:nil onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
+    };
+}
+
+- (progress_on_block_t) progressOn {
+    return ^RXPromise*(id executionContext, promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
+    };
+}
+
+- (progress_on_main_block_t) progressOnMain {
+    return ^RXPromise*(promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
     };
 }
 
@@ -643,7 +666,9 @@ namespace {
                     [strongSelf synced_rejectWithReason:error];
                 }
                 return nil;
-            } returnPromise:NO];
+            }
+                                     onProgress:nil
+                                  returnPromise:NO];
         }
     }
     __weak RXPromise* weakSelf = self;
@@ -658,8 +683,9 @@ namespace {
             }
         }
         return error;
-    } returnPromise:NO];
-    
+    }
+                            onProgress:nil
+                         returnPromise:NO];
 }
 
 
