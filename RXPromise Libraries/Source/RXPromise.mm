@@ -148,6 +148,7 @@ namespace {
     
     std::list<std::pair<id,promise_progressHandler_t>> *_progressHandlers;
     OSSpinLock __volatile                               _progressSpinLock;
+    std::list<RXPromise* __weak>                       *_children;
 }
 @synthesize result = _result;
 @synthesize parent = _parent;
@@ -164,6 +165,7 @@ namespace {
     }
     void const* key = (__bridge void const*)(self);
     delete _progressHandlers;
+    delete _children;
     if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         Shared.assocs.erase(key);
     } else {
@@ -358,7 +360,7 @@ namespace {
     OSSpinLockLock(&_progressSpinLock);
     _progressValue = progress;
     if (_progressHandlers) {
-        for (std::pair<id, promise_progressHandler_t> handlerPair : *_progressHandlers) {
+        for (const std::pair<id, promise_progressHandler_t> handlerPair : *_progressHandlers) {
             id executionContext = handlerPair.first;
             promise_progressHandler_t handlerBlock = handlerPair.second;
             if (executionContext == Shared.default_concurrent_queue) {
@@ -376,6 +378,11 @@ namespace {
                 // to the corresponding execution context:
                 [executionContext rxp_dispatchBlock:^(){handlerBlock(progress);}];
             }
+        }
+    }
+    if (_children) {
+        for(const RXPromise * __weak child : *_children) {
+            [child updateWithProgress:progress];
         }
     }
     OSSpinLockUnlock(&_progressSpinLock);
@@ -405,14 +412,20 @@ namespace {
         if (_handler_queue == nil) {
             _handler_queue = createHandlerQueue(_state == Pending, (__bridge void*)self);
         }
+        OSSpinLockLock(&_progressSpinLock);
         if (onProgress) {
-            OSSpinLockLock(&_progressSpinLock);
             if (!_progressHandlers) {
                 _progressHandlers = new std::list<std::pair<id, promise_progressHandler_t>>();
             }
             _progressHandlers->push_back({executionContext, onProgress});
-            OSSpinLockUnlock(&_progressSpinLock);
         }
+        if (!_children) {
+            _children = new std::list<RXPromise* __weak>();
+        }
+        if (weakReturnedPromise) {
+            _children->push_back(weakReturnedPromise);
+        }
+        OSSpinLockUnlock(&_progressSpinLock);
         
         // Finally, *enqueue* a wrapper block which eventually gets invoked when the
         // promise will be resolved:
