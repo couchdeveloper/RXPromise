@@ -897,7 +897,15 @@ typedef RXPromise* (^progress_on_main_block_t)(promise_progressHandler_t onProgr
  */
 - (void) resolveWithResult:(id)result;
 
-
+/*!
+ @brief Updates the promise with the specified progress value and fires the notification to subscribers.
+ 
+ This won't call any subsequent subscribers and won't trigger progress reporting chain, which could be expected, however isn't way yet implemented
+ 
+ @param progress The relative value of progress set by the asynchronous result provider which should
+ represent a value in range from 0.0 to 1.0
+ */
+- (void) updateWithProgress:(float)progress;
 
 @end
 

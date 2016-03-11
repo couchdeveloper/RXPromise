@@ -24,9 +24,11 @@
 #import "RXPromise+Private.h"
 #import <CoreData/CoreData.h>
 #import <objc/runtime.h>
+#import <libkern/OSAtomic.h>
 #include <dispatch/dispatch.h>
 #include <cassert>
 #include <cstdio>
+#include <list>
 
 // Set default logger serverity to "Error" (logs only errors)
 #if !defined (DEBUG_LOG)
@@ -143,6 +145,9 @@ namespace {
     dispatch_queue_t    _handler_queue;  // a serial queue, uses target queue: s_sync_queue
     id                  _result;
     RXPromise_State     _state;
+    
+    std::list<std::pair<id,promise_progressHandler_t>> *_progressHandlers;
+    OSSpinLock __volatile                               _progressSpinLock;
 }
 @synthesize result = _result;
 @synthesize parent = _parent;
@@ -158,6 +163,7 @@ namespace {
         }
     }
     void const* key = (__bridge void const*)(self);
+    delete _progressHandlers;
     if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
         Shared.assocs.erase(key);
     } else {
@@ -344,6 +350,37 @@ namespace {
     }
 }
 
+- (void)synced_updateWithProgress:(float)progress {
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
+    if (_state != Pending) {
+        return;
+    }
+    OSSpinLockLock(&_progressSpinLock);
+    _progressValue = progress;
+    if (_progressHandlers) {
+        for (std::pair<id, promise_progressHandler_t> handlerPair : *_progressHandlers) {
+            id executionContext = handlerPair.first;
+            promise_progressHandler_t handlerBlock = handlerPair.second;
+            if (executionContext == Shared.default_concurrent_queue) {
+                // If the continuation has been registered with `progress`, we run
+                // the handler is parallel:
+                dispatch_async(executionContext, ^(){handlerBlock(progress);});
+            }
+            else if ([executionContext conformsToProtocol:@protocol(OS_dispatch_queue)]) {
+                // If the continuation has been registered with `progressOn:` and when the
+                // execution context is a dispatch queue, we run the handler serially:
+                dispatch_barrier_async(executionContext, ^(){handlerBlock(progress);});
+            }
+            else {
+                // Otherwise, the execution context is not a dispatch_queue. Dispatch
+                // to the corresponding execution context:
+                [executionContext rxp_dispatchBlock:^(){handlerBlock(progress);}];
+            }
+        }
+    }
+    OSSpinLockUnlock(&_progressSpinLock);
+}
+
 
 // Registers success and failure handlers.
 // The receiver will be retained and only released when the receiver will be
@@ -368,6 +405,15 @@ namespace {
         if (_handler_queue == nil) {
             _handler_queue = createHandlerQueue(_state == Pending, (__bridge void*)self);
         }
+        if (onProgress) {
+            OSSpinLockLock(&_progressSpinLock);
+            if (!_progressHandlers) {
+                _progressHandlers = new std::list<std::pair<id, promise_progressHandler_t>>();
+            }
+            _progressHandlers->push_back({executionContext, onProgress});
+            OSSpinLockUnlock(&_progressSpinLock);
+        }
+        
         // Finally, *enqueue* a wrapper block which eventually gets invoked when the
         // promise will be resolved:
         dispatch_async(_handler_queue, ^{
@@ -384,15 +430,11 @@ namespace {
                 // If the execution context equals the Shared.sync_queue, the block
                 // must be enqueued with a barrier! (implementation details)
                 @autoreleasepool {
-                    assert(promise_state != Pending || abs(progress) < FLT_EPSILON);
+                    assert(promise_state != Pending);
                     RXPromise_StateT state = promise_state;
                     __strong id result = promise_result;
                     if (state == Fulfilled && onSuccess) {
                         result = onSuccess(blockSelf->_result);
-                    }
-                    else if (state == Pending && onProgress) {
-                        onProgress(blockSelf->_progressValue);
-                        return;
                     }
                     else if (state != Fulfilled && onFailure) {
                         result = onFailure(blockSelf->_result);
@@ -908,8 +950,16 @@ namespace {
     }
 }
 
-
-
+- (void) updateWithProgress:(float)progress {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
+        [self synced_updateWithProgress:progress];
+    }
+    else {
+        dispatch_barrier_async(Shared.sync_queue, ^{
+            [self synced_updateWithProgress:progress];
+        });
+    }
+}
 
 
 @end

@@ -3132,6 +3132,142 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     }
 }
 
+#pragma mark - progress
+
+- (void) testSimpleProgressReporting {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+        if (fabs(reportedProgress - 1.0) < 0.01) {
+            [expectation fulfill];
+        }
+    });
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               [[progressValues valueForKeyPath:@"@sum.self"] floatValue],
+                               0.01);
+}
+
+- (void) testTwoSimultaneousProgressReporting {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+        if (fabs(reportedProgress - 1.0) < 0.01) {
+            [expectation fulfill];
+        }
+    });
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+    });
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               [[progressValues valueForKeyPath:@"@sum.self"] floatValue] * 2,
+                               0.01);
+}
+
+- (void) testSimultaneousProgressReportingAndFullfill {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+        if (fabs(reportedProgress - 1.0) < 0.01) {
+            [promise fulfillWithValue:nil];
+        }
+    });
+    promise.then(^id(id result) {
+        [expectation fulfill];
+        return nil;
+    }, nil);
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               [[progressValues valueForKeyPath:@"@sum.self"] floatValue],
+                               0.01);
+}
+
+- (void) testSimultaneousProgressReportingAndReject {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+        if (fabs(reportedProgress - 1.0) < 0.01) {
+            [promise rejectWithReason:nil];
+        }
+    });
+    promise.then(nil, ^id(id result) {
+        [expectation fulfill];
+        return nil;
+    });
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               [[progressValues valueForKeyPath:@"@sum.self"] floatValue],
+                               0.01);
+}
+
+- (void) testProgressReportingAfterFullfill {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+    });
+    promise.then(^id(id result) {
+        [expectation fulfill];
+        return nil;
+    }, nil);
+    [promise fulfillWithValue:nil];
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               0.0,
+                               0.01);
+}
+
+- (void) testProgressReportingAfterReject {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
+    NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
+    RXPromise *promise = [[RXPromise alloc] init];
+    __block float progress = 0;
+    promise.progress(^(float reportedProgress) {
+        progress += reportedProgress;
+    });
+    promise.then(nil, ^id(id result) {
+        [expectation fulfill];
+        return nil;
+    });
+    [promise rejectWithReason:nil];
+    for (NSNumber *progressValue in progressValues) {
+        [promise updateWithProgress:progressValue.floatValue];
+    }
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+    XCTAssertEqualWithAccuracy(progress,
+                               0.0,
+                               0.01);
+}
 
 #pragma mark - all
 
