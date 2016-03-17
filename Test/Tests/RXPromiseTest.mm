@@ -3138,8 +3138,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, access variable progress on the main thread only!
     __block float progress = 0;
-    promise.progress(^(float reportedProgress) {
+    promise.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [expectation fulfill];
@@ -3158,14 +3159,15 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, access variable progress on the main thread only!
     __block float progress = 0;
-    promise.progress(^(float reportedProgress) {
+    promise.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [expectation fulfill];
         }
     });
-    promise.progress(^(float reportedProgress) {
+    promise.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
     });
     for (NSNumber *progressValue in progressValues) {
@@ -3181,8 +3183,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, access variable progress on the main thread only!
     __block float progress = 0;
-    promise.progress(^(float reportedProgress) {
+    promise.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [promise fulfillWithValue:nil];
@@ -3205,8 +3208,10 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, ensure progress will be accessed on the sync_queue only:
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync_queue", DISPATCH_QUEUE_SERIAL);
     __block float progress = 0;
-    promise.progress(^(float reportedProgress) {
+    promise.progressOn(sync_queue, ^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [promise rejectWithReason:nil];
@@ -3220,7 +3225,12 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         [promise updateWithProgress:progressValue.floatValue];
     }
     [self waitForExpectationsWithTimeout:0.1 handler:nil];
-    XCTAssertEqualWithAccuracy(progress,
+    
+    __block float progress2 = 0;
+    dispatch_sync(sync_queue, ^{
+        progress2 = progress;
+    });
+    XCTAssertEqualWithAccuracy(progress2,
                                [[progressValues valueForKeyPath:@"@sum.self"] floatValue],
                                0.01);
 }
@@ -3229,6 +3239,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, ensure progress will be accessed on the sync_queue only:
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync_queue", DISPATCH_QUEUE_SERIAL);
     __block float progress = 0;
     promise.progress(^(float reportedProgress) {
         progress += reportedProgress;
@@ -3242,7 +3254,11 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         [promise updateWithProgress:progressValue.floatValue];
     }
     [self waitForExpectationsWithTimeout:0.1 handler:nil];
-    XCTAssertEqualWithAccuracy(progress,
+    __block float progress2 = 0;
+    dispatch_sync(sync_queue, ^{
+        progress2 = progress;
+    });
+    XCTAssertEqualWithAccuracy(progress2,
                                0.0,
                                0.01);
 }
@@ -3251,6 +3267,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, ensure progress will be accessed on the sync_queue only:
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync_queue", DISPATCH_QUEUE_SERIAL);
     __block float progress = 0;
     promise.progress(^(float reportedProgress) {
         progress += reportedProgress;
@@ -3264,7 +3282,12 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         [promise updateWithProgress:progressValue.floatValue];
     }
     [self waitForExpectationsWithTimeout:0.1 handler:nil];
-    XCTAssertEqualWithAccuracy(progress,
+
+    __block float progress2 = 0;
+    dispatch_sync(sync_queue, ^{
+        progress2 = progress;
+    });
+    XCTAssertEqualWithAccuracy(progress2,
                                0.0,
                                0.01);
 }
@@ -3273,12 +3296,13 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, access variable progress on the main thread only!
     __block float progress = 0;
     RXPromise *promise2 = promise.then(nil, ^id(id result) {
         [expectation fulfill];
         return nil;
     });
-    promise2.progress(^(float reportedProgress) {
+    promise2.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [expectation fulfill];
@@ -3297,6 +3321,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // For thread-safety, access variable progress on the main thread only!
     __block float progress = 0;
     RXPromise *promise2 = promise.then(nil, ^id(id result) {
         return nil;
@@ -3304,7 +3329,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     RXPromise *promise3 = promise2.then(nil, ^id(id result) {
         return nil;
     });
-    promise3.progress(^(float reportedProgress) {
+    promise3.progressOnMain(^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [expectation fulfill];
@@ -3323,6 +3348,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progress should be equal to sum of progresses"];
     NSArray *progressValues = @[@0.0, @0.25, @0.5, @0.75, @1.0];
     RXPromise *promise = [[RXPromise alloc] init];
+    // Ensure progress will be accessed on the sync_queue only to ensure concurrent
+    // access is correct:
+    dispatch_queue_t sync_queue = dispatch_queue_create("sync_queue", DISPATCH_QUEUE_SERIAL);
     __block float progress = 0;
     RXPromise *promise2 = promise.then(nil, ^id(id result) {
         return nil;
@@ -3330,20 +3358,25 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     RXPromise *promise3 = promise.then(nil, ^id(id result) {
         return nil;
     });
-    promise2.progress(^(float reportedProgress) {
+    promise2.progressOn(sync_queue, ^(float reportedProgress) {
         progress += reportedProgress;
         if (fabs(reportedProgress - 1.0) < 0.01) {
             [expectation fulfill];
         }
     });
-    promise3.progress(^(float reportedProgress) {
+    promise3.progressOn(sync_queue, ^(float reportedProgress) {
         progress += reportedProgress;
     });
     for (NSNumber *progressValue in progressValues) {
         [promise updateWithProgress:progressValue.floatValue];
     }
     [self waitForExpectationsWithTimeout:0.1 handler:nil];
-    XCTAssertEqualWithAccuracy(progress,
+    
+    __block float progress2 = 0;
+    dispatch_sync(sync_queue, ^{
+        progress2 = progress;
+    });
+    XCTAssertEqualWithAccuracy(progress2,
                                [[progressValues valueForKeyPath:@"@sum.self"] floatValue] * 2.0,
                                0.01);
 }
