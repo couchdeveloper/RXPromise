@@ -314,7 +314,7 @@
 		A19C198D1759E846008E3F63 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise Libraries" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -398,6 +398,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				ENABLE_TESTABILITY = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SOURCE_DIR = "$(SRCROOT)/Source";
 			};
 			name = Debug;
@@ -451,6 +453,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ag.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = framework;
@@ -495,6 +498,7 @@
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ag.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = framework;
@@ -511,6 +515,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -549,6 +554,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
