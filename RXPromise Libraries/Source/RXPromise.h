@@ -635,12 +635,6 @@ typedef RXPromise* (^progress_on_main_block_t)(promise_progressHandler_t onProgr
 @property (nonatomic, readonly) BOOL isCancelled;
 
 /*!
- Returns the progress value of an underlying operation.
- */
-@property (nonatomic, readonly) float progressValue;
-
-
-/*!
  Returns the parent promise - the promise which created
  the receiver.
  */
