@@ -614,4 +614,11 @@ autorelease pool.
 ### Changes
 
 -  Class method `all:` and `allSettled:` now fulfill the returned promise with an empty `NSArray` if no promise are given, instead of rejecting the promise.
+
+
+## Version 0.13.2 beta (2016-03-09)
+
+### Changes
+
+-  Progress reporting for RXPromise is implemented
  

@@ -216,6 +216,22 @@ typedef id (^promise_completionHandler_t)(id result) /*NS_RETURNS_RETAINED*/;
 typedef id (^promise_errorHandler_t)(NSError* error) /*NS_RETURNS_RETAINED*/;
 
 /*!
+ @brief Type definition for the promise progress block.
+ 
+ @discussion The progress handler will be invoked when the associated promise progress will be changed.
+ 
+ @par The block will report a progress of an operation to client
+ 
+ @note The execution context is either the execution context specified
+ when the handlers have been registered via property \p progressOn or it is
+ unspecified when registred via \p progress.
+ 
+ @param progress The value set by the "asynchronous result provider" when it progressed.
+
+ */
+typedef void (^promise_progressHandler_t)(float progress);
+
+/*!
  @brief Type definition of the "then block". The "then block" is the return value
  of the property \p then.
  
@@ -293,6 +309,51 @@ typedef RXPromise *(^catch_on_block_t)(id, promise_errorHandler_t errorHandler);
  with the parent promise' result value.
  */
 typedef RXPromise* (^catch_on_main_block_t)(promise_errorHandler_t);
+
+/*!
+ @brief Type definition of the "progress_block_t". The "progress_block_t" is the return
+ value of the property \p progress.
+ 
+ @discussion The "progress_block_t" has one parameter, the progress handler block.
+ The handler may be \c nil.
+ 
+ @par The "progress_block_t" returns a promise, the "returned promise". When the parent
+ promise will be resolved the error handler (if not \c nil) will be invoked if the promise
+ is rejected and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise* (^progress_block_t)(promise_progressHandler_t onProgress);
+
+/*!
+ @brief Type definition of the "progress_on_block_t". The "progress_on_block_t" is the return
+ value of the property \p progressOn.
+ 
+ @discussion The "progress_on_block_t" has two parameters, the execution context and the progress handler block.
+ The handler may be \c nil.
+ 
+ @par The "progress_on_block_t" returns a promise, the "returned promise". When the parent
+ promise will be resolved the error handler (if not \c nil) will be invoked if the promise
+ is rejected and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise* (^progress_on_block_t)(id, promise_progressHandler_t onProgress);
+
+/*!
+ @brief Type definition of the "progress_on_main_block_t". The "progress_on_main_block_t" is the return
+ value of the property \p progressOnMain.
+ 
+ @discussion The "progress_on_main_block_t" has one parameter, the progress handler block.
+ The handler may be \c nil.
+ 
+ @par The "progress_on_main_block_t" returns a promise, the "returned promise". When the parent
+ promise will be resolved the error handler (if not \c nil) will be invoked if the promise
+ is rejected and its return value resolves the "returned promise" (if it exists). Otherwise,
+ if the handler block is \c nil the "returned promise" (if it exists) will be resolved
+ with the parent promise' result value.
+ */
+typedef RXPromise* (^progress_on_main_block_t)(promise_progressHandler_t onProgress);
 
 /*!
  
@@ -475,7 +536,83 @@ typedef RXPromise* (^catch_on_main_block_t)(promise_errorHandler_t);
  */
 @property (nonatomic, readonly) catch_on_main_block_t catchOnMain;
 
+/*!
+ @brief Property \p progress returns a block whose signature is
+ @code
+ RXPromise* (^)(promise_progressHandler_t onProgress)
+ @endcode
+ 
+ When the block is called it will register the progress handler \p onProgress.
+ When the receiver will progress the progress handler will be called.
+ 
+ @par The receiver won't be retained
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of the handler if it is called.
+ 
+ @par When the block is invoked and the receiver is already rejected, the error handler will
+ be immediately asynchronously scheduled for execution on the main thread.
+ 
+ @par Parameter \p onProgress may be \c nil.
+ 
+ @par The receiver can register zero or more handlers through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \c progress_block_t.
+ */
+@property (nonatomic, readonly) progress_block_t progress;
 
+/*!
+ @brief Property \p progressOn returns a block whose signature is
+ @code
+ RXPromise* (^)(id, promise_progressHandler_t onProgress)
+ @endcode
+ 
+ When the block is called it will register the progress handler \p onProgress.
+ When the receiver will progress the progress handler will be called and executed in the specified execution context.
+ 
+ @par The receiver won't be retained
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of the handler if it is called.
+ 
+ @par When the block is invoked and the receiver is already rejected, the error handler will
+ be immediately asynchronously scheduled for execution on the main thread.
+ 
+ @par Parameter \p onProgress may be \c nil.
+ 
+ @par The receiver can register zero or more handlers through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \c progress_on_block_t.
+ */
+@property (nonatomic, readonly) progress_on_block_t progressOn;
+
+/*!
+ @brief Property \p progressOnMain returns a block whose signature is
+ @code
+ RXPromise* (^)(promise_progressHandler_t onProgress)
+ @endcode
+ 
+ When the block is called it will register the progress handler \p onProgress.
+ When the receiver will progress the progress handler will be called and executed on the main thread.
+ 
+ @par The receiver won't be retained
+ 
+ @par The block returns a new \c RXPromise, the "returned promise", whose result will become
+ the return value of the handler if it is called.
+ 
+ @par When the block is invoked and the receiver is already rejected, the error handler will
+ be immediately asynchronously scheduled for execution on the main thread.
+ 
+ @par Parameter \p onProgress may be \c nil.
+ 
+ @par The receiver can register zero or more handlers through clients calling
+ the block multiple times.
+ 
+ @return Returns a block of type \c progress_on_main_block_t.
+ */
+@property (nonatomic, readonly) progress_on_main_block_t progressOnMain;
 
 /*!
  Returns \c YES if the receiveer is pending.
@@ -497,13 +634,11 @@ typedef RXPromise* (^catch_on_main_block_t)(promise_errorHandler_t);
  */
 @property (nonatomic, readonly) BOOL isCancelled;
 
-
 /*!
  Returns the parent promise - the promise which created
  the receiver.
  */
 @property (nonatomic, readonly) RXPromise* parent;
-
 
 /*!
  Returns the root promise.
@@ -756,7 +891,15 @@ typedef RXPromise* (^catch_on_main_block_t)(promise_errorHandler_t);
  */
 - (void) resolveWithResult:(id)result;
 
-
+/*!
+ @brief Updates the promise with the specified progress value and fires the notification to subscribers.
+ 
+ This won't call any subsequent subscribers and won't trigger progress reporting chain, which could be expected, however isn't way yet implemented
+ 
+ @param progress The relative value of progress set by the asynchronous result provider which should
+ represent a value in range from 0.0 to 1.0
+ */
+- (void) updateWithProgress:(float)progress;
 
 @end
 

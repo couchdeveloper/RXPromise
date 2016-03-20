@@ -24,9 +24,11 @@
 #import "RXPromise+Private.h"
 #import <CoreData/CoreData.h>
 #import <objc/runtime.h>
+#import <libkern/OSAtomic.h>
 #include <dispatch/dispatch.h>
 #include <cassert>
 #include <cstdio>
+#include <list>
 
 // Set default logger serverity to "Error" (logs only errors)
 #if !defined (DEBUG_LOG)
@@ -143,11 +145,13 @@ namespace {
     dispatch_queue_t    _handler_queue;  // a serial queue, uses target queue: s_sync_queue
     id                  _result;
     RXPromise_State     _state;
+    
+    std::list<std::pair<id,promise_progressHandler_t>> _progressHandlers;
+    std::list<RXPromise* __weak>                       _children;
 }
+
 @synthesize result = _result;
 @synthesize parent = _parent;
-
-
 
 - (void) dealloc {
     DLogInfo(@"dealloc: %p", (__bridge void*)self);
@@ -259,7 +263,7 @@ namespace {
     }  onFailure:^id(NSError *error) {
         dispatch_source_cancel(timer);
         return nil;
-    }
+    }  onProgress:nil
     returnPromise:NO];
 
     return self;
@@ -344,6 +348,39 @@ namespace {
     }
 }
 
+- (void)synced_updateWithProgress:(float)progress {
+    assert(dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id);
+    if (_state != Pending) {
+        return;
+    }
+    if (_progressHandlers.size()) {
+        for (const std::pair<id, promise_progressHandler_t> handlerPair : _progressHandlers) {
+            id executionContext = handlerPair.first;
+            promise_progressHandler_t handlerBlock = handlerPair.second;
+            if (executionContext == Shared.default_concurrent_queue) {
+                // If the continuation has been registered with `progress`, we run
+                // the handler is parallel:
+                dispatch_async(executionContext, ^(){handlerBlock(progress);});
+            }
+            else if ([executionContext conformsToProtocol:@protocol(OS_dispatch_queue)]) {
+                // If the continuation has been registered with `progressOn:` and when the
+                // execution context is a dispatch queue, we run the handler serially:
+                dispatch_barrier_async(executionContext, ^(){handlerBlock(progress);});
+            }
+            else {
+                // Otherwise, the execution context is not a dispatch_queue. Dispatch
+                // to the corresponding execution context:
+                [executionContext rxp_dispatchBlock:^(){handlerBlock(progress);}];
+            }
+        }
+    }
+    if (_children.size()) {
+        for(const RXPromise * __weak child : _children) {
+            [child updateWithProgress:progress];
+        }
+    }
+}
+
 
 // Registers success and failure handlers.
 // The receiver will be retained and only released when the receiver will be
@@ -353,6 +390,7 @@ namespace {
 - (instancetype) registerWithExecutionContext:(id)executionContext
                          onSuccess:(promise_completionHandler_t)onSuccess
                          onFailure:(promise_errorHandler_t)onFailure
+                        onProgress:(promise_progressHandler_t)onProgress
                      returnPromise:(BOOL)returnPromise NS_RETURNS_RETAINED
 {
     RXPromise* returnedPromise = returnPromise ? ([[[self class] alloc] init]) : nil;
@@ -367,6 +405,13 @@ namespace {
         if (_handler_queue == nil) {
             _handler_queue = createHandlerQueue(_state == Pending, (__bridge void*)self);
         }
+        if (onProgress) {
+            _progressHandlers.push_back({executionContext, onProgress});
+        }
+        if (weakReturnedPromise) {
+            _children.push_back(weakReturnedPromise);
+        }
+        
         // Finally, *enqueue* a wrapper block which eventually gets invoked when the
         // promise will be resolved:
         dispatch_async(_handler_queue, ^{
@@ -470,33 +515,51 @@ namespace {
 
 - (then_block_t) then {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:nil onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:nil onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 
 - (then_on_block_t) thenOn {
     return ^RXPromise*(id executionContext, promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:executionContext onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 
 - (then_on_main_block_t) thenOnMain {
     return ^RXPromise*(promise_completionHandler_t onSuccess, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:onSuccess onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:onSuccess onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 - (catch_on_block_t) catchOn {
     return ^RXPromise*(id executionContext, promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:onFailure onProgress:nil returnPromise:YES];
     };
 }
 
 - (catch_on_main_block_t) catchOnMain {
     return ^RXPromise*(promise_errorHandler_t onFailure) {
-        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:onFailure returnPromise:YES];
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:onFailure onProgress:nil returnPromise:YES];
+    };
+}
+
+- (progress_block_t) progress {
+    return ^RXPromise*(promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:nil onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
+    };
+}
+
+- (progress_on_block_t) progressOn {
+    return ^RXPromise*(id executionContext, promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:executionContext onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
+    };
+}
+
+- (progress_on_main_block_t) progressOnMain {
+    return ^RXPromise*(promise_progressHandler_t onProgress) {
+        return [self registerWithExecutionContext:dispatch_get_main_queue() onSuccess:nil onFailure:nil onProgress:onProgress returnPromise:YES];
     };
 }
 
@@ -643,7 +706,9 @@ namespace {
                     [strongSelf synced_rejectWithReason:error];
                 }
                 return nil;
-            } returnPromise:NO];
+            }
+                                     onProgress:nil
+                                  returnPromise:NO];
         }
     }
     __weak RXPromise* weakSelf = self;
@@ -658,8 +723,9 @@ namespace {
             }
         }
         return error;
-    } returnPromise:NO];
-    
+    }
+                            onProgress:nil
+                         returnPromise:NO];
 }
 
 
@@ -882,8 +948,16 @@ namespace {
     }
 }
 
-
-
+- (void) updateWithProgress:(float)progress {
+    if (dispatch_get_specific(rxpromise::shared::QueueID) == rxpromise::shared::sync_queue_id) {
+        [self synced_updateWithProgress:progress];
+    }
+    else {
+        dispatch_barrier_async(Shared.sync_queue, ^{
+            [self synced_updateWithProgress:progress];
+        });
+    }
+}
 
 
 @end
