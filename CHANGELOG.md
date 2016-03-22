@@ -619,10 +619,9 @@ autorelease pool.
 ## Upcoming Release
 
 - Updated project structure
-- iOS target is now a dynamic framework. Static library targets have been removed.
+- iOS target is now a dynamic framework. Static library targets have been removed.   
+ (Note: When creating a static library target for iOS, the deployment version can be set to iOS 6.)
 - Requires Xcode 7.3
 - Minimum deployment version is now iOS 8 and MacOS 10.9 respectively.
 - Importing the headers has been simplified. In order to include all headers, now just use this single import statement:
    `#import <RXPromise/RXPromise.h>`
-
- > Note: When creating a static library target for iOS, the deployment version can be set to iOS 6.
