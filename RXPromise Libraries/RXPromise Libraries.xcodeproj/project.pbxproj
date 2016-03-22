@@ -450,7 +450,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ag.${PRODUCT_NAME:rfc1034identifier}";
@@ -496,7 +496,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "RXPromise Framework/RXPromise Framework-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ag.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = RXPromise;
@@ -537,7 +537,7 @@
 					"$(inherited)",
 					"$(SOURCR_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
@@ -576,7 +576,7 @@
 					"$(inherited)",
 					"$(SOURCR_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = macosx;
 			};
@@ -612,7 +612,7 @@
 					"$(inherited)",
 					"$(SOURCE_DIR)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -651,7 +651,7 @@
 					"$(inherited)",
 					"$(SOURCE_DIR)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = RXPromise;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

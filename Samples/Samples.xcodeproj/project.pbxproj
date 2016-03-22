@@ -13,6 +13,8 @@
 		A11842A017EC697100EE4FD8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A118429F17EC697100EE4FD8 /* main.m */; };
 		A15CD82318C8EBE80067F898 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A15CD82618C8EBE80067F898 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CD82518C8EBE80067F898 /* main.m */; };
+		A167971D1CA17371000DEDB0 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A167971C1CA17371000DEDB0 /* RXPromise.framework */; };
+		A16797201CA17611000DEDB0 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A167971C1CA17371000DEDB0 /* RXPromise.framework */; };
 		A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378BF17847AC00037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378BE17847AC00037A3AC /* main.m */; };
 		A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
@@ -20,8 +22,6 @@
 		A1BC9F10180DEE56002A3487 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC9F0F180DEE56002A3487 /* RXTimer.m */; };
 		A1C7125218F2AB7C005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
 		A1C7125318F2AB86005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
-		A1C7125518F2AB90005BC050 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125418F2AB90005BC050 /* libRXPromise.a */; };
-		A1C7125618F2AB9B005BC050 /* libRXPromise.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125418F2AB90005BC050 /* libRXPromise.a */; };
 		A1C7125718F2ABA2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
 		A1C7125818F2ABAA005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
 		A1C7125918F2ABB2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
@@ -121,6 +121,8 @@
 		A15CD82518C8EBE80067F898 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A15CD82818C8EBE80067F898 /* Sample8-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample8-Prefix.pch"; sourceTree = "<group>"; };
 		A15CD82E18C8ED590067F898 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../RXPromise Libraries/build/Debug/RXPromise.framework"; sourceTree = "<group>"; };
+		A167971C1CA17371000DEDB0 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../../../../Library/Developer/Xcode/DerivedData/RXPromise-dypbaeeyorgsjeeoaqqbfneevanx/Build/Products/Release/RXPromise.framework"; sourceTree = "<group>"; };
+		A167971E1CA173AB000DEDB0 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../../../../Library/Developer/Xcode/DerivedData/RXPromise-dypbaeeyorgsjeeoaqqbfneevanx/Build/Products/Debug/RXPromise.framework"; sourceTree = "<group>"; };
 		A1A378B817847AC00037A3AC /* Sample1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample1; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A378BB17847AC00037A3AC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A1A378BE17847AC00037A3AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -160,7 +162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125518F2AB90005BC050 /* libRXPromise.a in Frameworks */,
+				A167971D1CA17371000DEDB0 /* RXPromise.framework in Frameworks */,
 				A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -214,7 +216,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125618F2AB9B005BC050 /* libRXPromise.a in Frameworks */,
+				A16797201CA17611000DEDB0 /* RXPromise.framework in Frameworks */,
 				A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -317,6 +319,8 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A167971E1CA173AB000DEDB0 /* RXPromise.framework */,
+				A167971C1CA17371000DEDB0 /* RXPromise.framework */,
 				A1C7125A18F2B4CE005BC050 /* CoreData.framework */,
 				A1C7125418F2AB90005BC050 /* libRXPromise.a */,
 				A1C7125118F2AB7C005BC050 /* RXPromise.framework */,
@@ -695,11 +699,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -733,11 +733,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
@@ -784,8 +780,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -823,7 +819,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -869,7 +865,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -911,7 +907,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -920,6 +916,7 @@
 		A1A378A217847A980037A3AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
@@ -927,6 +924,7 @@
 		A1A378A317847A980037A3AC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 			};
 			name = Release;
 		};
@@ -959,7 +957,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -990,7 +987,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1026,7 +1022,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1057,7 +1052,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1098,7 +1092,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1133,7 +1127,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1174,11 +1168,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -1219,11 +1209,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/agrosam/Develop/RXPromise/DerivedData/RXPromise/Build/Products/Release,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
@@ -1269,7 +1255,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -1306,7 +1292,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};

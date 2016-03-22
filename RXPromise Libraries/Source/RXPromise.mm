@@ -353,7 +353,7 @@ namespace {
 - (instancetype) registerWithExecutionContext:(id)executionContext
                          onSuccess:(promise_completionHandler_t)onSuccess
                          onFailure:(promise_errorHandler_t)onFailure
-                     returnPromise:(BOOL)returnPromise NS_RETURNS_RETAINED
+                     returnPromise:(BOOL)returnPromise
 {
     RXPromise* returnedPromise = returnPromise ? ([[[self class] alloc] init]) : nil;
     returnedPromise.parent = self;

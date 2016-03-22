@@ -42,7 +42,7 @@
 
 
 
-NS_RETURNS_RETAINED static RXPromise*  async()  {
+static RXPromise*  async()  {
     RXPromise* promise = [[RXPromise alloc] init];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         usleep(1000);

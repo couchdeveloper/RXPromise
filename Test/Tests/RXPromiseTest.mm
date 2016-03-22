@@ -313,12 +313,10 @@ namespace mock {
             
             
             
-            NS_RETURNS_RETAINED
             static RXPromise* start(shared_task task, completion_t completion = nullptr)  {
                 return start(task, completion);
             }
             
-            NS_RETURNS_RETAINED
             static RXPromise* start(shared_task task, dispatch_queue_t queue, completion_t completion = nullptr)  {
                 assert(task.get() != nullptr);
                 RXPromise* promise;
@@ -407,7 +405,6 @@ namespace mock {
 
     }
     
-    NS_RETURNS_RETAINED
     RXPromise* async(double duration, id result = @"OK",
                      completion_t completion = nullptr)
     {
@@ -416,7 +413,6 @@ namespace mock {
         return returnedPromise;
     }
     
-    NS_RETURNS_RETAINED
     RXPromise* async(double duration, id result,
                      dispatch_queue_t queue, completion_t completion = nullptr)
     {
@@ -427,7 +423,6 @@ namespace mock {
     
     
     
-    NS_RETURNS_RETAINED
     RXPromise* async_fail(double duration, id reason = @"Failure",
                           completion_t completion = nullptr)
     {
@@ -437,7 +432,6 @@ namespace mock {
     }
     
     
-    NS_RETURNS_RETAINED
     RXPromise* async_fail(double duration, id reason,
                           dispatch_queue_t queue, completion_t completion)
     {
@@ -447,7 +441,6 @@ namespace mock {
     }
     
     // use a bound promise
-    NS_RETURNS_RETAINED
     static RXPromise* async_bind(double duration, id result = @"OK",
                                  dispatch_queue_t queue = nullptr, completion_t completion = nullptr)
     {
@@ -461,7 +454,6 @@ namespace mock {
     }
     
     // use a bound promise
-    NS_RETURNS_RETAINED
     static RXPromise* async_bind_fail(double duration, id reason = @"Failure",
                                       dispatch_queue_t queue = nullptr, completion_t completion = nullptr)
     {
@@ -480,7 +472,6 @@ namespace mock {
 
 
 
-__attribute((ns_returns_retained))
 static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queue = NULL,
                           double interval = 0.1,
                           int failsAtStep = -1, id failureReason = nil)

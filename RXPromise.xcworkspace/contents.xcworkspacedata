@@ -26,8 +26,4 @@
       location = "group:RXPromise.podspec"
       assignedFileDataType = "public.ruby-script">
    </FileRef>
-   <FileRef
-      location = "group:Rakefile"
-      assignedFileDataType = "public.ruby-script">
-   </FileRef>
 </Workspace>

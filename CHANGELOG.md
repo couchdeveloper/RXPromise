@@ -68,7 +68,7 @@ Due to moving the code into libraries, the logging mechanism became an implement
 
 ## Version 0.6 beta (5.07.2013)
 
-#### Changes 
+#### Changes
 
 * The implementation became more memory efficient. However, this required to use a standard container from the C++ standard library. This has the consequence, that an application which links against the static library or incorporates the sources directly need to link against the standard C++ library by adding the compiler option "-lc++" to the "Other Linker Flags" build setting. When linking against the framework, this setting is not required.
 
@@ -84,7 +84,7 @@ Due to moving the code into libraries, the logging mechanism became an implement
 
 ## Version 0.7 beta (6.08.2013)
 
-#### Changes 
+#### Changes
 
 ** BREAKING CHANGES **
 
@@ -100,7 +100,7 @@ Example:
 
         asyncFoo().thenOn(sync_queue, onCompletion, onError);
 
-    
+
 Here, _sync_queue_ is a serial queue, and due to this, concurrent access from within the handlers to shared resources through this queue is safe. The sync_queue may also be used from elsewhere in order to guarantee safe access, not just handlers.
 
 The _explicit_ execution context can also be a concurrent dispatch queue.
@@ -131,7 +131,7 @@ The `thenOn` property has been added which provides a means to explicitly specif
 #### New APIs
 
     - (RXPromise*) setTimeout:(NSTimeInterval)timeout;
-    
+
 This sets a timeout for the promise. If the timeout expires before the promise has been resolved, the promise will be rejected with an error with domain: @"RXPromise", code:-1001, userInfo:@{NSLocalizedFailureReasonErrorKey: @"timeout"}
 
 
@@ -140,14 +140,14 @@ This sets a timeout for the promise. If the timeout expires before the promise h
 
  Runs the current run loop until after the receiver has been resolved,
  and previously queued handlers have been finished.
- 
+
 
 
 ### Version 0.8.1 beta (08.09.2013)
 
 #### Changes:
 
-Added a strict requirement when using `runLoopWait`: The current thread MUST have a run loop and at least one event source. Otherwise the behavior is undefined. 
+Added a strict requirement when using `runLoopWait`: The current thread MUST have a run loop and at least one event source. Otherwise the behavior is undefined.
 
 Well, the main thread will always fulfill this prerequisite - but it may not be true for secondary threads unless the program to test is carefully designed and has an event source attached to the secondary thread (e.g. a NSURLConnection).
 In the current implementation and in the _worst case_, the behavior *MAY* be such that `runLoopWait` MAY _busy wait_ and hog a CPU for a short time. This is entirely a cause of how `NSRunLoop` is implemented internally.
@@ -200,7 +200,7 @@ Added a "How To Install" section in the README.md file.
 
 #### BREAKING CHANGES
 
-The class method 
+The class method
 
 `+ (RXPromise*)all:(NSArray*)promises;`
 
@@ -210,10 +210,10 @@ Before, the _results_ parameter contained the array of promises. So basically, i
 
 #### New APIs
 
-- Added two convenient class methods 
+- Added two convenient class methods
 
 `+ (RXPromise*) promiseWithTask:(id(^)(void))task;`
-    
+
 and
 
 `+ (RXPromise*) promiseWithQueue:(dispatch_queue_t)queue task:(id(^)(void))task;`
@@ -222,10 +222,10 @@ and
 - Added a property `root` which returns the root promise.
 
 
-- Added a class method 
+- Added a class method
 
 `+ (RXPromise*) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;`
-    
+
 which can be used to chain a number of tasks which can be initialized from the
 inputs array. The sequence method supports cancellation.
 
@@ -249,13 +249,13 @@ Fixed a subtle race condition in method `setTimeout:`.
 
 #### Changes
 
- -  Improved memory management in method `sequence:task:` 
+ -  Improved memory management in method `sequence:task:`
 
  -  Xcode configuration files updated for iOS 7.
 
  -  Added Unit Tests for iOS running on the device.
- 
- 
+
+
 
 
 ### Version 0.9.3 beta (2013-09-20)
@@ -293,9 +293,9 @@ Likewise, inherited class factory methods now return on object of the subclass, 
 
 
  #### Known Issues
- 
+
  -  Due to an issue in Xcode 5, it's not possible to run *individual* unit test methods when clicking on the diamond in the gutter for an Mac OS X test bundle. This happens when the same unit test source code is shared for an iOS test bundle and a Mac OS X test bundle. The whole test runs without problems, and individual unit tests can be run from within the Test Navigation pane.
- 
+
 
 
 ### Version 0.9.6 beta (2013-11-10)
@@ -326,19 +326,19 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 ##### Added a class method `repeat:`:
 
     typedef RXPromise* (^rxp_nullary_task)();
-    
+
     + (instancetype) repeat: (rxp_nullary_task)block;
 
 
   This class method asynchronously executes the block in a loop until either the
   tasks returns `nil` signaling the end of the repeat loop, or the returned promise
   will be rejected.
-  
+
   The API is available in the RXExtension category.
 
 
 ##### Example
- 
+
     NSArray* urls = ...;
     const NSUInteger count = [urls count];
     __block NSUInteger i = 0;
@@ -354,8 +354,8 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
     }];
 
 
-    
-    
+
+
 #### Changes
 
  -  Improved INSTALL documentation.
@@ -368,7 +368,7 @@ Using the extension methods requires to import the header file `RXPromise+RXExte
 #### Bug Fixes
 
 Fixed import directives. This caused linker issues when including the headers and sources directly into a project.
-    
+
 
 
 ### Version 0.10.2 beta (2013-11-28)
@@ -434,17 +434,17 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
 
 - The behavior of the class methods `all:` and `any` has been changed.
 
- Now, the methods don't cancel any other promise in the given array if any has 
+ Now, the methods don't cancel any other promise in the given array if any has
  been resolved or if the returned promise has been cancelled.
- 
+
  This is more consistent with the rule that a promise if cancelled shall not forward the cancellation to its parents. The promises in the given  array can be viewed as the "parents" of the returned promise. Now, canceling the returned promise won't touch the promises in the given array.
- 
+
  Furthermore, not forwarding the cancel message or canceling all other promises if one has been resolved enables to use promises within the array which are part of any other promise tree, without affecting this other tree.
- 
- Now, it is suggested to take any required action in the *handlers* of the returned promise. 
- 
+
+ Now, it is suggested to take any required action in the *handlers* of the returned promise.
+
  For example, cancel all other promises when one has been resolved:
- 
+
         NSArray* promises = @[async(@"a"), @async(@"b")];
         [RXPromise all:promises]
         .then(^id(id result){
@@ -467,37 +467,37 @@ Client Xcode projects can install the RXPromise library utilizing CocoaPods.
  - Added an instance method `makeBackgroundTaskWithName`.
 
         /**
-         Executes the asynchronous task associated to the receiver as an 
+         Executes the asynchronous task associated to the receiver as an
          iOS Background Task.
-         
-         @discussion The receiver requests background execution time from 
-         the system which delays suspension of the app up until the receiver 
+
+         @discussion The receiver requests background execution time from
+         the system which delays suspension of the app up until the receiver
          will be resolved or cancelled.
-         
+
          Since Apps are given only a limited amount of time to finish
-         background tasks, this time may expire before the task finishes. 
+         background tasks, this time may expire before the task finishes.
          In this case the receiver's root will be cancelled which in turn
          propagates the cancel event to all children of the receiver,
          including the receiver.
-    
-         Tasks may want to handle the cancellation in order to execute 
-         additional code which orderly closes the task. This should not take 
+
+         Tasks may want to handle the cancellation in order to execute
+         additional code which orderly closes the task. This should not take
          too long, since by the time the cancel handler is called, the app is
          already very close to its time limit.
-         
-         @warning Handlers registered on child promises may not be executed 
+
+         @warning Handlers registered on child promises may not be executed
          when the app is in background.
-         
+
          @param taskName The name to display in the debugger when viewing the
          background task.
-         
+
          If you specify \c nil for this parameter, this method generates a
          name based on the name of the calling function or method.
         */
         - (void) makeBackgroundTaskWithName:(NSString*)taskName;
 
-    
-    
+
+
 #### Unit Tests
 
 - Fixed issues with unit tests having promises whose handlers may still execute
@@ -506,15 +506,15 @@ after the test finished and which modified the stack. This caused a crash in the
 
 #### Implementation
 
-- Method `registerWithQueue:onSuccess:onFailure:returnPromise:` has been rewritten. 
+- Method `registerWithQueue:onSuccess:onFailure:returnPromise:` has been rewritten.
 Observable behavior is still the same, though.
 
-- Changed code and added attributes to function/method declarations which now 
-should help the compiler during ARC optimization to avoid putting objects into the 
+- Changed code and added attributes to function/method declarations which now
+should help the compiler during ARC optimization to avoid putting objects into the
 autorelease pool.
 
  There is still one occurrence where the ARC optimizer cannot prevent this: when an
- object is created and returned in handlers, these objects will be put into the 
+ object is created and returned in handlers, these objects will be put into the
  autorelease pool. This does not happen when the source code is directly included in
  the client project.
 
@@ -534,9 +534,9 @@ autorelease pool.
  - Fixed a bug in method `runLoopWait`.
 
  - Minimum Deployment target for Mac OS X is now 10.8.
- 
- 
- 
+
+
+
 ### Version 0.11.3 beta (2014-04-05)
 
  - Fixed a bug where the cancel reason for promises returned by methods `repeat` and `sequence` has not been forwarded to the current task.
@@ -551,26 +551,26 @@ autorelease pool.
 ### API Changes
 
  - Additional Execution Contexts
- 
+
  Now, the following kind of execution contects can be specified with the `thenOn` property:
- 
+
   - dispatch_queue
   - NSOperationQueue
   - NSThread
   - NSManagedObjectContext
- 
+
  For example:
 
  ```Objective-C
  NSOperationQueue* operationQueue = [[NSOperationQueue alloc] init];
- 
+
  promise.thenOn(operationQueue, ^id(id result){
      // executing on the NSOperationQueue
      ...
      return nil;
  }, nil);
 ```
- - Added a property `thenOnMain` for convenience which is functional equivalent to 
+ - Added a property `thenOnMain` for convenience which is functional equivalent to
   `thenOn(dispatch_get_main_queue(), .., ...)`
 
 
@@ -606,12 +606,18 @@ autorelease pool.
  - Merged Pull request.
 
  - Added extension class method `allSettled:`.
- 
- 
- 
+
+
+
 ## Version 0.13.1 beta (2014-05-18)
 
 ### Changes
 
 -  Class method `all:` and `allSettled:` now fulfill the returned promise with an empty `NSArray` if no promise are given, instead of rejecting the promise.
- 
+
+
+## Version 0.14.0 beta (2016-03-22)
+
+### Minimum Deployment Versions  
+ - MacOS X: 10.9
+ - iOS: 7.0

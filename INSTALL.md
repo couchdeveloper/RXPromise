@@ -6,7 +6,7 @@ Important note beforehand:
 
 > RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step in your target build settings which is explained in detail below. If your project links against the RXPromise Framework or when you use CocoaPods, there is no extra step.
 
-> The minimum deployment version for iOS is 6.0 and for Mac OS X it is 10.8.
+> The minimum deployment version for iOS is 7.0 and for Mac OS X it is 10.9.
 
 > Note that RXPromise is a *pure* Objective-C API. Even though it depends itself on the standard C++ library it does not affect (or "infect") *your* Objective-C sources in any way with C++.
 
@@ -22,7 +22,7 @@ There are three ways to incorporate `RXPromise` library into you project:
 > `RXPromise` version number system adheres to the rules of [Semantic Versioning](http://semver.org).
 
 **Note:**
-> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.12.0**.
+> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.14.0**.
 
 
 #### Using CocoaPods
@@ -58,7 +58,7 @@ Furthermore, there's a logging utility `DLog.h` which is just a header file. It'
 
    
 **Caution:**
-> `RXPromise` module files must be compiled with ARC enabled. The deployment target should be Mac OS X 10.7 and newer, respectively iOS 5.1 and newer.
+> `RXPromise` module files must be compiled with ARC enabled. Thsi requires a deployment target for Mac OS X 10.7 and newer, respectively for iOS 5.1 and newer.
 
 > If you include source files directly, you need to ensure that your _executable_ binary links against the C++ standard library. How you can accomplish this is explained below.
 

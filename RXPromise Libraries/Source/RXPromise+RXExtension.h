@@ -112,7 +112,8 @@ typedef RXPromise* (^rxp_nullary_task)();
  @endcode
 
  */
-+ (instancetype)all:(NSArray*)promises NS_RETURNS_RETAINED;
++ (instancetype)all:(NSArray*)promises;
+
 
 
 /**
@@ -139,7 +140,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  @return A new promise whose value is a \c NSArray containing \c RXSettledResult 
  objects, or an empty \c NSArray.
  */
-+ (instancetype)allSettled:(NSArray*)promises NS_RETURNS_RETAINED;
++ (instancetype)allSettled:(NSArray*)promises;
 
 
 /**
@@ -175,7 +176,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  
  @return A new promise whose value is the value of the first fulfilled promise.
  */
-+ (instancetype)any:(NSArray*)promises NS_RETURNS_RETAINED;
++ (instancetype)any:(NSArray*)promises;
 
 
 /**
@@ -199,7 +200,7 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 @return A promise.
 */
-+ (instancetype) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task NS_RETURNS_RETAINED;
++ (instancetype) sequence:(NSArray*)inputs task:(RXPromise* (^)(id input)) task;
 
 
 /**
@@ -221,7 +222,7 @@ typedef RXPromise* (^rxp_nullary_task)();
  the promise will be fulfilled with @"OK". Otherwise the promise will be rejected 
  with the error reason of the promise which has been rejected by the underlying task.
 */
-+ (instancetype) repeat:(rxp_nullary_task)block NS_RETURNS_RETAINED;
++ (instancetype) repeat:(rxp_nullary_task)block;
 
 
 

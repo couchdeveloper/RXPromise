@@ -94,6 +94,10 @@ unsigned int fibonacci_recursive(unsigned int n)
 
 int main(int argc, const char * argv[])
 {
+    RXPromise* promise =[RXPromise new];
+    NSArray* promises = @[promise];
+    RXPromise* promiseAll = [RXPromise all: promises];
+    
     @autoreleasepool {
         NSLog(@"This sample is meant to be profiled. It may take a while to finish.");
         
