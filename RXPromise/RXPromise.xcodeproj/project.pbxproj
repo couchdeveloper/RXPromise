@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A18B55D51CA1CA2C00C5F7D1 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A18B55D41CA1CA2C00C5F7D1 /* RXTimer.m */; };
+		A18B55D61CA1CA2C00C5F7D1 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A18B55D41CA1CA2C00C5F7D1 /* RXTimer.m */; };
 		A19F64931CA1902400414B0A /* RXPromiseClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */; };
 		A19F64941CA1902400414B0A /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
 		A19F64951CA1902400414B0A /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
@@ -29,8 +31,6 @@
 		A1F6F2B71CA1A4BB0019C2EB /* RXPromiseClass.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromiseClass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A1F6F2B81CA1A4BB0019C2EB /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A1F6F2B91CA1A4BB0019C2EB /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1F6F2C21CA1A8580019C2EB /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C11CA1A8580019C2EB /* RXTimer.m */; };
-		A1F6F2C31CA1A8580019C2EB /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C11CA1A8580019C2EB /* RXTimer.m */; };
 		A1F6F2C41CA1A9640019C2EB /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F647E1CA18F1B00414B0A /* RXPromise.framework */; };
 		A1F6F2C51CA1A96C0019C2EB /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F648B1CA18F4600414B0A /* RXPromise.framework */; };
 		A1F6F2C81CA1AA560019C2EB /* RXPromiseExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C61CA1AA310019C2EB /* RXPromiseExtensionTests.m */; };
@@ -66,6 +66,8 @@
 		A173066517F0C08800A1AD7B /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		A173066717F0C08800A1AD7B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A173068517F0C08800A1AD7B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		A18B55D31CA1CA2C00C5F7D1 /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
+		A18B55D41CA1CA2C00C5F7D1 /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A19C199B1759E879008E3F63 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A19C199E1759E879008E3F63 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		A19C199F1759E879008E3F63 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -87,8 +89,6 @@
 		A1F6F2AD1CA1A2A40019C2EB /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
 		A1F6F2AE1CA1A2A40019C2EB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseTest.mm; sourceTree = "<group>"; };
-		A1F6F2C01CA1A8580019C2EB /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
-		A1F6F2C11CA1A8580019C2EB /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A1F6F2C61CA1AA310019C2EB /* RXPromiseExtensionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXPromiseExtensionTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,14 +132,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A18B55D21CA1CA2C00C5F7D1 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A18B55D31CA1CA2C00C5F7D1 /* RXTimer.h */,
+				A18B55D41CA1CA2C00C5F7D1 /* RXTimer.m */,
+			);
+			name = Common;
+			path = ../Common;
+			sourceTree = "<group>";
+		};
 		A19C198C1759E846008E3F63 = {
 			isa = PBXGroup;
 			children = (
 				A1F6F28A1CA19E6E0019C2EB /* Info.plist */,
 				A1F6F28B1CA19EB00019C2EB /* RXPromise.h */,
+				A18B55D21CA1CA2C00C5F7D1 /* Common */,
 				A19C19CE1759EA3B008E3F63 /* Source */,
 				A19C199A1759E879008E3F63 /* Frameworks */,
-				A1F6F2BF1CA1A8580019C2EB /* Common */,
 				A1F6F2AC1CA1A2A40019C2EB /* Tests */,
 				A19C19991759E879008E3F63 /* Products */,
 			);
@@ -216,15 +226,6 @@
 				A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */,
 			);
 			path = Tests;
-			sourceTree = "<group>";
-		};
-		A1F6F2BF1CA1A8580019C2EB /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				A1F6F2C01CA1A8580019C2EB /* RXTimer.h */,
-				A1F6F2C11CA1A8580019C2EB /* RXTimer.m */,
-			);
-			path = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -431,8 +432,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1F6F2C81CA1AA560019C2EB /* RXPromiseExtensionTests.m in Sources */,
-				A1F6F2C21CA1A8580019C2EB /* RXTimer.m in Sources */,
 				A1F6F2CE1CA1B20A0019C2EB /* RXPromiseTest.mm in Sources */,
+				A18B55D51CA1CA2C00C5F7D1 /* RXTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,7 +442,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1F6F2B31CA1A2A40019C2EB /* RXPromiseTest.mm in Sources */,
-				A1F6F2C31CA1A8580019C2EB /* RXTimer.m in Sources */,
+				A18B55D61CA1CA2C00C5F7D1 /* RXTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
