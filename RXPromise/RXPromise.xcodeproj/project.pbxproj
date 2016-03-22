@@ -73,7 +73,6 @@
 		A19C19C21759E8CA008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseClass.mm; sourceTree = "<group>"; };
 		A19C19D21759EA3B008E3F63 /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
-		A19F64591CA1823B00414B0A /* Samples.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Samples.playground; sourceTree = "<group>"; };
 		A19F647E1CA18F1B00414B0A /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A19F648B1CA18F4600414B0A /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A19F64A51CA195D300414B0A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
@@ -136,7 +135,6 @@
 		A19C198C1759E846008E3F63 = {
 			isa = PBXGroup;
 			children = (
-				A19F64591CA1823B00414B0A /* Samples.playground */,
 				A1F6F28A1CA19E6E0019C2EB /* Info.plist */,
 				A1F6F28B1CA19EB00019C2EB /* RXPromise.h */,
 				A19C19CE1759EA3B008E3F63 /* Source */,
@@ -962,6 +960,7 @@
 				A1F6F29C1CA1A02D0019C2EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A1F6F2A91CA1A0420019C2EB /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */ = {
 			isa = XCConfigurationList;
@@ -970,6 +969,7 @@
 				A1F6F2AB1CA1A0420019C2EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

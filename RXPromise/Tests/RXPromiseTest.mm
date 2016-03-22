@@ -4174,41 +4174,41 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     std::array<char, Count> results;
     std::fill(results.begin(), results.end(), 'X');
     
-    std::array<char, Count> expectedResults = {'a', 'b', 'c', 'd', 'A', 'D', 'C', 'B'};
+    std::array<char, Count> expectedResults = {'a', 'b', 'c', 'd', 'D', 'C', 'B', 'A'};
     
     __block char* data = results.data();
     
-    RXPromise* root1 = mock::async(0.01, @"OK");
-    RXPromise* root2 = mock::async(0.02, @"OK");
-    RXPromise* root3 = mock::async(0.03, @"OK");
-    RXPromise* root4 = mock::async(0.04, @"OK");
+    RXPromise* root1 = mock::async(0.1, @"OK");
+    RXPromise* root2 = mock::async(0.2, @"OK");
+    RXPromise* root3 = mock::async(0.3, @"OK");
+    RXPromise* root4 = mock::async(0.4, @"OK");
     
     NSArray* promises = @[
         root1.then(^id(id result) {
             *data++ = char('a');
-            usleep(200*1000);  // 200 ms
-            *data++ = char('A');
+            usleep(700*1000);  // 700 ms
+            *data++ = char('A'); // 100 + 700 = 800
             return result;
         }, nil),
 
         root2.then(^id(id result) {
             *data++ = char('b');
-            usleep(350*1000);  // 350 ms
-            *data++ = char('B');
+            usleep(500*1000);  // 500 ms
+            *data++ = char('B'); // 200 + 500 = 700
             return result;
         }, nil),
         
         root3.then(^id(id result) {
             *data++ = char('c');
             usleep(300*1000);  // 300 ms
-            *data++ = char('C');
+            *data++ = char('C'); // 300 + 300 = 600
             return result;
         }, nil),
     
         root4.then(^id(id result) {
             *data++ = char('d');
-            usleep(250*1000);  // 250 ms
-            *data++ = char('D');
+            usleep(100*1000);  // 100 ms
+            *data++ = char('D'); // 400 + 100 = 500
             return result;
         }, nil)
     ];
@@ -4502,9 +4502,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
 }
 
 
-- (void) testSequenceWithCancellation {
+- (void) testSequenceWithTimeout {
     typedef RXPromise* (^block_t)(NSString* input);
-    
+    dispatch_queue_t queue = dispatch_queue_create("test_queue", DISPATCH_QUEUE_SERIAL);
     NSArray* inputs = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h", @"i", @"j"];
     // Expected result if not cancelled: @"ABCDEFGHIJ";
     
@@ -4522,9 +4522,9 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
             [taskPromise fulfillWithValue:result];
         };
         NSLog(@"processing input: %@", input);
-        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.05
+        RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.5
                                                              tolerance:0
-                                                                 queue:dispatch_get_global_queue(0, 0)
+                                                                 queue:queue
                                                                  block:block];
         // Catch any errors send to the task promise, in which case we cancel the timer:
         taskPromise.then(nil, ^id(NSError*error){
@@ -4543,15 +4543,8 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
         //NSLog(@"sequence failed due to: %@", error);
         return nil;
     });
-    [finished setTimeout:0.125]; // expected finish after 10*0.05 (if not cancelled)
+    [finished setTimeout:1.1]; // timeout after @"AB"
     [finished runLoopWait];
-    [[didCancelPromise setTimeout:1.0].then(^id(id result){
-        XCTAssertTrue([@"OK - did cancel" isEqualToString:result], @"");
-        return result;
-    }, ^id(NSError* error){
-        XCTFail(@"unexpected timeout");
-        return error;
-    }) wait];
     XCTAssertTrue([resultString isEqualToString:@"AB"], @"%@", resultString);
 }
 
