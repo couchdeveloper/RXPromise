@@ -337,7 +337,7 @@
 		A19C198D1759E846008E3F63 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0730;
 				TargetAttributes = {
 					A19F647D1CA18F1B00414B0A = {
 						CreatedOnToolsVersion = 7.3;
@@ -467,6 +467,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				ENABLE_TESTABILITY = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SOURCE_DIR = "$(SRCROOT)/Source";
 			};
 			name = Debug;
