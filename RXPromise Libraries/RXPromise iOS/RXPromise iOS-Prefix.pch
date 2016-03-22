@@ -1,7 +1,0 @@
-//
-// Prefix header for all source files of the 'RXPromise iOS' target in the 'RXPromise iOS' project
-//
-
-#ifdef __OBJC__
-    #import <Foundation/Foundation.h>
-#endif

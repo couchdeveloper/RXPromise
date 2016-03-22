@@ -160,6 +160,8 @@ unary_async_t capitalize = ^RXPromise*(id object) {
 
 int main(int argc, const char * argv[])
 {
+    NSArray* promises = @[[RXPromise new]];
+    RXPromise* allPromises = [RXPromise all: promises];
     @autoreleasepool {
         
         NSLog(@"\n=== Started with traditional dispatch and completion blocks ===");

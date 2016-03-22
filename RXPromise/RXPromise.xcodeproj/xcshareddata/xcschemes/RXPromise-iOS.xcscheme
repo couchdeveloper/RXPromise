@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0510"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
-               BuildableName = "Sample2"
-               BlueprintName = "Sample2"
-               ReferencedContainer = "container:Samples.xcodeproj">
+               BlueprintIdentifier = "A19F648A1CA18F4600414B0A"
+               BuildableName = "RXPromise.framework"
+               BlueprintName = "RXPromise-iOS"
+               ReferencedContainer = "container:RXPromise.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,14 +28,24 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1F6F2A01CA1A0410019C2EB"
+               BuildableName = "RXPromise-iOS-Tests.xctest"
+               BlueprintName = "RXPromise-iOS-Tests"
+               ReferencedContainer = "container:RXPromise.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
-            BuildableName = "Sample2"
-            BlueprintName = "Sample2"
-            ReferencedContainer = "container:Samples.xcodeproj">
+            BlueprintIdentifier = "A19F648A1CA18F4600414B0A"
+            BuildableName = "RXPromise.framework"
+            BlueprintName = "RXPromise-iOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -51,16 +61,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
-            BuildableName = "Sample2"
-            BlueprintName = "Sample2"
-            ReferencedContainer = "container:Samples.xcodeproj">
+            BlueprintIdentifier = "A19F648A1CA18F4600414B0A"
+            BuildableName = "RXPromise.framework"
+            BlueprintName = "RXPromise-iOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -70,16 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1A378CC1784BC6A0037A3AC"
-            BuildableName = "Sample2"
-            BlueprintName = "Sample2"
-            ReferencedContainer = "container:Samples.xcodeproj">
+            BlueprintIdentifier = "A19F648A1CA18F4600414B0A"
+            BuildableName = "RXPromise.framework"
+            BlueprintName = "RXPromise-iOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

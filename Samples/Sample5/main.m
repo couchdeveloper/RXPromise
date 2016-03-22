@@ -32,7 +32,7 @@
         [promise fulfillWithValue:result];
     };
     RXTimer* timer = [[RXTimer alloc] initWithTimeIntervalSinceNow:0.5
-                                                         tolorance:0.1
+                                                         tolerance:0.1
                                                              queue:dispatch_get_global_queue(0, 0)
                                                              block:block];
     promise.then(nil, ^id(NSError*error){

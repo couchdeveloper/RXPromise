@@ -1,0 +1,977 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A19F64931CA1902400414B0A /* RXPromiseClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */; };
+		A19F64941CA1902400414B0A /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
+		A19F64951CA1902400414B0A /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
+		A19F649C1CA1923F00414B0A /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
+		A19F649D1CA1923F00414B0A /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1F2182F942D00F35B28 /* RXPromise+Private.h */; };
+		A19F649E1CA1928600414B0A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C199F1759E879008E3F63 /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A19F649F1CA1929A00414B0A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19C19A01759E879008E3F63 /* Foundation.framework */; };
+		A19F64A01CA1958D00414B0A /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A19C19D21759EA3B008E3F63 /* DLog.h */; };
+		A19F64A11CA1958D00414B0A /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1F2182F942D00F35B28 /* RXPromise+Private.h */; };
+		A19F64A21CA195A000414B0A /* RXPromiseClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */; };
+		A19F64A31CA195A000414B0A /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */; };
+		A19F64A41CA195A000414B0A /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9F56AD3C1922A25800947570 /* RXSettledResult.mm */; };
+		A19F64A61CA195D300414B0A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F64A51CA195D300414B0A /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A19F64A81CA195DA00414B0A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F64A71CA195DA00414B0A /* Foundation.framework */; };
+		A19F64AA1CA1963D00414B0A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F64A91CA1963D00414B0A /* UIKit.framework */; };
+		A1F6F2B31CA1A2A40019C2EB /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */; };
+		A1F6F2B41CA1A4B30019C2EB /* RXPromiseClass.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromiseClass.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2B51CA1A4B30019C2EB /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2B61CA1A4B30019C2EB /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2B71CA1A4BB0019C2EB /* RXPromiseClass.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A5811C18F0308A00A00242 /* RXPromiseClass.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2B81CA1A4BB0019C2EB /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2B91CA1A4BB0019C2EB /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 9F56AD3B1922A25800947570 /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2C21CA1A8580019C2EB /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C11CA1A8580019C2EB /* RXTimer.m */; };
+		A1F6F2C31CA1A8580019C2EB /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C11CA1A8580019C2EB /* RXTimer.m */; };
+		A1F6F2C41CA1A9640019C2EB /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F647E1CA18F1B00414B0A /* RXPromise.framework */; };
+		A1F6F2C51CA1A96C0019C2EB /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F648B1CA18F4600414B0A /* RXPromise.framework */; };
+		A1F6F2C81CA1AA560019C2EB /* RXPromiseExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2C61CA1AA310019C2EB /* RXPromiseExtensionTests.m */; };
+		A1F6F2CC1CA1AEC50019C2EB /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F6F28B1CA19EB00019C2EB /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2CD1CA1AED40019C2EB /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F6F28B1CA19EB00019C2EB /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1F6F2CE1CA1B20A0019C2EB /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */; };
+		A1F6F2CF1CA1B33D0019C2EB /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19F64A51CA195D300414B0A /* CoreData.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1F6F2981CA1A02D0019C2EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A19C198D1759E846008E3F63 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A19F647D1CA18F1B00414B0A;
+			remoteInfo = "RXPromise-MacOS";
+		};
+		A1F6F2A71CA1A0420019C2EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A19C198D1759E846008E3F63 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A19F648A1CA18F4600414B0A;
+			remoteInfo = "RXPromise-iOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		9F56AD3B1922A25800947570 /* RXSettledResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXSettledResult.h; sourceTree = "<group>"; };
+		9F56AD3C1922A25800947570 /* RXSettledResult.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXSettledResult.mm; sourceTree = "<group>"; };
+		A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+RXExtension.h"; sourceTree = "<group>"; };
+		A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RXPromise+RXExtension.mm"; sourceTree = "<group>"; };
+		A124D1F2182F942D00F35B28 /* RXPromise+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+Private.h"; sourceTree = "<group>"; };
+		A173066517F0C08800A1AD7B /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		A173066717F0C08800A1AD7B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A173068517F0C08800A1AD7B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		A19C199B1759E879008E3F63 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		A19C199E1759E879008E3F63 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		A19C199F1759E879008E3F63 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		A19C19A01759E879008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A19C19C21759E8CA008E3F63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseClass.mm; sourceTree = "<group>"; };
+		A19C19D21759EA3B008E3F63 /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
+		A19F64591CA1823B00414B0A /* Samples.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Samples.playground; sourceTree = "<group>"; };
+		A19F647E1CA18F1B00414B0A /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19F648B1CA18F4600414B0A /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19F64A51CA195D300414B0A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		A19F64A71CA195DA00414B0A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A19F64A91CA1963D00414B0A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A1A5811C18F0308A00A00242 /* RXPromiseClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromiseClass.h; sourceTree = "<group>"; };
+		A1AE766F18C9BE6200246669 /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = ../DerivedData/Promise/Build/Products/Release/RXPromise.framework; sourceTree = "<group>"; };
+		A1F6F28A1CA19E6E0019C2EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1F6F28B1CA19EB00019C2EB /* RXPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
+		A1F6F2921CA1A02D0019C2EB /* RXPromise-MacOS-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise-MacOS-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1F6F2A11CA1A0410019C2EB /* RXPromise-iOS-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise-iOS-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1F6F2AD1CA1A2A40019C2EB /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
+		A1F6F2AE1CA1A2A40019C2EB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseTest.mm; sourceTree = "<group>"; };
+		A1F6F2C01CA1A8580019C2EB /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
+		A1F6F2C11CA1A8580019C2EB /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
+		A1F6F2C61CA1AA310019C2EB /* RXPromiseExtensionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXPromiseExtensionTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A19F647A1CA18F1B00414B0A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19F649F1CA1929A00414B0A /* Foundation.framework in Frameworks */,
+				A19F649E1CA1928600414B0A /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19F64871CA18F4600414B0A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19F64AA1CA1963D00414B0A /* UIKit.framework in Frameworks */,
+				A19F64A81CA195DA00414B0A /* Foundation.framework in Frameworks */,
+				A19F64A61CA195D300414B0A /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F28F1CA1A02D0019C2EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2C41CA1A9640019C2EB /* RXPromise.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F29E1CA1A0410019C2EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2CF1CA1B33D0019C2EB /* CoreData.framework in Frameworks */,
+				A1F6F2C51CA1A96C0019C2EB /* RXPromise.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A19C198C1759E846008E3F63 = {
+			isa = PBXGroup;
+			children = (
+				A19F64591CA1823B00414B0A /* Samples.playground */,
+				A1F6F28A1CA19E6E0019C2EB /* Info.plist */,
+				A1F6F28B1CA19EB00019C2EB /* RXPromise.h */,
+				A19C19CE1759EA3B008E3F63 /* Source */,
+				A19C199A1759E879008E3F63 /* Frameworks */,
+				A1F6F2BF1CA1A8580019C2EB /* Common */,
+				A1F6F2AC1CA1A2A40019C2EB /* Tests */,
+				A19C19991759E879008E3F63 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A19C19991759E879008E3F63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A19F647E1CA18F1B00414B0A /* RXPromise.framework */,
+				A19F648B1CA18F4600414B0A /* RXPromise.framework */,
+				A1F6F2921CA1A02D0019C2EB /* RXPromise-MacOS-Tests.xctest */,
+				A1F6F2A11CA1A0410019C2EB /* RXPromise-iOS-Tests.xctest */,
+			);
+			name = Products;
+			path = "../../../../../../../../Develop/Test/RXPromiseCoreData/RXPromise/RXPromise Libraries";
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A19C199A1759E879008E3F63 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A19F64A91CA1963D00414B0A /* UIKit.framework */,
+				A19F64A71CA195DA00414B0A /* Foundation.framework */,
+				A19F64A51CA195D300414B0A /* CoreData.framework */,
+				A1AE766F18C9BE6200246669 /* RXPromise.framework */,
+				A19C199B1759E879008E3F63 /* Cocoa.framework */,
+				A19C19C21759E8CA008E3F63 /* Foundation.framework */,
+				A173066517F0C08800A1AD7B /* CoreGraphics.framework */,
+				A173066717F0C08800A1AD7B /* UIKit.framework */,
+				A173068517F0C08800A1AD7B /* XCTest.framework */,
+				A19C199D1759E879008E3F63 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A19C199D1759E879008E3F63 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A19C199E1759E879008E3F63 /* AppKit.framework */,
+				A19C199F1759E879008E3F63 /* CoreData.framework */,
+				A19C19A01759E879008E3F63 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		A19C19CE1759EA3B008E3F63 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19D11759EA3B008E3F63 /* utility */,
+				A1A5811C18F0308A00A00242 /* RXPromiseClass.h */,
+				A19C19D01759EA3B008E3F63 /* RXPromiseClass.mm */,
+				A124D1EC182F902300F35B28 /* RXPromise+RXExtension.h */,
+				A124D1ED182F902300F35B28 /* RXPromise+RXExtension.mm */,
+				A124D1F2182F942D00F35B28 /* RXPromise+Private.h */,
+				9F56AD3B1922A25800947570 /* RXSettledResult.h */,
+				9F56AD3C1922A25800947570 /* RXSettledResult.mm */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		A19C19D11759EA3B008E3F63 /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				A19C19D21759EA3B008E3F63 /* DLog.h */,
+			);
+			path = utility;
+			sourceTree = "<group>";
+		};
+		A1F6F2AC1CA1A2A40019C2EB /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A1F6F2AD1CA1A2A40019C2EB /* DLog.h */,
+				A1F6F2AE1CA1A2A40019C2EB /* Info.plist */,
+				A1F6F2C61CA1AA310019C2EB /* RXPromiseExtensionTests.m */,
+				A1F6F2AF1CA1A2A40019C2EB /* RXPromiseTest.mm */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		A1F6F2BF1CA1A8580019C2EB /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A1F6F2C01CA1A8580019C2EB /* RXTimer.h */,
+				A1F6F2C11CA1A8580019C2EB /* RXTimer.m */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A19F647B1CA18F1B00414B0A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2CD1CA1AED40019C2EB /* RXPromise.h in Headers */,
+				A1F6F2B41CA1A4B30019C2EB /* RXPromiseClass.h in Headers */,
+				A1F6F2B51CA1A4B30019C2EB /* RXPromise+RXExtension.h in Headers */,
+				A1F6F2B61CA1A4B30019C2EB /* RXSettledResult.h in Headers */,
+				A19F649C1CA1923F00414B0A /* DLog.h in Headers */,
+				A19F649D1CA1923F00414B0A /* RXPromise+Private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19F64881CA18F4600414B0A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2CC1CA1AEC50019C2EB /* RXPromise.h in Headers */,
+				A1F6F2B71CA1A4BB0019C2EB /* RXPromiseClass.h in Headers */,
+				A1F6F2B81CA1A4BB0019C2EB /* RXPromise+RXExtension.h in Headers */,
+				A1F6F2B91CA1A4BB0019C2EB /* RXSettledResult.h in Headers */,
+				A19F64A01CA1958D00414B0A /* DLog.h in Headers */,
+				A19F64A11CA1958D00414B0A /* RXPromise+Private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A19F647D1CA18F1B00414B0A /* RXPromise-MacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19F64831CA18F1B00414B0A /* Build configuration list for PBXNativeTarget "RXPromise-MacOS" */;
+			buildPhases = (
+				A19F64791CA18F1B00414B0A /* Sources */,
+				A19F647A1CA18F1B00414B0A /* Frameworks */,
+				A19F647B1CA18F1B00414B0A /* Headers */,
+				A19F647C1CA18F1B00414B0A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-MacOS";
+			productName = "RXPromise-MacOS";
+			productReference = A19F647E1CA18F1B00414B0A /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A19F648A1CA18F4600414B0A /* RXPromise-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19F64901CA18F4600414B0A /* Build configuration list for PBXNativeTarget "RXPromise-iOS" */;
+			buildPhases = (
+				A19F64861CA18F4600414B0A /* Sources */,
+				A19F64871CA18F4600414B0A /* Frameworks */,
+				A19F64881CA18F4600414B0A /* Headers */,
+				A19F64891CA18F4600414B0A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-iOS";
+			productName = "RXPromise-iOS";
+			productReference = A19F648B1CA18F4600414B0A /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A1F6F2911CA1A02D0019C2EB /* RXPromise-MacOS-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1F6F29A1CA1A02D0019C2EB /* Build configuration list for PBXNativeTarget "RXPromise-MacOS-Tests" */;
+			buildPhases = (
+				A1F6F28E1CA1A02D0019C2EB /* Sources */,
+				A1F6F28F1CA1A02D0019C2EB /* Frameworks */,
+				A1F6F2901CA1A02D0019C2EB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1F6F2991CA1A02D0019C2EB /* PBXTargetDependency */,
+			);
+			name = "RXPromise-MacOS-Tests";
+			productName = "RXPromise-MacOS-Tests";
+			productReference = A1F6F2921CA1A02D0019C2EB /* RXPromise-MacOS-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A1F6F2A01CA1A0410019C2EB /* RXPromise-iOS-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1F6F2A91CA1A0420019C2EB /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */;
+			buildPhases = (
+				A1F6F29D1CA1A0410019C2EB /* Sources */,
+				A1F6F29E1CA1A0410019C2EB /* Frameworks */,
+				A1F6F29F1CA1A0410019C2EB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1F6F2A81CA1A0420019C2EB /* PBXTargetDependency */,
+			);
+			name = "RXPromise-iOS-Tests";
+			productName = "RXPromise-iOS-Tests";
+			productReference = A1F6F2A11CA1A0410019C2EB /* RXPromise-iOS-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A19C198D1759E846008E3F63 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				TargetAttributes = {
+					A19F647D1CA18F1B00414B0A = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A19F648A1CA18F4600414B0A = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A1F6F2911CA1A02D0019C2EB = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A1F6F2A01CA1A0410019C2EB = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A19C198C1759E846008E3F63;
+			productRefGroup = A19C19991759E879008E3F63 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A19F647D1CA18F1B00414B0A /* RXPromise-MacOS */,
+				A19F648A1CA18F4600414B0A /* RXPromise-iOS */,
+				A1F6F2911CA1A02D0019C2EB /* RXPromise-MacOS-Tests */,
+				A1F6F2A01CA1A0410019C2EB /* RXPromise-iOS-Tests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A19F647C1CA18F1B00414B0A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19F64891CA18F4600414B0A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F2901CA1A02D0019C2EB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F29F1CA1A0410019C2EB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A19F64791CA18F1B00414B0A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19F64931CA1902400414B0A /* RXPromiseClass.mm in Sources */,
+				A19F64941CA1902400414B0A /* RXPromise+RXExtension.mm in Sources */,
+				A19F64951CA1902400414B0A /* RXSettledResult.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A19F64861CA18F4600414B0A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19F64A21CA195A000414B0A /* RXPromiseClass.mm in Sources */,
+				A19F64A31CA195A000414B0A /* RXPromise+RXExtension.mm in Sources */,
+				A19F64A41CA195A000414B0A /* RXSettledResult.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F28E1CA1A02D0019C2EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2C81CA1AA560019C2EB /* RXPromiseExtensionTests.m in Sources */,
+				A1F6F2C21CA1A8580019C2EB /* RXTimer.m in Sources */,
+				A1F6F2CE1CA1B20A0019C2EB /* RXPromiseTest.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F6F29D1CA1A0410019C2EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F6F2B31CA1A2A40019C2EB /* RXPromiseTest.mm in Sources */,
+				A1F6F2C31CA1A8580019C2EB /* RXTimer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1F6F2991CA1A02D0019C2EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A19F647D1CA18F1B00414B0A /* RXPromise-MacOS */;
+			targetProxy = A1F6F2981CA1A02D0019C2EB /* PBXContainerItemProxy */;
+		};
+		A1F6F2A81CA1A0420019C2EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A19F648A1CA18F4600414B0A /* RXPromise-iOS */;
+			targetProxy = A1F6F2A71CA1A0420019C2EB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A19C19911759E846008E3F63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				SOURCE_DIR = "$(SRCROOT)/Source";
+			};
+			name = Debug;
+		};
+		A19C19921759E846008E3F63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				SOURCE_DIR = "$(SRCROOT)/Source";
+			};
+			name = Release;
+		};
+		A19F64841CA18F1B00414B0A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SOURCE_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A19F64851CA18F1B00414B0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SOURCE_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A19F64911CA18F4600414B0A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SOURCE_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A19F64921CA18F4600414B0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SOURCE_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A1F6F29B1CA1A02D0019C2EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../Common";
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A1F6F29C1CA1A02D0019C2EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../Common";
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A1F6F2AA1CA1A0420019C2EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../Common";
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		A1F6F2AB1CA1A0420019C2EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../Common";
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A19C19901759E846008E3F63 /* Build configuration list for PBXProject "RXPromise" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19C19911759E846008E3F63 /* Debug */,
+				A19C19921759E846008E3F63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A19F64831CA18F1B00414B0A /* Build configuration list for PBXNativeTarget "RXPromise-MacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19F64841CA18F1B00414B0A /* Debug */,
+				A19F64851CA18F1B00414B0A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A19F64901CA18F4600414B0A /* Build configuration list for PBXNativeTarget "RXPromise-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19F64911CA18F4600414B0A /* Debug */,
+				A19F64921CA18F4600414B0A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1F6F29A1CA1A02D0019C2EB /* Build configuration list for PBXNativeTarget "RXPromise-MacOS-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1F6F29B1CA1A02D0019C2EB /* Debug */,
+				A1F6F29C1CA1A02D0019C2EB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A1F6F2A91CA1A0420019C2EB /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1F6F2AA1CA1A0420019C2EB /* Debug */,
+				A1F6F2AB1CA1A0420019C2EB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A19C198D1759E846008E3F63 /* Project object */;
+}

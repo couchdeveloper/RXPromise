@@ -40,13 +40,13 @@ typedef void (^RXTimerHandler)(RXTimer* timer);
  The system may put a maximum value of the tolerance.
  
  
- @param: delay The delay in seconds after the timer will fire
+ @param delay The delay in seconds after the timer will fire
  
  @param queue  The queue on which to submit the block.
  
  @param block  The block to submit. This parameter cannot be NULL.
  
- @param tolearance A tolerance in seconds the fire data can deviate. Must be
+ @param tolerance A tolerance in seconds the fire data can deviate. Must be
  positive.
  
  @return An initialized \p RXTimer object.

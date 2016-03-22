@@ -6,7 +6,7 @@ Important note beforehand:
 
 > RXPromise depends on the C++ standard library. When including the sources directly or when linking against the static library this requires one extra step in your target build settings which is explained in detail below. If your project links against the RXPromise Framework or when you use CocoaPods, there is no extra step.
 
-> The minimum deployment version for iOS is 6.0 and for Mac OS X it is 10.8.
+> The minimum deployment version for iOS is 7.0 and for Mac OS X it is 10.9.
 
 > Note that RXPromise is a *pure* Objective-C API. Even though it depends itself on the standard C++ library it does not affect (or "infect") *your* Objective-C sources in any way with C++.
 
@@ -22,7 +22,7 @@ There are three ways to incorporate `RXPromise` library into you project:
 > `RXPromise` version number system adheres to the rules of [Semantic Versioning](http://semver.org).
 
 **Note:**
-> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.12.0**.
+> At the time of writing, RXPromise is still in beta. Thus, the major version is **zero**. The current version is **0.14.0**.
 
 
 #### Using CocoaPods
@@ -90,9 +90,8 @@ Furthermore, there's a logging utility `DLog.h` which is just a header file. It'
 6. When linking against the static library, ensure you set option `-ObjC` in the build setting **Other Linker Flags" of the target of the executable binary.
 
 **Including Headers:**
-> In your sources, use the `#import <RXPromise/RXPromise.h>` in order to include the header.
+> In your sources, use the `#import <RXPromise/RXPromise.h>` in order to include all public headers.
 
-> If you use the extension methods, you need to import the extension header, too: `#import <RXPromise/RXPromise+RXExtension.h>`
 
 
 **Caution:**
