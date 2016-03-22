@@ -189,7 +189,7 @@ typedef RXPromise* (^then_on_main_block_t)(promise_completionHandler_t, promise_
  @return An object or \c nil which resolves the "returned promise".
  
  */
-typedef id (^promise_completionHandler_t)(id result) /*NS_RETURNS_RETAINED*/;
+typedef id (^promise_completionHandler_t)(id result);
 
 /*!
  @brief Type definition for the error handler block.
@@ -213,7 +213,7 @@ typedef id (^promise_completionHandler_t)(id result) /*NS_RETURNS_RETAINED*/;
  @return An object or \c nil which resolves the "returned promise".
  
  */
-typedef id (^promise_errorHandler_t)(NSError* error) /*NS_RETURNS_RETAINED*/;
+typedef id (^promise_errorHandler_t)(NSError* error);
 
 /*!
  @brief Type definition of the "then block". The "then block" is the return value
