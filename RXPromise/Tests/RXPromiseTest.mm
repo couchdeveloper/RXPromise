@@ -3740,7 +3740,7 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
             [[p parent] cancel];  // note: cancel is asynchronous!
         }
         XCTAssertTrue([result isKindOfClass:[NSString class]], @"");  // returns result of first resolved promise
-        XCTAssertTrue([@"A" isEqualToString:result], @"");
+        XCTAssertTrue([@"A" isEqualToString:result], @"%@", result);
         return @"first task handler finished";
     },^id(NSError*error){
         XCTFail(@"must not be called");
@@ -3757,11 +3757,6 @@ static RXPromise* asyncOp(NSString* label, int workCount, NSOperationQueue* queu
     
     // Wait until the all handlers have been called:
     [[RXPromise all:promises] wait];
-    XCTAssertTrue( std::memcmp(buffer, "Abcde", sizeof(buffer)) == 0, @"");
-    // It's a bit tricky to wait for a number of handlers to have all finished
-    // when we do not have the promises. Note, that in the Unit Test handlers write
-    // into the stack! This is be fatal if the next test starts and the handlers
-    // havn't finished.
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 }
 
