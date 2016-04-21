@@ -11,23 +11,23 @@
 		A10A620917858A4F0019F7EA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A10A620817858A4F0019F7EA /* main.m */; };
 		A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A11842A017EC697100EE4FD8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A118429F17EC697100EE4FD8 /* main.m */; };
+		A15429511CC8D73600AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429521CC8D74B00AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429531CC8D75400AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429541CC8D75E00AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429551CC8D76B00AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429561CC8D77300AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429571CC8D77900AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
+		A15429581CC8D78100AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429501CC8D73600AC33CC /* RXPromise.framework */; };
 		A15CD82318C8EBE80067F898 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A15CD82618C8EBE80067F898 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CD82518C8EBE80067F898 /* main.m */; };
-		A167971D1CA17371000DEDB0 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A167971C1CA17371000DEDB0 /* RXPromise.framework */; };
-		A16797201CA17611000DEDB0 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A167971C1CA17371000DEDB0 /* RXPromise.framework */; };
 		A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378BF17847AC00037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378BE17847AC00037A3AC /* main.m */; };
 		A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1A378D11784BC6A0037A3AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A378D01784BC6A0037A3AC /* main.m */; };
 		A1BC9F10180DEE56002A3487 /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC9F0F180DEE56002A3487 /* RXTimer.m */; };
-		A1C7125218F2AB7C005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
-		A1C7125318F2AB86005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
-		A1C7125718F2ABA2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
-		A1C7125818F2ABAA005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
-		A1C7125918F2ABB2005BC050 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7125118F2AB7C005BC050 /* RXPromise.framework */; };
 		A1C9FE00184DE98800872798 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1C9FE03184DE98800872798 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C9FE02184DE98800872798 /* main.m */; };
-		A1C9FE0B184DEF2200872798 /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A45F591821045E00CEC749 /* RXPromise.framework */; };
 		A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A378BB17847AC00037A3AC /* Foundation.framework */; };
 		A1D9632617953DBC00090EDC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D9632517953DBC00090EDC /* main.m */; };
 		A1E6AD0C18BE9447004A7037 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E6AD0B18BE9447004A7037 /* main.m */; };
@@ -117,6 +117,7 @@
 		A118429C17EC697000EE4FD8 /* Sample5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample5; sourceTree = BUILT_PRODUCTS_DIR; };
 		A118429F17EC697100EE4FD8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A11842A217EC697100EE4FD8 /* Sample5-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample5-Prefix.pch"; sourceTree = "<group>"; };
+		A15429501CC8D73600AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RXPromise.framework; path = "../../../Library/Developer/Xcode/DerivedData/RXPromise-bfktsmqifujaichhqdcheqcbzvkm/Build/Products/Debug/RXPromise.framework"; sourceTree = "<group>"; };
 		A15CD82218C8EBE80067F898 /* Sample8 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sample8; sourceTree = BUILT_PRODUCTS_DIR; };
 		A15CD82518C8EBE80067F898 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A15CD82818C8EBE80067F898 /* Sample8-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sample8-Prefix.pch"; sourceTree = "<group>"; };
@@ -162,7 +163,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A167971D1CA17371000DEDB0 /* RXPromise.framework in Frameworks */,
+				A15429531CC8D75400AC33CC /* RXPromise.framework in Frameworks */,
 				A10A620617858A4F0019F7EA /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,7 +172,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125718F2ABA2005BC050 /* RXPromise.framework in Frameworks */,
+				A15429551CC8D76B00AC33CC /* RXPromise.framework in Frameworks */,
 				A118429D17EC697100EE4FD8 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,7 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125918F2ABB2005BC050 /* RXPromise.framework in Frameworks */,
+				A15429581CC8D78100AC33CC /* RXPromise.framework in Frameworks */,
 				A15CD82318C8EBE80067F898 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,7 +190,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125218F2AB7C005BC050 /* RXPromise.framework in Frameworks */,
+				A15429511CC8D73600AC33CC /* RXPromise.framework in Frameworks */,
 				A1A378BC17847AC00037A3AC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -198,7 +199,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125318F2AB86005BC050 /* RXPromise.framework in Frameworks */,
+				A15429521CC8D74B00AC33CC /* RXPromise.framework in Frameworks */,
 				A1A378CE1784BC6A0037A3AC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -207,7 +208,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C9FE0B184DEF2200872798 /* RXPromise.framework in Frameworks */,
+				A15429561CC8D77300AC33CC /* RXPromise.framework in Frameworks */,
 				A1C9FE00184DE98800872798 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -216,7 +217,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A16797201CA17611000DEDB0 /* RXPromise.framework in Frameworks */,
+				A15429541CC8D75E00AC33CC /* RXPromise.framework in Frameworks */,
 				A1D9632317953DBC00090EDC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,7 +226,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C7125818F2ABAA005BC050 /* RXPromise.framework in Frameworks */,
+				A15429571CC8D77900AC33CC /* RXPromise.framework in Frameworks */,
 				A1E6AD1418BE9498004A7037 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -319,6 +320,7 @@
 		A1A378BA17847AC00037A3AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A15429501CC8D73600AC33CC /* RXPromise.framework */,
 				A167971E1CA173AB000DEDB0 /* RXPromise.framework */,
 				A167971C1CA17371000DEDB0 /* RXPromise.framework */,
 				A1C7125A18F2B4CE005BC050 /* CoreData.framework */,

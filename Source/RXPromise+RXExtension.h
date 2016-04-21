@@ -228,7 +228,7 @@ typedef RXPromise* (^rxp_nullary_task)();
 
 #pragma mark - iOS Specific
 
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
 
 /**
  Executes the asynchronous task associated to the receiver as an iOS Background Task.

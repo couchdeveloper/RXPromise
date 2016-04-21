@@ -1,0 +1,1474 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A154291F1CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
+		A15429201CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
+		A15429211CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
+		A15429221CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
+		A15429231CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429241CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429251CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429261CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429271CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
+		A15429281CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
+		A15429291CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
+		A154292A1CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
+		A154292B1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154292C1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154292D1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154292E1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154292F1CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */; };
+		A15429301CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */; };
+		A15429311CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */; };
+		A15429321CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */; };
+		A15429331CC8CE9800AC33CC /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */; };
+		A15429341CC8CE9800AC33CC /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */; };
+		A15429351CC8CE9800AC33CC /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */; };
+		A15429361CC8CE9800AC33CC /* RXPromise+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */; };
+		A15429371CC8CE9800AC33CC /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291C1CC8CE9800AC33CC /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429381CC8CE9800AC33CC /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291C1CC8CE9800AC33CC /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429391CC8CE9800AC33CC /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291C1CC8CE9800AC33CC /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154293A1CC8CE9800AC33CC /* RXSettledResult.h in Headers */ = {isa = PBXBuildFile; fileRef = A154291C1CC8CE9800AC33CC /* RXSettledResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A154293B1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */; };
+		A154293C1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */; };
+		A154293D1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */; };
+		A154293E1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */ = {isa = PBXBuildFile; fileRef = A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */; };
+		A15429401CC8D01700AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154293F1CC8D01700AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A15429451CC8D0AE00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429441CC8D0AE00AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A15429471CC8D0BA00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429461CC8D0BA00AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A15429491CC8D0C500AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429481CC8D0C500AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A154294B1CC8D66900AC33CC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154294A1CC8D66900AC33CC /* UIKit.framework */; };
+		A15429621CC8D86300AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428E91CC8CB6800AC33CC /* RXPromise.framework */; };
+		A15429711CC8D88200AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428DC1CC8CA4600AC33CC /* RXPromise.framework */; };
+		A15429801CC8D89900AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429031CC8CBB200AC33CC /* RXPromise.framework */; };
+		A154298D1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
+		A154298E1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
+		A154298F1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
+		A15429931CC8DBBB00AC33CC /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A15429921CC8DBBB00AC33CC /* RXTimer.m */; };
+		A15429941CC8DBBB00AC33CC /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A15429921CC8DBBB00AC33CC /* RXTimer.m */; };
+		A15429951CC8DBBB00AC33CC /* RXTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A15429921CC8DBBB00AC33CC /* RXTimer.m */; };
+		A15429961CC8DC1B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154293F1CC8D01700AC33CC /* CoreData.framework */; };
+		A15429971CC8DC2300AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429441CC8D0AE00AC33CC /* CoreData.framework */; };
+		A15429981CC8DC2B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429481CC8D0C500AC33CC /* CoreData.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A15429631CC8D86300AC33CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A15428C31CC8C9AE00AC33CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A15428E81CC8CB6800AC33CC;
+			remoteInfo = "RXPromise-MacOS";
+		};
+		A15429721CC8D88200AC33CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A15428C31CC8C9AE00AC33CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A15428DB1CC8CA4600AC33CC;
+			remoteInfo = "RXPromise-iOS";
+		};
+		A15429811CC8D89900AC33CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A15428C31CC8C9AE00AC33CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A15429021CC8CBB200AC33CC;
+			remoteInfo = "RXPromise-tvOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A15428DC1CC8CA4600AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15428E91CC8CB6800AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15428F61CC8CB9200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15429031CC8CBB200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15429151CC8CE9800AC33CC /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
+		A15429171CC8CE9800AC33CC /* RXPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
+		A15429181CC8CE9800AC33CC /* RXPromise.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise.mm; sourceTree = "<group>"; };
+		A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+RXExtension.h"; sourceTree = "<group>"; };
+		A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RXPromise+RXExtension.mm"; sourceTree = "<group>"; };
+		A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+Private.h"; sourceTree = "<group>"; };
+		A154291C1CC8CE9800AC33CC /* RXSettledResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXSettledResult.h; sourceTree = "<group>"; };
+		A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXSettledResult.mm; sourceTree = "<group>"; };
+		A154293F1CC8D01700AC33CC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		A15429411CC8D03500AC33CC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A15429441CC8D0AE00AC33CC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		A15429461CC8D0BA00AC33CC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS2.2.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		A15429481CC8D0C500AC33CC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		A154294A1CC8D66900AC33CC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A154295D1CC8D86300AC33CC /* RXPromise-MacOS-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise-MacOS-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A154296C1CC8D88200AC33CC /* RXPromise-iOS-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise-iOS-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A154297B1CC8D89900AC33CC /* RXPromise-tvOS-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RXPromise-tvOS-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15429871CC8DB3200AC33CC /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
+		A15429881CC8DB3200AC33CC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromiseTest.mm; sourceTree = "<group>"; };
+		A15429911CC8DBBB00AC33CC /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
+		A15429921CC8DBBB00AC33CC /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
+		A15429991CC8DF6500AC33CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A15428D81CC8CA4600AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154294B1CC8D66900AC33CC /* UIKit.framework in Frameworks */,
+				A15429451CC8D0AE00AC33CC /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428E51CC8CB6800AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429401CC8D01700AC33CC /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428F21CC8CB9200AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429471CC8D0BA00AC33CC /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428FF1CC8CBB200AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429491CC8D0C500AC33CC /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A154295A1CC8D86300AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429961CC8DC1B00AC33CC /* CoreData.framework in Frameworks */,
+				A15429621CC8D86300AC33CC /* RXPromise.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429691CC8D88200AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429971CC8DC2300AC33CC /* CoreData.framework in Frameworks */,
+				A15429711CC8D88200AC33CC /* RXPromise.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429781CC8D89900AC33CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429981CC8DC2B00AC33CC /* CoreData.framework in Frameworks */,
+				A15429801CC8D89900AC33CC /* RXPromise.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A15428C21CC8C9AE00AC33CC = {
+			isa = PBXGroup;
+			children = (
+				A15429901CC8DBBB00AC33CC /* Common */,
+				A15429861CC8DB3200AC33CC /* Tests */,
+				A154291E1CC8CE9800AC33CC /* Source */,
+				A15429431CC8D05200AC33CC /* Frameworks */,
+				A15428CF1CC8C9FA00AC33CC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A15428CF1CC8C9FA00AC33CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A15428DC1CC8CA4600AC33CC /* RXPromise.framework */,
+				A15428E91CC8CB6800AC33CC /* RXPromise.framework */,
+				A15428F61CC8CB9200AC33CC /* RXPromise.framework */,
+				A15429031CC8CBB200AC33CC /* RXPromise.framework */,
+				A154295D1CC8D86300AC33CC /* RXPromise-MacOS-Tests.xctest */,
+				A154296C1CC8D88200AC33CC /* RXPromise-iOS-Tests.xctest */,
+				A154297B1CC8D89900AC33CC /* RXPromise-tvOS-Tests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A15429161CC8CE9800AC33CC /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				A15429151CC8CE9800AC33CC /* DLog.h */,
+			);
+			path = utility;
+			sourceTree = "<group>";
+		};
+		A154291E1CC8CE9800AC33CC /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A15429991CC8DF6500AC33CC /* Info.plist */,
+				A15429161CC8CE9800AC33CC /* utility */,
+				A15429171CC8CE9800AC33CC /* RXPromise.h */,
+				A15429181CC8CE9800AC33CC /* RXPromise.mm */,
+				A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */,
+				A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */,
+				A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */,
+				A154291C1CC8CE9800AC33CC /* RXSettledResult.h */,
+				A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		A15429431CC8D05200AC33CC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A154294A1CC8D66900AC33CC /* UIKit.framework */,
+				A15429481CC8D0C500AC33CC /* CoreData.framework */,
+				A15429461CC8D0BA00AC33CC /* CoreData.framework */,
+				A15429441CC8D0AE00AC33CC /* CoreData.framework */,
+				A15429411CC8D03500AC33CC /* Foundation.framework */,
+				A154293F1CC8D01700AC33CC /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A15429861CC8DB3200AC33CC /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A15429871CC8DB3200AC33CC /* DLog.h */,
+				A15429881CC8DB3200AC33CC /* Info.plist */,
+				A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		A15429901CC8DBBB00AC33CC /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A15429911CC8DBBB00AC33CC /* RXTimer.h */,
+				A15429921CC8DBBB00AC33CC /* RXTimer.m */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A15428D91CC8CA4600AC33CC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154292B1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
+				A15429371CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A154291F1CC8CE9800AC33CC /* DLog.h in Headers */,
+				A15429331CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
+				A15429231CC8CE9800AC33CC /* RXPromise.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428E61CC8CB6800AC33CC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154292C1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
+				A15429381CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A15429201CC8CE9800AC33CC /* DLog.h in Headers */,
+				A15429341CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
+				A15429241CC8CE9800AC33CC /* RXPromise.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428F31CC8CB9200AC33CC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154292D1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
+				A15429391CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A15429211CC8CE9800AC33CC /* DLog.h in Headers */,
+				A15429351CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
+				A15429251CC8CE9800AC33CC /* RXPromise.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429001CC8CBB200AC33CC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154292E1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
+				A154293A1CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A15429221CC8CE9800AC33CC /* DLog.h in Headers */,
+				A15429361CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
+				A15429261CC8CE9800AC33CC /* RXPromise.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A15428DB1CC8CA4600AC33CC /* RXPromise-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15428E11CC8CA4600AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-iOS" */;
+			buildPhases = (
+				A15428D71CC8CA4600AC33CC /* Sources */,
+				A15428D81CC8CA4600AC33CC /* Frameworks */,
+				A15428D91CC8CA4600AC33CC /* Headers */,
+				A15428DA1CC8CA4600AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-iOS";
+			productName = "RXPromise-iOS";
+			productReference = A15428DC1CC8CA4600AC33CC /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A15428E81CC8CB6800AC33CC /* RXPromise-MacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15428EE1CC8CB6800AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS" */;
+			buildPhases = (
+				A15428E41CC8CB6800AC33CC /* Sources */,
+				A15428E51CC8CB6800AC33CC /* Frameworks */,
+				A15428E61CC8CB6800AC33CC /* Headers */,
+				A15428E71CC8CB6800AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-MacOS";
+			productName = "RXPromise-MacOS";
+			productReference = A15428E91CC8CB6800AC33CC /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A15428F51CC8CB9200AC33CC /* RXPromise-WatchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15428FB1CC8CB9200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-WatchOS" */;
+			buildPhases = (
+				A15428F11CC8CB9200AC33CC /* Sources */,
+				A15428F21CC8CB9200AC33CC /* Frameworks */,
+				A15428F31CC8CB9200AC33CC /* Headers */,
+				A15428F41CC8CB9200AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-WatchOS";
+			productName = "RXPromise-WatchOS";
+			productReference = A15428F61CC8CB9200AC33CC /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A15429021CC8CBB200AC33CC /* RXPromise-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15429081CC8CBB200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS" */;
+			buildPhases = (
+				A15428FE1CC8CBB200AC33CC /* Sources */,
+				A15428FF1CC8CBB200AC33CC /* Frameworks */,
+				A15429001CC8CBB200AC33CC /* Headers */,
+				A15429011CC8CBB200AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RXPromise-tvOS";
+			productName = "RXPromise-tvOS";
+			productReference = A15429031CC8CBB200AC33CC /* RXPromise.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A154295C1CC8D86300AC33CC /* RXPromise-MacOS-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15429651CC8D86300AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS-Tests" */;
+			buildPhases = (
+				A15429591CC8D86300AC33CC /* Sources */,
+				A154295A1CC8D86300AC33CC /* Frameworks */,
+				A154295B1CC8D86300AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A15429641CC8D86300AC33CC /* PBXTargetDependency */,
+			);
+			name = "RXPromise-MacOS-Tests";
+			productName = "RXPromise-MacOS-Tests";
+			productReference = A154295D1CC8D86300AC33CC /* RXPromise-MacOS-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A154296B1CC8D88200AC33CC /* RXPromise-iOS-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15429741CC8D88200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */;
+			buildPhases = (
+				A15429681CC8D88200AC33CC /* Sources */,
+				A15429691CC8D88200AC33CC /* Frameworks */,
+				A154296A1CC8D88200AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A15429731CC8D88200AC33CC /* PBXTargetDependency */,
+			);
+			name = "RXPromise-iOS-Tests";
+			productName = "RXPromise-iOS-Tests";
+			productReference = A154296C1CC8D88200AC33CC /* RXPromise-iOS-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A154297A1CC8D89900AC33CC /* RXPromise-tvOS-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A15429831CC8D89900AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS-Tests" */;
+			buildPhases = (
+				A15429771CC8D89900AC33CC /* Sources */,
+				A15429781CC8D89900AC33CC /* Frameworks */,
+				A15429791CC8D89900AC33CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A15429821CC8D89900AC33CC /* PBXTargetDependency */,
+			);
+			name = "RXPromise-tvOS-Tests";
+			productName = "RXPromise-tvOS-Tests";
+			productReference = A154297B1CC8D89900AC33CC /* RXPromise-tvOS-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A15428C31CC8C9AE00AC33CC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				TargetAttributes = {
+					A15428DB1CC8CA4600AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A15428E81CC8CB6800AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A15428F51CC8CB9200AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A15429021CC8CBB200AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A154295C1CC8D86300AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A154296B1CC8D88200AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A154297A1CC8D89900AC33CC = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = A15428C61CC8C9AE00AC33CC /* Build configuration list for PBXProject "RXPromise" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A15428C21CC8C9AE00AC33CC;
+			productRefGroup = A15428CF1CC8C9FA00AC33CC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A15428DB1CC8CA4600AC33CC /* RXPromise-iOS */,
+				A15428E81CC8CB6800AC33CC /* RXPromise-MacOS */,
+				A15428F51CC8CB9200AC33CC /* RXPromise-WatchOS */,
+				A15429021CC8CBB200AC33CC /* RXPromise-tvOS */,
+				A154295C1CC8D86300AC33CC /* RXPromise-MacOS-Tests */,
+				A154296B1CC8D88200AC33CC /* RXPromise-iOS-Tests */,
+				A154297A1CC8D89900AC33CC /* RXPromise-tvOS-Tests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A15428DA1CC8CA4600AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428E71CC8CB6800AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428F41CC8CB9200AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429011CC8CBB200AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A154295B1CC8D86300AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A154296A1CC8D88200AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429791CC8D89900AC33CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A15428D71CC8CA4600AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429271CC8CE9800AC33CC /* RXPromise.mm in Sources */,
+				A154293B1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */,
+				A154292F1CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428E41CC8CB6800AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429281CC8CE9800AC33CC /* RXPromise.mm in Sources */,
+				A154293C1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */,
+				A15429301CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428F11CC8CB9200AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A15429291CC8CE9800AC33CC /* RXPromise.mm in Sources */,
+				A154293D1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */,
+				A15429311CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15428FE1CC8CBB200AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154292A1CC8CE9800AC33CC /* RXPromise.mm in Sources */,
+				A154293E1CC8CE9800AC33CC /* RXSettledResult.mm in Sources */,
+				A15429321CC8CE9800AC33CC /* RXPromise+RXExtension.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429591CC8D86300AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154298D1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */,
+				A15429931CC8DBBB00AC33CC /* RXTimer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429681CC8D88200AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154298E1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */,
+				A15429941CC8DBBB00AC33CC /* RXTimer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A15429771CC8D89900AC33CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A154298F1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */,
+				A15429951CC8DBBB00AC33CC /* RXTimer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A15429641CC8D86300AC33CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A15428E81CC8CB6800AC33CC /* RXPromise-MacOS */;
+			targetProxy = A15429631CC8D86300AC33CC /* PBXContainerItemProxy */;
+		};
+		A15429731CC8D88200AC33CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A15428DB1CC8CA4600AC33CC /* RXPromise-iOS */;
+			targetProxy = A15429721CC8D88200AC33CC /* PBXContainerItemProxy */;
+		};
+		A15429821CC8D89900AC33CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A15429021CC8CBB200AC33CC /* RXPromise-tvOS */;
+			targetProxy = A15429811CC8D89900AC33CC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A15428C71CC8C9AE00AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SOURCE_DIR = "$(SRCROOT)/Source";
+			};
+			name = Debug;
+		};
+		A15428C81CC8C9AE00AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SOURCE_DIR = "$(SRCROOT)/Source";
+			};
+			name = Release;
+		};
+		A15428E21CC8CA4600AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A15428E31CC8CA4600AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A15428EF1CC8CB6800AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A15428F01CC8CB6800AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A15428FC1CC8CB9200AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-WatchOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		A15428FD1CC8CB9200AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-WatchOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		A15429091CC8CBB200AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=1",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A154290A1CC8CBB200AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					"DEBUG_LOG=1",
+					NS_BLOCK_ASSERTIONS,
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Source/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS";
+				PRODUCT_NAME = RXPromise;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A15429661CC8D86300AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A15429671CC8D86300AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A15429751CC8D88200AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		A15429761CC8D88200AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A15429841CC8D89900AC33CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		A15429851CC8D89900AC33CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"DEBUG_LOG=2",
+					"__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A15428C61CC8C9AE00AC33CC /* Build configuration list for PBXProject "RXPromise" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15428C71CC8C9AE00AC33CC /* Debug */,
+				A15428C81CC8C9AE00AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A15428E11CC8CA4600AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15428E21CC8CA4600AC33CC /* Debug */,
+				A15428E31CC8CA4600AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15428EE1CC8CB6800AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15428EF1CC8CB6800AC33CC /* Debug */,
+				A15428F01CC8CB6800AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15428FB1CC8CB9200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-WatchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15428FC1CC8CB9200AC33CC /* Debug */,
+				A15428FD1CC8CB9200AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15429081CC8CBB200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15429091CC8CBB200AC33CC /* Debug */,
+				A154290A1CC8CBB200AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15429651CC8D86300AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15429661CC8D86300AC33CC /* Debug */,
+				A15429671CC8D86300AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15429741CC8D88200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15429751CC8D88200AC33CC /* Debug */,
+				A15429761CC8D88200AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A15429831CC8D89900AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A15429841CC8D89900AC33CC /* Debug */,
+				A15429851CC8D89900AC33CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A15428C31CC8C9AE00AC33CC /* Project object */;
+}

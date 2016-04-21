@@ -19,7 +19,7 @@
 #import "RXPromise.h"
 #import "RXSettledResult.h"
 #import "RXPromise+Private.h"
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
     #import <UIKit/UIKit.h>
 #endif
 #include <cassert>
@@ -242,7 +242,7 @@ namespace {
 
 #pragma mark - iOS Specific
 
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
 
 - (void) makeBackgroundTaskWithName:(NSString*)taskName {
     

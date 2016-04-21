@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0720"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A19C19971759E879008E3F63"
+               BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
                BuildableName = "RXPromise.framework"
-               BlueprintName = "RXPromise Framework"
-               ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
+               BlueprintName = "RXPromise-tvOS"
+               ReferencedContainer = "container:RXPromise.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,13 +32,22 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1537F0318F17F5F0080871D"
-               BuildableName = "Tests-OSX.xctest"
-               BlueprintName = "Tests-OSX"
-               ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
+               BlueprintIdentifier = "A154297A1CC8D89900AC33CC"
+               BuildableName = "RXPromise-tvOS-Tests.xctest"
+               BlueprintName = "RXPromise-tvOS-Tests"
+               ReferencedContainer = "container:RXPromise.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+            BuildableName = "RXPromise.framework"
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -55,10 +64,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A19C19971759E879008E3F63"
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
             BuildableName = "RXPromise.framework"
-            BlueprintName = "RXPromise Framework"
-            ReferencedContainer = "container:RXPromise Libraries.xcodeproj">
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -70,6 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+            BuildableName = "RXPromise.framework"
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromise.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
