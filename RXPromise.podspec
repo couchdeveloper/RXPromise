@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "RXPromise"
-  s.version          = "1.0.1"
+  s.version          = "1.0.2"
   s.summary          = "A thread safe implementation of the Promises/A+ specification in Objective-C with extensions."
   s.license          = { :type => 'Apache License, Version 2.0', :file => 'LICENSE.md'}
   s.authors          = { "Andreas Grosam" => "agrosam@onlinehome.de" }
@@ -11,9 +11,9 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.9'
   s.requires_arc = true
 
-  s.source_files = "RXPromise/Source/**/*.{h,m,mm}"
-  s.public_header_files = "RXPromise/Source/RXPromise.h", "RXPromise/Source/RXPromise+RXExtension.h", "RXPromise/Source/RXSettledResult.h"
-  s.header_mappings_dir = "RXPromise/Source"
+  s.source_files = "Source/**/*.{h,m,mm}"
+  s.public_header_files = "Source/RXPromise.h", "Source/RXPromise+RXExtension.h", "Source/RXSettledResult.h"
+  s.header_mappings_dir = "Source"
   s.libraries = 'c++'
 
   s.weak_framework = 'CoreData'

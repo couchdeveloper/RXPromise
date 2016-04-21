@@ -626,6 +626,6 @@ autorelease pool.
  Note: RXPromise can still be build for iOS 7 if a static library target will be added to the project.
 
 
- ## Version 1.0.1 (2016-04-21)
+ ## Version 1.0.2 (2016-04-21)
 
  - Fixed missing public headers in Podspec.
