@@ -616,7 +616,7 @@ autorelease pool.
 -  Class method `all:` and `allSettled:` now fulfill the returned promise with an empty `NSArray` if no promise are given, instead of rejecting the promise.
 
 
-## Version 0.14.0 beta (2016-03-22)
+## Version 1.0.0 (2016-04-21)
 
 ### Minimum Deployment Versions  
 
