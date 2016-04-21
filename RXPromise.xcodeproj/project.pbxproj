@@ -180,8 +180,8 @@
 			isa = PBXGroup;
 			children = (
 				A15429901CC8DBBB00AC33CC /* Common */,
-				A15429861CC8DB3200AC33CC /* Tests */,
 				A154291E1CC8CE9800AC33CC /* Source */,
+				A15429861CC8DB3200AC33CC /* Tests */,
 				A15429431CC8D05200AC33CC /* Frameworks */,
 				A15428CF1CC8C9FA00AC33CC /* Products */,
 			);
@@ -1419,6 +1419,7 @@
 				A15428E31CC8CA4600AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15428EE1CC8CB6800AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS" */ = {
 			isa = XCConfigurationList;
@@ -1427,6 +1428,7 @@
 				A15428F01CC8CB6800AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15428FB1CC8CB9200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-WatchOS" */ = {
 			isa = XCConfigurationList;
@@ -1435,6 +1437,7 @@
 				A15428FD1CC8CB9200AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15429081CC8CBB200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1443,6 +1446,7 @@
 				A154290A1CC8CBB200AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15429651CC8D86300AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-MacOS-Tests" */ = {
 			isa = XCConfigurationList;
@@ -1451,6 +1455,7 @@
 				A15429671CC8D86300AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15429741CC8D88200AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-iOS-Tests" */ = {
 			isa = XCConfigurationList;
@@ -1459,6 +1464,7 @@
 				A15429761CC8D88200AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A15429831CC8D89900AC33CC /* Build configuration list for PBXNativeTarget "RXPromise-tvOS-Tests" */ = {
 			isa = XCConfigurationList;
@@ -1467,6 +1473,7 @@
 				A15429851CC8D89900AC33CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

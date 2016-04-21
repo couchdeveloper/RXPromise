@@ -24,7 +24,6 @@ FOUNDATION_EXPORT double RXPromise_VersionNumber;
 //! Project version string for RXPromise.
 FOUNDATION_EXPORT const unsigned char RXPromise_VersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <RXPromise/PublicHeader.h>
 
 
 

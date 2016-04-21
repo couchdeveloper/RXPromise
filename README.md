@@ -2,20 +2,24 @@
 
 A thread safe implementation of the Promises/A+ specification in Objective-C with extensions.
 
+If you like a more modern "Skala-like" futures and promise library implemented in Swift, you may look at [FutureLib](https://github.com/couchdeveloper/FutureLib).
+
 
 ## **Important Note:**
  > For breaking changes and API extensions please read the [CHANGELOG](CHANGELOG.md) document.
+
+ The RXPromise framework has been bumped to release version 1.0.0.
 
 
 ### A Brief Feature List:
 
 
  - Employs the asynchronous "non-blocking" style
- 
+
  - Supports chained continuations
- 
+
  - Supports cancellation
- 
+
  - Simplifies error handling through error propagation
 
  - Thread-safe implementation
@@ -23,7 +27,7 @@ A thread safe implementation of the Promises/A+ specification in Objective-C wit
  - Handlers can execute on diverse execution contexts, namely `dispatch_queue`, `NSThread`, `NSOperationQueue` and `NSManagedObjectContext`.
 
  - `RXPromise` objects are lightweight.
- 
+
 
 
 ### Credits
@@ -41,7 +45,7 @@ For install instructions, please refer to: [INSTALL](INSTALL.md)
  1. [Introduction](#introduction)
   2. [What is a Promise](#what-is-a-promise)
   2. [Where Can We Use Promises](#where-can-we-use-promises)
-  2. [A Non-Trivial Example](#a-non-trivial-example) 
+  2. [A Non-Trivial Example](#a-non-trivial-example)
  1. [Understanding Promises](#understanding-promises)
   2. [The Resolver Aspect](#the-resolver-aspect)
   2. [The Promise Aspect](#the-promise-aspect)
@@ -55,7 +59,7 @@ For install instructions, please refer to: [INSTALL](INSTALL.md)
   2.  [A Continuation Returns a Promise](#a-continuation-returns-a-promise)
   2.  [Chaining](#chaining)
   2.  [Branching](#branching)
-  2.  [The then, thenOn and thenOnMain Property](#the-then-thenon-and-thenonmain-property) 
+  2.  [The then, thenOn and thenOnMain Property](#the-then-thenon-and-thenonmain-property)
  1. [The Execution Context](#the-execution-context)
  1. [Error Propagation](#error-propagation)
  1. [Cancellation](#cancellation)
@@ -67,7 +71,7 @@ For install instructions, please refer to: [INSTALL](INSTALL.md)
 
 ### What Is A Promise
 
-In general, a promise represents the _eventual result_  of an asynchronous task,  respectively the _error reason_ when the task fails. Equal and similar concepts are also called _future_, _deferred_ or _delay_ (see also wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises)). 
+In general, a promise represents the _eventual result_  of an asynchronous task,  respectively the _error reason_ when the task fails. Equal and similar concepts are also called _future_, _deferred_ or _delay_ (see also wiki article: [Futures and promises](http://en.wikipedia.org/wiki/Futures_and_promises)).
 
 The `RXPromise` implementation strives to meet the requirements specified in the [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) as close as possible. The specification was originally written for the JavaScript language but the architecture and the design can be implemented in virtually any language.
 
@@ -78,27 +82,27 @@ A `RXPromise` employs the asynchronous non-blocking style. That is, a call-site 
 ```Objective-C
 RXPromise* usersPromise = [self fetchUsers];
 ```
-    
+
 The asynchronous method `fetchUsers` returns immediately and its _eventual_ result will be represented by the _returned_ object, a _promise_.
 
-Given a promise, a call-site can obtain the result respectively the error reason and define _how_ to continue with the program _when_ the result is available through "registering" a _Continuation_. 
+Given a promise, a call-site can obtain the result respectively the error reason and define _how_ to continue with the program _when_ the result is available through "registering" a _Continuation_.
 
-Basically, a "Continuation" is a completion handler and an erorr handler, which are blocks providing the result respectively the error as a parameter. Having a promise, one or more continuations can be setup any time.
+Basically, a "Continuation" is a completion handler and an error handler, which are blocks providing the result respectively the error as a parameter. Having a promise, one or more continuations can be setup any time.
 
-Registering a continuation will be realized with one of three properties of `RXPromise`: `then`, `thenOn` or `thenOnMain`, and providing the defnitions of the handler blocks:
+Registering a continuation will be realized with one of three properties of `RXPromise`: `then`, `thenOn` or `thenOnMain`, and providing the definitions of the handler blocks:
 
 ```Objective-C
 usersPromise.then(^id(id result){
     NSLog(@"Users: %@", result);
     return nil;
-}, 
+},
 ^id(NSError* error){
     NSLog(@"Error: %@", error);
     return nil;
 });
 ```
 
-A more thorough explanation of the "Continuation" is given in chapter [Understanding Promises](#understanding-promises) and [Using a Promise at the Call-Site](#using-a-promise-at-the-call-site). 
+A more thorough explanation of the "Continuation" is given in chapter [Understanding Promises](#understanding-promises) and [Using a Promise at the Call-Site](#using-a-promise-at-the-call-site).
 
 **Thread-Safety**
 
@@ -106,13 +110,13 @@ A more thorough explanation of the "Continuation" is given in chapter [Understan
 
 **Explicit Execution Context**
 
-The _Execution Context_ defines where the continuation (more precicely, the completion handler or the error handler) will finally execute on. When setting up a continuation for a `RXPromise` we can explicitly specify the execution context using the `thenOn` and the `thenOnMain` property. The execution context is used to ensure concurrency requirements for shared resources which will be accessed concurrently in handlers and from elsewhere. The execution context can be a dispatch queue, a `NSOperationQueue`, a `NSThread` or even a `NSManagedObjectContext`. 
+The _Execution Context_ defines where the continuation (more precisely, the completion handler or the error handler) will finally execute on. When setting up a continuation for a `RXPromise` we can explicitly specify the execution context using the `thenOn` and the `thenOnMain` property. The execution context is used to ensure concurrency requirements for shared resources which will be accessed concurrently in handlers and from elsewhere. The execution context can be a dispatch queue, a `NSOperationQueue`, a `NSThread` or even a `NSManagedObjectContext`.
 
 See also [The Execution Context](#the-execution-context).
 
 **Cancellation**
 
-Additionally, `RXPromise` supports *cancellation*, which is invaluable in virtual every real application. 
+Additionally, `RXPromise` supports *cancellation*, which is invaluable in virtual every real application.
 For more details about _Cancellation_ please refer to chapter [Cancellation](#cancellation).
 
 **Set of Helper Methods**
@@ -127,7 +131,7 @@ The library also provides a couple of useful helper methods which makes it espec
 
 Unquestionable, our coding style will become increasingly asynchronous. The Cocoa API already has a notable amount of asynchronous methods which provide completion handlers and also has numerous frameworks which support the asynchronous programming style through the delegate approach.
 
-However, getting asynchronous problems _right_ is hard, especially when the problems get more complex. 
+However, getting asynchronous problems _right_ is hard, especially when the problems get more complex.
 
 With Promises it becomes far more easy to solve asynchronous problems. It makes it straightforward to utilize frameworks and APIs that already employ the asynchronous style. A given implementation will look like it were _synchronous_, yet the solution remains completely _asynchronous_. The code also becomes concise and - thanks to Blocks - it greatly improves the locality of the whole asynchronous problem and thus the code becomes comprehensible and easy to follow for others as well.
 
@@ -140,7 +144,7 @@ Imagine, our objective is to implement the task described in the six steps below
 2. Then, if that succeeded, asynchronously fetch a list of objects as `JSON`.
 3. Then, if that succeeded, parse the `JSON` response in a background thread.
 4. Then, if that succeeded, create managed objects from the JSON and save them asynchronously to the persistent store, using a helper method `saveWithChildContext:` (see below).
-5. Then, if this succeeded, update the UI on the main thread. 
+5. Then, if this succeeded, update the UI on the main thread.
 6. Catch any error from above steps.
 
 Suppose, we have already implemented the following _asynchronous_ methods:
@@ -148,31 +152,31 @@ Suppose, we have already implemented the following _asynchronous_ methods:
 In the View Controller:
 ```objective-c
 /**
-  Performs login on a web service. This may ask for user credentials 
+  Performs login on a web service. This may ask for user credentials
   in a separate UI.
   If the operation succeeds, fulfills the returned promise with @"OK",
-  otherwise rejects it with the error reason (for example the user 
+  otherwise rejects it with the error reason (for example the user
   cancelled login, or the authentication failed on the server).
 */
 - (RXPromise*) login;  
 
 /**
   Perform a network request to obtain a JSON which contains "Objects".
-  If the operation succeeds, fulfills the returned promise with a 
-  `NSData` object containing the JSON, otherwise rejects it with the 
+  If the operation succeeds, fulfills the returned promise with a
+  `NSData` object containing the JSON, otherwise rejects it with the
   error reason.
 */
 - (RXPromise*) fetchObjects;
 ```
-  
+
 A real application would also use Core Data for managing a persistent store. Our "Core Data Stack" is quite standard having a "main context" executing on the main thread, whose parent is the "root context" running on a private queue with a backing store. Assuming this Core Data stack is already setup, we implement the following method:
 
 ```objective-c
 /**
-  Saves the chain of managed object contexts starting with the child 
-  context and ending with the root context which finally writes into 
+  Saves the chain of managed object contexts starting with the child
+  context and ending with the root context which finally writes into
   the persistent store.
-  If the operation succeeds, fulfills the returned promise with the 
+  If the operation succeeds, fulfills the returned promise with the
   childContext object, otherwise rejects it with the error reason.
 */
 - (RXPromise*) saveWithChildContext:(NSManagedObjectContext*)childContext;
@@ -188,8 +192,8 @@ RXPromise* fetchAndSaveObjects =
 }, nil)
 .then(^id(NSData* json){
     NSError* error;
-    id jsonArray = [NSJSONSerialization JSONObjectWithData:json 
-                                                   options:0 
+    id jsonArray = [NSJSONSerialization JSONObjectWithData:json
+                                                   options:0
                                                      error:&error];
     if (jsonArray) {
         NSAssert([jsonArray isKindOfClass:[NSArray class]]); // web service contract
@@ -200,10 +204,10 @@ RXPromise* fetchAndSaveObjects =
     }
 }, nil)
 .then(^id(NSArray* objects){
-    // Parsing succeeded. Parameter objects is an array containing 
+    // Parsing succeeded. Parameter objects is an array containing
     // NSDictionaries representing a type "object".
-    
-    // Create managed objects from the JSON and save them into 
+
+    // Create managed objects from the JSON and save them into
     // Core Data:
     NSManagedObjectContext* moc = [[NSManagedObjectContext alloc]
                       initWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -213,9 +217,9 @@ RXPromise* fetchAndSaveObjects =
         // the context's queue
         [Object createWithParameters:object inManagedObjectContext:moc];
     }
-    // Finally, asynchronously save the context to the persistent 
+    // Finally, asynchronously save the context to the persistent
     // store and return the result (a RXPromise):
-    return [self.coreDataStack saveWithChildContext:moc]; 
+    return [self.coreDataStack saveWithChildContext:moc];
 }, nil)
 .thenOnMain(^id(id result){
     // Update our UI
@@ -224,20 +228,20 @@ RXPromise* fetchAndSaveObjects =
     return @"OK";
 }, nil)
 .then(nil, ^id(NSError* error){
-    // If something went wrong in any of the above four steps, the error 
+    // If something went wrong in any of the above four steps, the error
     // will be propagated down and "caught" in this error handler.
-    
-    // Just log it to the console (we could show an alert view, or 
+
+    // Just log it to the console (we could show an alert view, or
     // display the error info in a status line, too):
     NSLog(@"Error: %@", error);
-    
-    // We return "nil" in order to indicate that we "handled" the error 
+
+    // We return "nil" in order to indicate that we "handled" the error
     // and can proceed normally:
-    return nil; 
+    return nil;
 });
 ```
 
-The above code is a single, yet complex statement which is itself asynchronous and which is composed of several asynchronous tasks forming a _chain of continuations_. 
+The above code is a single, yet complex statement which is itself asynchronous and which is composed of several asynchronous tasks forming a _chain of continuations_.
 
 The control and data flow should be easily recognizable: the steps are performed from top to bottom. We start with an asynchronous method and setup a continuation, that is, register a completion and an error handler, with using `then(<completion-handler, error-handler>)`. We also see that a handler block can be `nil`.
 
@@ -259,7 +263,7 @@ In the next chapters we take a more thorough look at promises.
 
 As already mentioned, a promise _represents_ the _eventual_ result of an asynchronous task. There is the _caller_  (or call-site) of the asynchronous task which is interested in the eventual result, and there is the _asynchronous task_ which evaluates this value. Both communicate through the promise object.
 
-So, a promise has _two_ distinct aspects where we can look at it. The one side is the "Promise API" used by the _call-site_, the other side is the "Resolver API" used by the underlying task. 
+So, a promise has _two_ distinct aspects where we can look at it. The one side is the "Promise API" used by the _call-site_, the other side is the "Resolver API" used by the underlying task.
 
 For each aspect there are corresponding APIs defined in class `RXPromise`.
 
@@ -267,7 +271,7 @@ For each aspect there are corresponding APIs defined in class `RXPromise`.
 
 The promise, more precisely the "root promise" will usually be created by the underlying task. Initially, the promise is in the state "pending". That means, the result is not yet available. This promise will be immediately returned to the call-site.
 
-> The promise will be created by the underlying asynchronous task. The initial state of this promise is _pending_. 
+> The promise will be created by the underlying asynchronous task. The initial state of this promise is _pending_.
 
 The underlying task will create and return its promise like shown below:
 
@@ -319,7 +323,7 @@ The resolver API and it's usage is defined in more detail in [Using a Promise at
 
 ### The Promise Aspect
 
-On the other hand, the call-site wants to handle the eventual result and continue the program once the result is available. 
+On the other hand, the call-site wants to handle the eventual result and continue the program once the result is available.
 
 In order to achieve this, we use the `then`, `thenOn` or `thenOnMain` properties which will be explained in short. To better understand promises which will be used by the call-site, we first take a look at a corresponding _asynchronous_ method:
 
@@ -328,20 +332,20 @@ In order to achieve this, we use the `then`, `thenOn` or `thenOnMain` properties
 ```objective-c
 typedef void (^completion_t)(NSArray* users, NSError* error);
 
--(void) fetchUsersWithParams:(NSDictionary*)params 
+-(void) fetchUsersWithParams:(NSDictionary*)params
                   completion:(completion_t)completion;
 ```
 
-The completion handler must be _defined_ by the _call-site_. A _completion_ handler is also called the "continuation". The "continuation" is simply the code that shall be executed once the underlying task is finished. 
+The completion handler must be _defined_ by the _call-site_. A _completion_ handler is also called the "continuation". The "continuation" is simply the code that shall be executed once the underlying task is finished.
 
 The underlying task, on the other hand, is responsible to eventually _call_ the completion handler (once it is finished) and passing the result respectively the error to the completion handler. At the call-site, the program then "continues" with the code defined in the completion handler.
 
 For example:
 
 ```objective-c
-[self fetchUsersWithParams:params 
+[self fetchUsersWithParams:params
                 completion:^(NSArray* users, NSError*error){
-    if (users) { 
+    if (users) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.users = users;
             [self.tableView reloadData];
@@ -364,7 +368,7 @@ This method returns a `RXPromise` object, but there is no parameter for the comp
 
 The returned promise represents the _eventual_ result of the underlying task. Immediately after return, this promise is (most likely) not yet "resolved", that means, the underlying task is still busy evaluating the result.
 
-At the first glance we cannot see how we would obtain the result and continue with the program when the asynchronous method finished, and how we would handle a possible error. But, no worry, this is all possible with the returned promise: 
+At the first glance we cannot see how we would obtain the result and continue with the program when the asynchronous method finished, and how we would handle a possible error. But, no worry, this is all possible with the returned promise:
 
 The [Promises/A+ specification](https://github.com/promises-aplus/promises-spec) proposes to use the `then` method in order to specify the _Continuation_ . The continuation has two "handlers", the _completion handler_ and the _error handler_.
 
@@ -417,7 +421,7 @@ Additionally, there are a few convenience methods:
 
 ### The Asynchronous Task's Responsibility
 
-An _asynchronous task_, possibly a `NSOperation` or some asynchronously dispatched block, is an object whose lifetime extends up to the point at which it has finished its task and has the result available. 
+An _asynchronous task_, possibly a `NSOperation` or some asynchronously dispatched block, is an object whose lifetime extends up to the point at which it has finished its task and has the result available.
 
 Basically, the responsibility of the asynchronous are the following:
 
@@ -441,7 +445,7 @@ A _resolved_ promise can be created using class convenience method `promiseWithR
 
 ```Objective-C
     RXPromise* fulfilledPromise = [RXPromise promiseWithResult:@"OK"];
-    
+
     RXPromise* rejectedPromise = [RXPromise promiseWithResult:error];
 ```
 
@@ -449,7 +453,7 @@ A _resolved_ promise can be created using class convenience method `promiseWithR
 
 When the "asynchronous result provider" eventually succeeds or fails it MUST _resolve_ its associated promise. "Resolving" is either _fulfilling_ or _rejecting_ the promise with it's corresponding values, either the final result or an error.
 
-That means, in order to resolve the promise when the task succeeded the asynchronous task must send the promise a `fulfillWithValue:` message whose parameter will be the result of the asynchronous function. 
+That means, in order to resolve the promise when the task succeeded the asynchronous task must send the promise a `fulfillWithValue:` message whose parameter will be the result of the asynchronous function.
 
 ```Objective-C
     [promise fulfillWithValue:@"OK"];
@@ -462,7 +466,7 @@ Otherwise, if the asynchronous function fails, the asynchronous task must send t
 For example:
 ```Objective-C
 if ([users count] == 0) {
-    [NSError errorWithDomain:@"User" 
+    [NSError errorWithDomain:@"User"
                         code:-100
                     userInfo:@{NSLocalizedFailureReasonErrorKey:@"there are no users"}];
     [promise rejectWithReason:error];
@@ -483,7 +487,7 @@ Here, `rejectWithReason:` will internally create an `NSError` object with domain
 
 ### Forwarding Cancellation
 
-A returned promise can be cancelled from elsewhere at any time. 
+A returned promise can be cancelled from elsewhere at any time.
 
 Now, suppose the underlying asynchronous task is _cancelable_ we SHOULD also prepare for a _cancellation_ of the _returned promise_ and then _forward_ the cancel message to the underlying asynchronous task, for example sending it a `cancel` message.
 
@@ -498,27 +502,27 @@ An example how an asynchronous method could be implemented which uses a subclass
     __weak RXPromise* weakPromise = promise;
     MyOperation* op = [MyOperation alloc] initWithCompletionHandler: ^(id result){
         [weakPromise fulfillWithValue:result];
-    } 
+    }
     errorHandler:^(NSError* error){
         [weakPromise rejectWithReason:error];
     }];
 
     [self.queue addOperation:op];
-    
-    // Forward cancellation: Cancel the operation if the returned promise 
+
+    // Forward cancellation: Cancel the operation if the returned promise
     // has been cancelled:
     promise.then(nil, ^id(NSError*error){
         [op cancel];
         return nil;
     });
-    
+
     return promise;
 }
 ```
 **A few notes:**
 
 This implementation avoids to _retain_ the returned promise through using a `__weak` qualified pointer which get captured in the completion handler of the asynchronous task. Using a `__weak` reference to the returned promise is generally a recommended practice. This style has a number of advantages in more sophisticated usage scenarios.
- 
+
 Since the underlying task is a subclass of `NSOperation` which is _cancelable_, the method `doSomethingAsync` sets up a continuation with an error handler. This error handler will be called when the call-site cancels the promise, or when the asynchronous task fails. As an effect, the operation will receive a `cancel` message as well. Should the operation fail and the operation's completion handler reject its promise, this "cancel" handler will also be called - but it will have no effect on the operation since it is already finished. We can be more restrictive in taking actions through inspecting the error properties and the promise' state.
 
 In more sophisticated scenarios it makes sense to subclass a dedicated `RXPromise` for a particular class of asynchronous tasks, with the following behavior:
@@ -528,12 +532,12 @@ In more sophisticated scenarios it makes sense to subclass a dedicated `RXPromis
  - The subclass will have an ivar referencing its tasks and an init method taking the task as parameter.
  - The dealloc method of the subclass will send a cancellation message to the underlying task.
  - The `cancel` method is overridden which forwards the cancellation to the task (which in turn will cancel the promise)
- 
- 
+
+
 With this subclass and assuming the task only weakly references the returned promise, we can accomplish that the task will be "automatically" cancelled if there are no "subscribers" of the returned promise, that is, one or potentially several clients did cancel their promise returned from registering a continuation on the root promise and got deallocated.
 
 This is especially useful in more complex usage scenarios where a potentially heavy and long running task with potentially several observers should be cancelled - but only if there is no observer anymore interested in the result of the task.
- 
+
 
 
 
@@ -547,13 +551,13 @@ As already described in [Understanding Promises](#understanding-promises) a call
 
 **Continuation:**
 
-`then(<completion-handler>, <error-handler>)` 
-`thenOn(<execution-context>, <completion-handler>, <error-handler>)` 
+`then(<completion-handler>, <error-handler>)`
+`thenOn(<execution-context>, <completion-handler>, <error-handler>)`
 `thenOnMain(<completion-handler>, <error-handler>)`
 
 A continuation consists of the _completion handler_ , the _error handler_ and an _execution context_. It will be registered for a promise using the `then`, `thenOn` or `thenOnMain` property.
 
-The handlers can be `nil`, however it makes sense to have at least one handler defined in a particular continuation. 
+The handlers can be `nil`, however it makes sense to have at least one handler defined in a particular continuation.
 
 The execution context defines where the handlers get executed on. It can be a dispatch queue, a `NSThread`, a `NSOperationQueue` or a `NSManagedObjectContext`.
 The execution context can be implicit (using `then`) or explicit (using `thenOn` or `thenOnMain`).
@@ -565,9 +569,9 @@ The role of the _execution context_ will be explained in more detail in [The Exe
 
 In the `RXPromise` library we have three forms to establish a continuation, with using either the `then`, `thenOn` or the `thenOnMain` property.  How these properties are implemented is explained in more detail later. For now, we only need to know how to _use_ them, which is illustrated below:
 
-#### The first form: 
+#### The first form:
 
-> `then(<completion-handler>, <error-handler>)` 
+> `then(<completion-handler>, <error-handler>)`
 
 Example:
 ```objective-c
@@ -585,7 +589,7 @@ Either the completion _or_ the error handler will be called when the promise has
 #### The second form
 
 > `thenOn(<execution-context>, <completion-handler>, <error-handler>)`
- 
+
 allows us to _explicitly_ specify an _execution context_ where the handler - either the completion handler _or_ the error handler will be executed on:
 
 ```objective-c
@@ -601,11 +605,11 @@ promise.thenOn(sync_queue, ^(id result){
 });
 ```
 
-#### The third form: 
+#### The third form:
 
 > `thenOnMain(<completion-handler>, <error-handler>)`
 
-is just a convenience way for executing on the main thread. It is functional equivalent to: 
+is just a convenience way for executing on the main thread. It is functional equivalent to:
 `thenOn(dispatch_get_main_queue(), <completion-handler>, <error-handler>)`
 
 
@@ -637,7 +641,7 @@ Both, completion handler and error handler are _Blocks_. Handlers can be `nil`. 
 As we can see, each handler takes a parameter and returns a value.
 
 ----
-#### A Continuation can be setup any time and anywhere 
+#### A Continuation can be setup any time and anywhere
 
 For example, given a promise which we obtained somewhere earlier starting a network request, we can "observe" it in a view controller and setup a continuation:
 
@@ -645,7 +649,7 @@ For example, given a promise which we obtained somewhere earlier starting a netw
 - (void) viewDidAppear:(BOOL)animated
     if (self.model.fetchAllUsersPromsise && !self.busyIndicator.isAnimating) {
         [self.busyIndicator startAnimating];
-        self.model.fetchAllUsersPromise.thenOn(dispatch_get_main_queue(), 
+        self.model.fetchAllUsersPromise.thenOn(dispatch_get_main_queue(),
         ^(id result){
             [self.busyIndicator stopAnimating];
             return nil;
@@ -668,13 +672,13 @@ The completion handler is a Block with the following signature:
 id (^completion_handler_t)(id result);
 ```
 
-The completion handler has a parameter _result_ of type `id` and returns a value of type `id`. 
+The completion handler has a parameter _result_ of type `id` and returns a value of type `id`.
 
 **Note:** The completion handler will only be called with a _non-NSError_ object, or possibly `nil` as parameter.
 
 If the associated promise has been created by an asynchronous task (that is, it's a "root promise") the parameter _result_ is identical the eventual result of the underlying task.
 
-Otherwise, the completion handler's result parameter is identical to the _return value_ of the previous continuation. It doesn't matter whether this was the completion handler or the error handler - the respective handler simply returned a non-NSError object which will be passed through to this completion handler. 
+Otherwise, the completion handler's result parameter is identical to the _return value_ of the previous continuation. It doesn't matter whether this was the completion handler or the error handler - the respective handler simply returned a non-NSError object which will be passed through to this completion handler.
 
 The previous handler may also return a promise. In this case, this completion handler will be called when the promise gets fulfilled, and the parameter _result_ contains the _eventual_ result of the fulfilled promise.
 
@@ -692,9 +696,9 @@ The error handler is a Block with the following signature:
 id (^error_handler_t)(NSError* error);
 ```
 
-The error handler takes an `NSError` parameter and returns a value of type `id`. 
+The error handler takes an `NSError` parameter and returns a value of type `id`.
 
-In a promise, errors will be "propagated" through to subsequent continuations in the chain, until there is a continuation with a specified error handler. 
+In a promise, errors will be "propagated" through to subsequent continuations in the chain, until there is a continuation with a specified error handler.
 
 This means, when an error handler will be called, it's parameter _error_ is the error returned from its asynchronous task (if any), or otherwise it's an error or the error reason from a _rejected_ promise that has been returned in a previous continuation of this chain.
 
@@ -705,18 +709,18 @@ We might say, an error handler "catches" an uncaught error "thrown" from  its ta
 In `RXPromise`, errors occurring in handlers will be signaled to the call-site through simply returning an `NSError` object. An asynchronous tasks signals an error through _rejecting_ their promise with an error reason.
 
 **Caution:**
-> As usual in Objective-C, throwing exceptions using the keyword `throw` or `@throw` or using the method `raise:` are not appropriate to signal errors to a call-site. In fact, throwing an exception from within a handler will lead to a crash. 
+> As usual in Objective-C, throwing exceptions using the keyword `throw` or `@throw` or using the method `raise:` are not appropriate to signal errors to a call-site. In fact, throwing an exception from within a handler will lead to a crash.
 
 See also chapter [Error Propagation](#error-propagation).
 
 Note that either the completion _or_ the error handler will be _eventually_ called (if defined), since the underlying task MUST eventually _resolve_ its promise: that is, if the task succeeded, the completion handler will be called (if defined) and if the task failed, the error handler will be called, if defined. Otherwise if the error handler is `nil` the error will be propagated through to the next continuation and handled there. If there is no error handler defined in this continuation, it will be propagated to the next continuation (if any), and so force.
 
-> Either the completion handler _or_ an error handler (if defined) will eventually be called. 
+> Either the completion handler _or_ an error handler (if defined) will eventually be called.
 
 ----
 #### The Return Value of a Handler
 
-Both, completion handler and error handler shall return a value. This returned value is the result of the _handler_. The handler may even invoke another asynchronous method, which itself returns a promise and return that promise. This idiom is actually quite common, and the standard way to define a "chain of asynchronous tasks". 
+Both, completion handler and error handler shall return a value. This returned value is the result of the _handler_. The handler may even invoke another asynchronous method, which itself returns a promise and return that promise. This idiom is actually quite common, and the standard way to define a "chain of asynchronous tasks".
 
 > **Handlers Shall Return a Value**
 
@@ -762,7 +766,7 @@ Otherwise, if the promise will be _rejected_ the error will _propagated_ downwar
 ```objective-c
 .then(^id(id users){
     if (![users count]) {
-        return [NSError errorWithDomain:@"User" 
+        return [NSError errorWithDomain:@"User"
                                 code:-100
                             userInfo:@{NSLocalizedFailureReasonErrorKey:@"users is empty"}];
     }
@@ -802,7 +806,7 @@ What's not immediately obvious is the fact that the expression
 ```
 then(...,...)
 ```
-also returns a promise. 
+also returns a promise.
 
 Suppose we have an asynchronous method:
 
@@ -862,9 +866,9 @@ One substantial feature of promises is that they can be "chained": The first asy
 
 Technically, "chaining" has been accomplished through making the expressions
 
- `then(<completion-handler>, <error-handler>)`  and 
+ `then(<completion-handler>, <error-handler>)`  and
  `thenOn(<execution-context, <completion-handler>, <error-handler>)`
- 
+
 itself returning a promise:
 ```Objective-C
 RXPromise* root = asyncA();
@@ -922,8 +926,8 @@ We can define the continuation as shown below:
 .then(^id(id json){
     // parse the JSON
     NSError* error;
-    id jsonArray = [NSJSONSerialization JSONObjectWithData:json 
-                                                   options:0 
+    id jsonArray = [NSJSONSerialization JSONObjectWithData:json
+                                                   options:0
                                                      error:&error];
     if (jsonArray) {
         return jsonArray;  // handler succeeded
@@ -978,7 +982,7 @@ The first promise which has no parent promise, will be obtained through invoking
 }, nil)
 ```
 
-Here, when task A finishes successful, the final result of task A will be passed as the parameter `resultA` to the completion handler, which in turn passes the result to task B in order to asynchronously compute another result. 
+Here, when task A finishes successful, the final result of task A will be passed as the parameter `resultA` to the completion handler, which in turn passes the result to task B in order to asynchronously compute another result.
 
 When task B completes, its final result will be passed to the next completion handler and so force - up until there is no handler anymore.
 
@@ -1009,13 +1013,13 @@ RXPromise* childPromise2 = rootPromsise.then(completion_handler2, nil);
 RXPromise* childPromise3 = rootPromsise.then(completion_handler3, nil);
 ```
 
-When `rootPromise` will be resolved, _all three_ continuations will be invoked simultaneously which in turn calls the handlers `completion_handler1`, `completion_handler2` and `completion_handler2`. 
+When `rootPromise` will be resolved, _all three_ continuations will be invoked simultaneously which in turn calls the handlers `completion_handler1`, `completion_handler2` and `completion_handler2`.
 
-Since in this example the execution context where the handlers do execute on has not been explicitly specified, they actually execute on a private concurrent dispatch queue, that is, they execute in _parallel_. 
+Since in this example the execution context where the handlers do execute on has not been explicitly specified, they actually execute on a private concurrent dispatch queue, that is, they execute in _parallel_.
 
 One could control the "concurrency" between the handlers through specifying a concrete dispatch queue, or `NSOperationQueue` or a `NSThread`, though. See also [Execution Context](#execution-context).
 
-The "child promises" `childPromise1`, `childPromise2` and `childPromise3` do have the same parent promise: `rootPromise`. 
+The "child promises" `childPromise1`, `childPromise2` and `childPromise3` do have the same parent promise: `rootPromise`.
 
 The "child promises" `childPromise1`, `childPromise2` and `childPromise3` are "siblings" to each other.
 
@@ -1138,7 +1142,7 @@ All methods of `RXPromise` are fully thread-safe. There are no restrictions *whe
 
 However, one needs to take care about concurrency when accessing shared resources in the handler blocks:
 
-When using the `then` property in order to register the completion and error handler block, the execution context where the handler will be eventually executed is *private*. That means, the thread where the block gets executed is implementation defined. In fact, `RXPromise` will use a private _concurrent_ execution context. 
+When using the `then` property in order to register the completion and error handler block, the execution context where the handler will be eventually executed is *private*. That means, the thread where the block gets executed is implementation defined. In fact, `RXPromise` will use a private _concurrent_ execution context.
 
 From this it follows, that if the `then` property is used for registering handlers, handlers will execute _concurrently_ and concurrent access to shared resources from within handlers is not automatically guaranteed to be thread-safe.
 
@@ -1162,13 +1166,13 @@ In `RXPromise` we can not only use dispatch queues for the execution context, bu
 
 In `RXPromise`, handler can execute on the following types of execution contexts:
 
- - `dispatch_queue`, 
- - `NSThread`, 
- - `NSOperationQueue` and 
+ - `dispatch_queue`,
+ - `NSThread`,
+ - `NSOperationQueue` and
  - `NSManagedObjectContext`.
 
 
-A dispatch queue *can* be a *serial* or a *concurrent* queue. 
+A dispatch queue *can* be a *serial* or a *concurrent* queue.
 
 
 
@@ -1181,11 +1185,11 @@ A dispatch queue *can* be a *serial* or a *concurrent* queue.
 
 Using the `then` property to setup a Continuation, e.g.:
 
-> `then(<completion-handler>, <error-handler>)`, 
+> `then(<completion-handler>, <error-handler>)`,
 
-the execution context is not specified by the client. 
+the execution context is not specified by the client.
 
-In this case, the handler will execute on a _private concurrent dispatch queue_. More precisely, the handler will be dispatched via `dispatch_async()` on a _concurrent_ queue. Thus, handlers of different continuations executing on an unspecified execution context may execute in _parallel_. 
+In this case, the handler will execute on a _private concurrent dispatch queue_. More precisely, the handler will be dispatched via `dispatch_async()` on a _concurrent_ queue. Thus, handlers of different continuations executing on an unspecified execution context may execute in _parallel_.
 
 > Handlers executing on the private concurrent queue should not access shared resources, since no synchronization guaranties can be made.
 
@@ -1196,11 +1200,11 @@ As already mentioned in brief earlier, when setting up a continuation, with the 
 
 With `thenOn` we can specify any valid execution context
 
-> `thenOn(<execution-context>, <completion-handler>, <error-handler>)`, 
+> `thenOn(<execution-context>, <completion-handler>, <error-handler>)`,
 
-and with 
+and with
 
-> `thenOnMain(<completion-handler>, <error-handler>)`, 
+> `thenOnMain(<completion-handler>, <error-handler>)`,
 
 we specify the main thread. The third form is functional equivalent to
 `thenOn(dispatch_get_main_queue(), <completion-handler>, <error-handler>)`.
@@ -1299,7 +1303,7 @@ root.thenOn(sync_queue, ^id(id result) {
 ```
 
 
-Now, when the queue is *concurrent* this requires a *barrier* in order to guarantee thread-safety. Thus, `RXPromise` will invoke the handler using function `dispatch_barrier_async`. 
+Now, when the queue is *concurrent* this requires a *barrier* in order to guarantee thread-safety. Thus, `RXPromise` will invoke the handler using function `dispatch_barrier_async`.
 
 `RXPromise` effectively executes the following:
 
@@ -1316,7 +1320,7 @@ Due to this, handlers executing on a concurrent dispatch queue will properly tak
 
 > `dispatch_barrier_async` guarantees that write accesses to shared resources are thread-safe.
 
-While `dispatch_barrier_async` guarantees thread-safety for a *concurrent* queue, it has a minor penalty when the handler would only perform *read* accesses to a shared resource. 
+While `dispatch_barrier_async` guarantees thread-safety for a *concurrent* queue, it has a minor penalty when the handler would only perform *read* accesses to a shared resource.
 
 
 ----
@@ -1381,28 +1385,28 @@ TBD
 
 #### Executing on the private queue of a `NSManagedObjectContext`
 
-`RXRomise`'s continuations can execute on the private queue of a `NSManagedObjectContext`. A small example demonstrates this feature:
+`RXPromise`'s continuations can execute on the private queue of a `NSManagedObjectContext`. A small example demonstrates this feature:
 
 Here, we assume there is a "Core Data Stack", which has a "root context" associated with a persistent store and executing on a private queue, and a "main context" executing on the main thread and whose parent context is the "root context".
 
 The code sample first creates a child managed object context based on the main context executing on a private queue. Then it creates a new managed object into this new context. When this succeeded, it fetches all managed objects into this context:
 ```Objective-C
     // Create a new managed object context executing on a private queue and whose
-    // managed object context will be a child of the main context of the core 
+    // managed object context will be a child of the main context of the core
     // data stack:
     NSManagedObjectContext* context = [self.coreDataStack newManagedObjectContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    // Obtain parameters for initialzing a User object:
-    NSDictionary* userParams = ...;   // obtain parameters 
+
+    // Obtain parameters for initializing a User object:
+    NSDictionary* userParams = ...;   // obtain parameters
 
     // Create and register a managed object of type User with that managed
     // object context:
     [User createWithParameters:user inManagedObjectContext:context];
     // Note: `createWithParameters:inManagedObjectContext` implementation ensures
     // that the managed object will be modified running on the execution context
-    // associated to the managed object contex!
-    
-    // Save the context chain and when finished, fetch all Users into the 
+    // associated to the managed object context!
+
+    // Save the context chain and when finished, fetch all Users into the
     // same context:
     [[self.coreDataStack saveContextChainWithContext:context]
      .thenOn(context, ^id(id result) {
@@ -1419,16 +1423,16 @@ The code sample first creates a child managed object context based on the main c
     },nil)
 ```
 
-The code snippet above asynchronously executes core data methods on their associated execution context suitable for their concurrency policy. 
+The code snippet above asynchronously executes core data methods on their associated execution context suitable for their concurrency policy.
 
 Internally, `RXPromise` will use `performBlock:` in order to execute the handler block.
 
 
 > **Caution:**
 
-> The NSManagedObjectContext must be created with either `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`. 
+> The NSManagedObjectContext must be created with either `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`.
 
-> "Thread confinment", (e.g. `NSConfinementConcurrencyType`) is not yet supported.
+> "Thread confinement", (e.g. `NSConfinementConcurrencyType`) is not yet supported.
 
 
 [Contents ^](#contents)
@@ -1479,7 +1483,7 @@ Now, the request is pending, but what shall we do when the user switches away fr
 ```
 When the underlying task implements [Forwarding Cancellation](#forwarding-cancellation) it also receives a cancellation message, and the network request stops.
 
-In order to understand how cancellation is implemented in `RXPromise` one need to known the _relationships_ of promises. 
+In order to understand how cancellation is implemented in `RXPromise` one need to known the _relationships_ of promises.
 
 As already mentioned in chapter [A Continuation Returns a Promise](#a-continuation-returns-a-promise), a promise may have a "parent" promise.
 
@@ -1490,7 +1494,7 @@ There's a property where we can obtain the _parent_ of a promise:
 ```
 `parent` may return `nil`, which means that the receiver is a "root promise".
 
-A promise created by the underlying asynchronous task which is also responsible to _resolve_ this promise, will usually _not have_ a parent. This is called a "root promise". 
+A promise created by the underlying asynchronous task which is also responsible to _resolve_ this promise, will usually _not have_ a parent. This is called a "root promise".
 
 > A "root promise" has no parent.
 
@@ -1525,7 +1529,7 @@ Since canceling a promise will cause it to send the cancel message to all its ch
 
 Note though, the parent won't receive a cancel message.
 
-The only means we really have to "navigate" the promise tree, is the property `parent`, and a convenience property `root`. 
+The only means we really have to "navigate" the promise tree, is the property `parent`, and a convenience property `root`.
 ```
 @property (nonatomic, readonly) RXPromise* parent;
 @property (nonatomic, readonly) RXPromise* root;
@@ -1545,4 +1549,3 @@ With this knowledge, we can selectively cancel a certain "branch" of a promise t
 
 
 [Contents ^](#contents)
-

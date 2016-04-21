@@ -619,5 +619,8 @@ autorelease pool.
 ## Version 0.14.0 beta (2016-03-22)
 
 ### Minimum Deployment Versions  
+
  - MacOS X: 10.9
- - iOS: 7.0
+ - iOS: 8.0
+
+ Note: RXPromise can still be build for iOS 7 if a static library target will be added to the project.
