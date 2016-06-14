@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.source_files = "Source/**/*.{h,m,mm}"
-  s.public_header_files = "Source/RXPromise.h", "Source/RXPromise+RXExtension.h", "Source/RXSettledResult.h"
+  s.public_header_files = "Source/RXPromise.h", "Source/RXPromiseHeader.h", "Source/RXPromise+RXExtension.h", "Source/RXSettledResult.h"
   s.header_mappings_dir = "Source"
   s.libraries = 'c++'
 

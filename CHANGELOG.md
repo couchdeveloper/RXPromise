@@ -629,3 +629,12 @@ autorelease pool.
  ## Version 1.0.2 (2016-04-21)
 
  - Fixed missing public headers in Podspec.
+
+
+## Version 1.0.3 (2016-06-14)
+
+- Added "Master Header File".
+
+ Now, clients only need to import the master header file `RXPromise.h` in the source files. All other public headers, like `RXSettledResult.h` and `RXPromise+RXExtension.h`, will be included through this master file.
+
+

@@ -11,10 +11,10 @@
 		A15429201CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
 		A15429211CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
 		A15429221CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
-		A15429231CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A15429241CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A15429251CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A15429261CC8CE9800AC33CC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429231CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429241CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429251CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A15429261CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A15429271CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
 		A15429281CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
 		A15429291CC8CE9800AC33CC /* RXPromise.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429181CC8CE9800AC33CC /* RXPromise.mm */; };
@@ -56,6 +56,10 @@
 		A15429961CC8DC1B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154293F1CC8D01700AC33CC /* CoreData.framework */; };
 		A15429971CC8DC2300AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429441CC8D0AE00AC33CC /* CoreData.framework */; };
 		A15429981CC8DC2B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429481CC8D0C500AC33CC /* CoreData.framework */; };
+		A1CE2F281D102728007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1CE2F291D102729007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1CE2F2A1D10272A007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1CE2F2B1D10272D007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,7 +92,7 @@
 		A15428F61CC8CB9200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A15429031CC8CBB200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A15429151CC8CE9800AC33CC /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
-		A15429171CC8CE9800AC33CC /* RXPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
+		A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromiseHeader.h; sourceTree = "<group>"; };
 		A15429181CC8CE9800AC33CC /* RXPromise.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise.mm; sourceTree = "<group>"; };
 		A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RXPromise+RXExtension.h"; sourceTree = "<group>"; };
 		A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RXPromise+RXExtension.mm"; sourceTree = "<group>"; };
@@ -110,6 +114,7 @@
 		A15429911CC8DBBB00AC33CC /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
 		A15429921CC8DBBB00AC33CC /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A15429991CC8DF6500AC33CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1CE2F271D1026A0007372EC /* RXPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,7 +219,8 @@
 			children = (
 				A15429991CC8DF6500AC33CC /* Info.plist */,
 				A15429161CC8CE9800AC33CC /* utility */,
-				A15429171CC8CE9800AC33CC /* RXPromise.h */,
+				A1CE2F271D1026A0007372EC /* RXPromise.h */,
+				A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */,
 				A15429181CC8CE9800AC33CC /* RXPromise.mm */,
 				A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */,
 				A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */,
@@ -266,9 +272,10 @@
 			files = (
 				A154292B1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429371CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A1CE2F281D102728007372EC /* RXPromise.h in Headers */,
 				A154291F1CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429331CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
-				A15429231CC8CE9800AC33CC /* RXPromise.h in Headers */,
+				A15429231CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,9 +285,10 @@
 			files = (
 				A154292C1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429381CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A1CE2F291D102729007372EC /* RXPromise.h in Headers */,
 				A15429201CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429341CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
-				A15429241CC8CE9800AC33CC /* RXPromise.h in Headers */,
+				A15429241CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,9 +298,10 @@
 			files = (
 				A154292D1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429391CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A1CE2F2A1D10272A007372EC /* RXPromise.h in Headers */,
 				A15429211CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429351CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
-				A15429251CC8CE9800AC33CC /* RXPromise.h in Headers */,
+				A15429251CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,9 +311,10 @@
 			files = (
 				A154292E1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A154293A1CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
+				A1CE2F2B1D10272D007372EC /* RXPromise.h in Headers */,
 				A15429221CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429361CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
-				A15429261CC8CE9800AC33CC /* RXPromise.h in Headers */,
+				A15429261CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <RXPromise/RXPromise.h>
-#import <RXPromise/RXPromise+RXExtension.h>
 
 
 /**

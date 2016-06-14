@@ -23,8 +23,6 @@
 #import <XCTest/XCTest.h>
 
 #import <RXPromise/RXPromise.h>
-#import <RXPromise/RXPromise+RXExtension.h>
-#import <RXPromise/RXSettledResult.h>
 
 #import <CoreData/CoreData.h>
 #include <libkern/OSAtomic.h>
