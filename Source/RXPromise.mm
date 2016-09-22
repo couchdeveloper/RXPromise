@@ -20,7 +20,7 @@
 #error this file requires arc enabled
 #endif
 
-#import "RXPromise.h"
+#import "RXPromiseForAll.h"
 #import "RXPromise+Private.h"
 #import <CoreData/CoreData.h>
 #import <objc/runtime.h>

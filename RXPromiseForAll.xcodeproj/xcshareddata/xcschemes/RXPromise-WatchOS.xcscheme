@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A15428F51CC8CB9200AC33CC"
-               BuildableName = "RXPromise.framework"
+               BuildableName = "RXPromiseForAll.framework"
                BlueprintName = "RXPromise-WatchOS"
-               ReferencedContainer = "container:RXPromise.xcodeproj">
+               ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A15428F51CC8CB9200AC33CC"
-            BuildableName = "RXPromise.framework"
+            BuildableName = "RXPromiseForAll.framework"
             BlueprintName = "RXPromise-WatchOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,9 +64,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A15428F51CC8CB9200AC33CC"
-            BuildableName = "RXPromise.framework"
+            BuildableName = "RXPromiseForAll.framework"
             BlueprintName = "RXPromise-WatchOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

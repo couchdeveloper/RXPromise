@@ -2,7 +2,10 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:RXPromise.xcodeproj">
+      location = "group:RXPromiseForAll.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:RXPromiseForAll.podspec">
    </FileRef>
    <FileRef
       location = "group:Samples/Samples.xcodeproj">
@@ -18,9 +21,5 @@
    </FileRef>
    <FileRef
       location = "group:README.md">
-   </FileRef>
-   <FileRef
-      location = "group:RXPromise.podspec"
-      assignedFileDataType = "public.ruby-script">
    </FileRef>
 </Workspace>

@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A15428DB1CC8CA4600AC33CC"
-               BuildableName = "RXPromise.framework"
-               BlueprintName = "RXPromise-iOS"
-               ReferencedContainer = "container:RXPromise.xcodeproj">
+               BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+               BuildableName = "RXPromiseForAll.framework"
+               BlueprintName = "RXPromise-tvOS"
+               ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,20 +32,20 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A154296B1CC8D88200AC33CC"
-               BuildableName = "RXPromise-iOS-Tests.xctest"
-               BlueprintName = "RXPromise-iOS-Tests"
-               ReferencedContainer = "container:RXPromise.xcodeproj">
+               BlueprintIdentifier = "A154297A1CC8D89900AC33CC"
+               BuildableName = "RXPromise-tvOS-Tests.xctest"
+               BlueprintName = "RXPromise-tvOS-Tests"
+               ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A15428DB1CC8CA4600AC33CC"
-            BuildableName = "RXPromise.framework"
-            BlueprintName = "RXPromise-iOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+            BuildableName = "RXPromiseForAll.framework"
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,10 +64,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A15428DB1CC8CA4600AC33CC"
-            BuildableName = "RXPromise.framework"
-            BlueprintName = "RXPromise-iOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+            BuildableName = "RXPromiseForAll.framework"
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -82,10 +82,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A15428DB1CC8CA4600AC33CC"
-            BuildableName = "RXPromise.framework"
-            BlueprintName = "RXPromise-iOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            BlueprintIdentifier = "A15429021CC8CBB200AC33CC"
+            BuildableName = "RXPromiseForAll.framework"
+            BlueprintName = "RXPromise-tvOS"
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

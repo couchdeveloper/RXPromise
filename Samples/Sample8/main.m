@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <RXPromise/RXPromise.h>
+#import <RXPromiseForAll/RXPromiseForAll.h>
 #include <dispatch/dispatch.h>
 
 

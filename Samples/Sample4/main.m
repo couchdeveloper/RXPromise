@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <RXPromise/RXPromise.h>
+#import <RXPromiseForAll/RXPromiseForAll.h>
 
 typedef RXPromise* (^unary_async_t)(id object);
 

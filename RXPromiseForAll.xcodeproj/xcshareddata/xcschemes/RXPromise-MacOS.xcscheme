@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A15428E81CC8CB6800AC33CC"
-               BuildableName = "RXPromise.framework"
+               BuildableName = "RXPromiseForAll.framework"
                BlueprintName = "RXPromise-MacOS"
-               ReferencedContainer = "container:RXPromise.xcodeproj">
+               ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "A154295C1CC8D86300AC33CC"
                BuildableName = "RXPromise-MacOS-Tests.xctest"
                BlueprintName = "RXPromise-MacOS-Tests"
-               ReferencedContainer = "container:RXPromise.xcodeproj">
+               ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A15428E81CC8CB6800AC33CC"
-            BuildableName = "RXPromise.framework"
+            BuildableName = "RXPromiseForAll.framework"
             BlueprintName = "RXPromise-MacOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -65,9 +65,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A15428E81CC8CB6800AC33CC"
-            BuildableName = "RXPromise.framework"
+            BuildableName = "RXPromiseForAll.framework"
             BlueprintName = "RXPromise-MacOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -83,9 +83,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A15428E81CC8CB6800AC33CC"
-            BuildableName = "RXPromise.framework"
+            BuildableName = "RXPromiseForAll.framework"
             BlueprintName = "RXPromise-MacOS"
-            ReferencedContainer = "container:RXPromise.xcodeproj">
+            ReferencedContainer = "container:RXPromiseForAll.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

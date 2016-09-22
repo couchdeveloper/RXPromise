@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		11F691811D945A6800DB7DEB /* RXPromiseForAll.h in Headers */ = {isa = PBXBuildFile; fileRef = 11F691801D945A6800DB7DEB /* RXPromiseForAll.h */; };
 		A154291F1CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
 		A15429201CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
 		A15429211CC8CE9800AC33CC /* DLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A15429151CC8CE9800AC33CC /* DLog.h */; };
@@ -44,9 +45,9 @@
 		A15429471CC8D0BA00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429461CC8D0BA00AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A15429491CC8D0C500AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429481CC8D0C500AC33CC /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A154294B1CC8D66900AC33CC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154294A1CC8D66900AC33CC /* UIKit.framework */; };
-		A15429621CC8D86300AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428E91CC8CB6800AC33CC /* RXPromise.framework */; };
-		A15429711CC8D88200AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428DC1CC8CA4600AC33CC /* RXPromise.framework */; };
-		A15429801CC8D89900AC33CC /* RXPromise.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429031CC8CBB200AC33CC /* RXPromise.framework */; };
+		A15429621CC8D86300AC33CC /* RXPromiseForAll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428E91CC8CB6800AC33CC /* RXPromiseForAll.framework */; };
+		A15429711CC8D88200AC33CC /* RXPromiseForAll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15428DC1CC8CA4600AC33CC /* RXPromiseForAll.framework */; };
+		A15429801CC8D89900AC33CC /* RXPromiseForAll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429031CC8CBB200AC33CC /* RXPromiseForAll.framework */; };
 		A154298D1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
 		A154298E1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
 		A154298F1CC8DB3200AC33CC /* RXPromiseTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A15429891CC8DB3200AC33CC /* RXPromiseTest.mm */; };
@@ -56,10 +57,6 @@
 		A15429961CC8DC1B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A154293F1CC8D01700AC33CC /* CoreData.framework */; };
 		A15429971CC8DC2300AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429441CC8D0AE00AC33CC /* CoreData.framework */; };
 		A15429981CC8DC2B00AC33CC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A15429481CC8D0C500AC33CC /* CoreData.framework */; };
-		A1CE2F281D102728007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1CE2F291D102729007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1CE2F2A1D10272A007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1CE2F2B1D10272D007372EC /* RXPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = A1CE2F271D1026A0007372EC /* RXPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,10 +84,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A15428DC1CC8CA4600AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A15428E91CC8CB6800AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A15428F61CC8CB9200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A15429031CC8CBB200AC33CC /* RXPromise.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromise.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		11F691801D945A6800DB7DEB /* RXPromiseForAll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromiseForAll.h; sourceTree = "<group>"; };
+		A15428DC1CC8CA4600AC33CC /* RXPromiseForAll.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromiseForAll.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15428E91CC8CB6800AC33CC /* RXPromiseForAll.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromiseForAll.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15428F61CC8CB9200AC33CC /* RXPromiseForAll.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromiseForAll.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A15429031CC8CBB200AC33CC /* RXPromiseForAll.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXPromiseForAll.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A15429151CC8CE9800AC33CC /* DLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLog.h; sourceTree = "<group>"; };
 		A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXPromiseHeader.h; sourceTree = "<group>"; };
 		A15429181CC8CE9800AC33CC /* RXPromise.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RXPromise.mm; sourceTree = "<group>"; };
@@ -114,7 +112,6 @@
 		A15429911CC8DBBB00AC33CC /* RXTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RXTimer.h; sourceTree = "<group>"; };
 		A15429921CC8DBBB00AC33CC /* RXTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RXTimer.m; sourceTree = "<group>"; };
 		A15429991CC8DF6500AC33CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1CE2F271D1026A0007372EC /* RXPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RXPromise.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,7 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A15429961CC8DC1B00AC33CC /* CoreData.framework in Frameworks */,
-				A15429621CC8D86300AC33CC /* RXPromise.framework in Frameworks */,
+				A15429621CC8D86300AC33CC /* RXPromiseForAll.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,7 +162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A15429971CC8DC2300AC33CC /* CoreData.framework in Frameworks */,
-				A15429711CC8D88200AC33CC /* RXPromise.framework in Frameworks */,
+				A15429711CC8D88200AC33CC /* RXPromiseForAll.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,7 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A15429981CC8DC2B00AC33CC /* CoreData.framework in Frameworks */,
-				A15429801CC8D89900AC33CC /* RXPromise.framework in Frameworks */,
+				A15429801CC8D89900AC33CC /* RXPromiseForAll.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,10 +192,10 @@
 		A15428CF1CC8C9FA00AC33CC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A15428DC1CC8CA4600AC33CC /* RXPromise.framework */,
-				A15428E91CC8CB6800AC33CC /* RXPromise.framework */,
-				A15428F61CC8CB9200AC33CC /* RXPromise.framework */,
-				A15429031CC8CBB200AC33CC /* RXPromise.framework */,
+				A15428DC1CC8CA4600AC33CC /* RXPromiseForAll.framework */,
+				A15428E91CC8CB6800AC33CC /* RXPromiseForAll.framework */,
+				A15428F61CC8CB9200AC33CC /* RXPromiseForAll.framework */,
+				A15429031CC8CBB200AC33CC /* RXPromiseForAll.framework */,
 				A154295D1CC8D86300AC33CC /* RXPromise-MacOS-Tests.xctest */,
 				A154296C1CC8D88200AC33CC /* RXPromise-iOS-Tests.xctest */,
 				A154297B1CC8D89900AC33CC /* RXPromise-tvOS-Tests.xctest */,
@@ -217,16 +214,16 @@
 		A154291E1CC8CE9800AC33CC /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */,
+				A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */,
+				11F691801D945A6800DB7DEB /* RXPromiseForAll.h */,
+				A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */,
+				A154291C1CC8CE9800AC33CC /* RXSettledResult.h */,
+				A15429181CC8CE9800AC33CC /* RXPromise.mm */,
+				A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */,
+				A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */,
 				A15429991CC8DF6500AC33CC /* Info.plist */,
 				A15429161CC8CE9800AC33CC /* utility */,
-				A1CE2F271D1026A0007372EC /* RXPromise.h */,
-				A15429171CC8CE9800AC33CC /* RXPromiseHeader.h */,
-				A15429181CC8CE9800AC33CC /* RXPromise.mm */,
-				A15429191CC8CE9800AC33CC /* RXPromise+RXExtension.h */,
-				A154291A1CC8CE9800AC33CC /* RXPromise+RXExtension.mm */,
-				A154291B1CC8CE9800AC33CC /* RXPromise+Private.h */,
-				A154291C1CC8CE9800AC33CC /* RXSettledResult.h */,
-				A154291D1CC8CE9800AC33CC /* RXSettledResult.mm */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -272,7 +269,7 @@
 			files = (
 				A154292B1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429371CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
-				A1CE2F281D102728007372EC /* RXPromise.h in Headers */,
+				11F691811D945A6800DB7DEB /* RXPromiseForAll.h in Headers */,
 				A154291F1CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429331CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
 				A15429231CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
@@ -285,7 +282,6 @@
 			files = (
 				A154292C1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429381CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
-				A1CE2F291D102729007372EC /* RXPromise.h in Headers */,
 				A15429201CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429341CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
 				A15429241CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
@@ -298,7 +294,6 @@
 			files = (
 				A154292D1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A15429391CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
-				A1CE2F2A1D10272A007372EC /* RXPromise.h in Headers */,
 				A15429211CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429351CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
 				A15429251CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
@@ -311,7 +306,6 @@
 			files = (
 				A154292E1CC8CE9800AC33CC /* RXPromise+RXExtension.h in Headers */,
 				A154293A1CC8CE9800AC33CC /* RXSettledResult.h in Headers */,
-				A1CE2F2B1D10272D007372EC /* RXPromise.h in Headers */,
 				A15429221CC8CE9800AC33CC /* DLog.h in Headers */,
 				A15429361CC8CE9800AC33CC /* RXPromise+Private.h in Headers */,
 				A15429261CC8CE9800AC33CC /* RXPromiseHeader.h in Headers */,
@@ -336,7 +330,7 @@
 			);
 			name = "RXPromise-iOS";
 			productName = "RXPromise-iOS";
-			productReference = A15428DC1CC8CA4600AC33CC /* RXPromise.framework */;
+			productReference = A15428DC1CC8CA4600AC33CC /* RXPromiseForAll.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		A15428E81CC8CB6800AC33CC /* RXPromise-MacOS */ = {
@@ -354,7 +348,7 @@
 			);
 			name = "RXPromise-MacOS";
 			productName = "RXPromise-MacOS";
-			productReference = A15428E91CC8CB6800AC33CC /* RXPromise.framework */;
+			productReference = A15428E91CC8CB6800AC33CC /* RXPromiseForAll.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		A15428F51CC8CB9200AC33CC /* RXPromise-WatchOS */ = {
@@ -372,7 +366,7 @@
 			);
 			name = "RXPromise-WatchOS";
 			productName = "RXPromise-WatchOS";
-			productReference = A15428F61CC8CB9200AC33CC /* RXPromise.framework */;
+			productReference = A15428F61CC8CB9200AC33CC /* RXPromiseForAll.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		A15429021CC8CBB200AC33CC /* RXPromise-tvOS */ = {
@@ -390,7 +384,7 @@
 			);
 			name = "RXPromise-tvOS";
 			productName = "RXPromise-tvOS";
-			productReference = A15429031CC8CBB200AC33CC /* RXPromise.framework */;
+			productReference = A15429031CC8CBB200AC33CC /* RXPromiseForAll.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		A154295C1CC8D86300AC33CC /* RXPromise-MacOS-Tests */ = {
@@ -708,7 +702,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -766,7 +760,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-iOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -828,7 +822,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -887,7 +881,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-MacOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -944,7 +938,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-WatchOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1002,7 +996,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-WatchOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1061,7 +1055,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -1118,7 +1112,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "ag.RXPromise-tvOS";
-				PRODUCT_NAME = RXPromise;
+				PRODUCT_NAME = RXPromiseForAll;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
