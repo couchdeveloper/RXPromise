@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name             = "RXPromise"
+  s.name             = "RXPromise-tvOS"
   s.version          = "1.0.3"
   s.summary          = "A thread safe implementation of the Promises/A+ specification in Objective-C with extensions."
   s.license          = { :type => 'Apache License, Version 2.0', :file => 'LICENSE.md'}
