@@ -16,10 +16,12 @@
 //  limitations under the License.
 
 #import "RXPromise+RXExtension.h"
-#import "RXPromise.h"
+#import "RXPromiseForAll.h"
 #import "RXSettledResult.h"
 #import "RXPromise+Private.h"
 #if defined(TARGET_OS_IOS) && TARGET_OS_IOS
+    #import <UIKit/UIKit.h>
+#elif defined(TARGET_OS_TVOS) && TARGET_OS_TVOS
     #import <UIKit/UIKit.h>
 #endif
 #include <cassert>

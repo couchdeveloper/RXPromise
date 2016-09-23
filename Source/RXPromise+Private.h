@@ -16,7 +16,7 @@
 //  limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "RXPromise.h"
+#import "RXPromiseForAll.h"
 #import <dispatch/dispatch.h>
 #include <map>
 #include "utility/DLog.h"

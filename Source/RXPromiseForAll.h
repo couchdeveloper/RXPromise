@@ -15,6 +15,6 @@ FOUNDATION_EXPORT double RXPromise_VersionNumber;
 FOUNDATION_EXPORT const unsigned char RXPromise_VersionString[];
 
 
-#import <RXPromise/RXPromiseHeader.h>
-#import <RXPromise/RXPromise+RXExtension.h>
-#import <RXPromise/RXSettledResult.h>
+#import <RXPromiseForAll/RXPromiseHeader.h>
+#import <RXPromiseForAll/RXPromise+RXExtension.h>
+#import <RXPromiseForAll/RXSettledResult.h>

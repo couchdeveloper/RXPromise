@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "4774F68F051751E72D9B671E852697995F0E4F2D",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "4774F68F051751E72D9B671E852697995F0E4F2D" : 0,
+    "C6D05B39-31EA-4BF9-B515-A8A875F0C3F3" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "5BBBEEC2-C9DC-4DBC-9056-6C188F5FE09C",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "4774F68F051751E72D9B671E852697995F0E4F2D" : "RXPromise-fork\/",
+    "C6D05B39-31EA-4BF9-B515-A8A875F0C3F3" : "RXPromise"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "RXPromise",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "RXPromise.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:lkoskela\/RXPromise.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4774F68F051751E72D9B671E852697995F0E4F2D"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchdeveloper\/RXPromise.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C6D05B39-31EA-4BF9-B515-A8A875F0C3F3"
+    }
+  ]
+}
