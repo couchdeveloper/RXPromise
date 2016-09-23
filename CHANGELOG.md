@@ -638,3 +638,14 @@ autorelease pool.
  Now, clients only need to import the master header file `RXPromise.h` in the source files. All other public headers, like `RXSettledResult.h` and `RXPromise+RXExtension.h`, will be included through this master file.
 
 
+## Version 1.0.4 (2016-09-23)
+
+- Update project settings for Xcode 8
+
+
+## Version 1.0.5 (2016-09-23)
+
+- Added missing targets tvOS and watchOS in podspec.
+
+
+

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "RXPromise"
-  s.version          = "1.0.3"
+  s.version          = "1.0.5"
   s.summary          = "A thread safe implementation of the Promises/A+ specification in Objective-C with extensions."
   s.license          = { :type => 'Apache License, Version 2.0', :file => 'LICENSE.md'}
   s.authors          = { "Andreas Grosam" => "agrosam@onlinehome.de" }
@@ -9,6 +9,9 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.9'
+  s.tvos.deployment_target = '9.0'
+  s.watchos.deployment_target = '2.0'
+  
   s.requires_arc = true
 
   s.source_files = "Source/**/*.{h,m,mm}"

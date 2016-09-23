@@ -8,8 +8,6 @@ If you like a more modern "Skala-like" futures and promise library implemented i
 ## **Important Note:**
  > For breaking changes and API extensions please read the [CHANGELOG](CHANGELOG.md) document.
 
- The RXPromise framework has been bumped to release version 1.0.0.
-
 
 ### A Brief Feature List:
 
